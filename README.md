@@ -27,6 +27,7 @@ For binaries, you can use the dynamic linker to execute them:
 
 ```bash
 $LINKER /absolute/path/to/binary
+```
 
 Note: This method does not work with static binaries.
 
