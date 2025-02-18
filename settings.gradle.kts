@@ -14,7 +14,7 @@ pluginManagement {
             url = uri("https://oss.sonatype.org/content/repositories/snapshots/")
         }
         maven("https://oss.sonatype.org/content/repositories/snapshots/")
-        maven("https://maven.pkg.jetbrains.space/public/p/compose/dev")
+     
     }
     plugins {
         kotlin("jvm") version "2.1.10"
