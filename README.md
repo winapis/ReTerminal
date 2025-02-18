@@ -17,6 +17,7 @@
 # FAQ
 
 **Q: Why there's no commands like git wget etc.**
+
 **A: ReTerminal is meant for that use Termux instead**
 
 
