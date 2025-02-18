@@ -57,8 +57,6 @@ object MkSession {
                 env.addAll(it)
             }
 
-            setupTerminalFiles()
-
             val args: Array<String>
 
             val shell = if (pendingCommand == null) {

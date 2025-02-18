@@ -62,23 +62,23 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro"
             )
             signingConfig = signingConfigs.getByName("release")
+            resValue("string","app_name","ReTerminal")
         }
         debug{
             applicationIdSuffix = ".debug"
             versionNameSuffix = "-DEBUG"
-            resValue("string","app_name","Xed-Debug")
+            resValue("string","app_name","ReTerminal-Debug")
         }
     }
     
     defaultConfig {
-        applicationId = "com.rk.xededitor"
-        minSdk = 26
-        //noinspection ExpiredTargetSdkVersion
-        targetSdk = 28
+        applicationId = "com.rk.terminal"
+        minSdk = 24
+        targetSdk = 35
 
         //versioning
-        versionCode = 41
-        versionName = "2.9.6"
+        versionCode = 1
+        versionName = "0.0.1"
         vectorDrawables {
             useSupportLibrary = true
         }
@@ -87,7 +87,7 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
-        isCoreLibraryDesugaringEnabled = true
+       // isCoreLibraryDesugaringEnabled = true
     }
     
     buildFeatures {
@@ -109,6 +109,6 @@ android {
 }
 
 dependencies {
-    coreLibraryDesugaring(libs.desugar.jdk.libs)
+    //coreLibraryDesugaring(libs.desugar.jdk.libs)
     implementation(project(":core:main"))
 }

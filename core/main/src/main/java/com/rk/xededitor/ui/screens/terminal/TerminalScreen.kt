@@ -66,9 +66,7 @@ var virtualKeysId = View.generateViewId()
 @Composable
 fun TerminalScreen(modifier: Modifier = Modifier, terminalActivity: Terminal) {
     val context = LocalContext.current
-    LaunchedEffect("terminal") {
-        context.startService(Intent(context, SessionService::class.java))
-    }
+
     Box(modifier = Modifier.imePadding()) {
         val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
         val scope = rememberCoroutineScope()

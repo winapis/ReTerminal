@@ -39,13 +39,9 @@
         </provider>
 
         <activity
-            android:name="com.rk.crashhandler.CrashActivity"
-            android:exported="false" />
-
-        <activity
             android:name="com.rk.xededitor.ui.activities.terminal.Terminal"
             android:exported="true"
-            android:label="Terminal"
+            android:label="@string/app_name"
             android:windowSoftInputMode="adjustResize">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
