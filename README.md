@@ -11,6 +11,4 @@
   <img src="/fastlane/metadata/android/en-US/images/phoneScreenshots/02.png" width="32%" />
   <img src="/fastlane/metadata/android/en-US/images/phoneScreenshots/03.png" width="32%" />
 </div>
-<div>
-</div>
 
