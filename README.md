@@ -7,8 +7,8 @@
 - [x] Multiple Sessions
 
 <div>
-  <img src="/fastlane/metadata/android/en-US/images/phoneScreenshots/01.png" width="32%" />
-  <img src="/fastlane/metadata/android/en-US/images/phoneScreenshots/02.png" width="32%" />
-  <img src="/fastlane/metadata/android/en-US/images/phoneScreenshots/03.png" width="32%" />
+  <img src="/fastlane/metadata/android/en-US/images/phoneScreenshots/01.jpg" width="32%" />
+  <img src="/fastlane/metadata/android/en-US/images/phoneScreenshots/02.jpg" width="32%" />
+  <img src="/fastlane/metadata/android/en-US/images/phoneScreenshots/03.jpg" width="32%" />
 </div>
 
