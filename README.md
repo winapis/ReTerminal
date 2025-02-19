@@ -18,7 +18,7 @@
 
 **Q: Why there's no commands like git wget etc.**
 
-**A: ReTerminal is meant for that use Termux instead**
+**A: ReTerminal is not meant for that use Termux instead**
 
 
 **Q: Why do I get a "Permission Denied" error when trying to execute a binary or script?**  
