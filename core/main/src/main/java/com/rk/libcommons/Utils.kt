@@ -1,19 +1,12 @@
 package com.rk.libcommons
 
-import android.app.Activity
 import android.content.Context
 import android.content.res.Configuration
 import android.util.Log
-import android.view.LayoutInflater
-import android.view.View
-import android.widget.EditText
 import android.widget.Toast
 import androidx.annotation.StringRes
-import androidx.appcompat.app.AlertDialog
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.rk.resources.getString
-import com.rk.xededitor.BuildConfig
-import com.rk.xededitor.R
+import com.rk.terminal.BuildConfig
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers

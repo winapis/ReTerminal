@@ -78,7 +78,7 @@ android {
 
         //versioning
         versionCode = 1
-        versionName = "0.0.1"
+        versionName = "1.0.0"
         vectorDrawables {
             useSupportLibrary = true
         }

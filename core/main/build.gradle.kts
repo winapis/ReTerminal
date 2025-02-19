@@ -103,17 +103,11 @@ dependencies {
     api(libs.ui.graphics)
     api(libs.material3)
     api(libs.navigation.compose)
-
     api(libs.terminal.view)
     api(libs.terminal.emulator)
     api(libs.utilcode)
-
-    api(libs.commons.net)
-
+    //api(libs.commons.net)
     api(libs.okhttp)
-    //api(libs.material.motion.compose.core)
-    //api(libs.nanohttpd)
-
     api(libs.anrwatchdog)
 
     api(project(":core:resources"))
