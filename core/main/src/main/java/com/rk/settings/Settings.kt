@@ -12,6 +12,138 @@ import com.rk.libcommons.application
 import java.nio.charset.Charset
 
 object Settings {
+    //Boolean
+
+    var amoled
+        get() = Preference.getBoolean(key = "oled", default = false)
+        set(value) = Preference.setBoolean(key = "oled",value)
+    var monet
+        get() = Preference.getBoolean(
+            key = "monet",
+            default = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
+        )
+        set(value) = Preference.setBoolean(key = "monet",value)
+    var pin_line_number
+        get() = Preference.getBoolean(key = "pinline", default = false)
+        set(value) = Preference.setBoolean(key = "pinline", value)
+    var wordwrap
+        get() = Preference.getBoolean(key = "wordwrap", default = false)
+        set(value) = Preference.setBoolean(key = "wordwrap", value)
+    var word_wrap_for_text
+        get() = Preference.getBoolean(key = "ww_txt", default = true)
+        set(value) = Preference.setBoolean(key = "ww_txt",value)
+    var cursor_animation
+        get() = Preference.getBoolean(key = "cursor_animation", default = false)
+        set(value) = Preference.setBoolean(key = "cursor_animation", value)
+    var show_arrow_keys
+        get() = Preference.getBoolean(key = "arrow_keys", default = true)
+        set(value) = Preference.setBoolean(key = "arrow_keys", value)
+    var keep_drawer_locked
+        get() = Preference.getBoolean(key = "drawer_lock", default = false)
+        set(value) = Preference.setBoolean(key = "drawer_lock", value)
+    var show_line_numbers
+        get() = Preference.getBoolean(key = "show_line_numbers", default = true)
+        set(value) = Preference.setBoolean(key = "show_line_number", value)
+    var auto_save
+        get() = Preference.getBoolean(key = "auto_save", default = false)
+        set(value) = Preference.setBoolean(key = "auto_save", value)
+    var show_suggestions
+        get() = Preference.getBoolean(key = "show_suggestions", default = false)
+        set(value) = Preference.setBoolean(key = "show_suggestions",value)
+    var check_for_update
+        get() = Preference.getBoolean(key = "check_update", default = false)
+        set(value) = Preference.setBoolean(key = "check_update",value)
+    var use_sora_search
+        get() = Preference.getBoolean(key = "sora_search", default = true)
+        set(value) = Preference.setBoolean(key = "sora_search",value)
+    var is_selected_font_assest
+        get() = Preference.getBoolean(key = "is_font_asset", default = false)
+        set(value) = Preference.setBoolean(key = "is_font_asset",value)
+    var enable_extensions
+        get() = Preference.getBoolean(key = "enable_extension",default = false)
+        set(value) = Preference.setBoolean(key = "enable_extension",value)
+    var smooth_tabs
+        get() = Preference.getBoolean(key = "smooth_tab",default = false)
+        set(value) = Preference.setBoolean(key = "smooth_tab",value)
+    var restore_session
+        get() = Preference.getBoolean(key = "restore_sessions", default = true)
+        set(value) = Preference.setBoolean(key = "restore_sessions",value)
+    var scroll_to_bottom
+        get() = Preference.getBoolean(key = "scroll_to_bottom", default = false)
+        set(value) = Preference.setBoolean(key = "scroll_to_bottom",value)
+    var always_show_soft_keyboard
+        get() = Preference.getBoolean(key = "always_show_soft_keyboard", default = false)
+        set(value) = Preference.setBoolean(key = "always_show_soft_keyboard",value)
+    var ignore_storage_permission
+        get() = Preference.getBoolean(key = "ignore_storage_permission",default = false)
+        set(value) = Preference.setBoolean(key = "ignore_storage_permission",value)
+    var unrestricted_files
+        get() = Preference.getBoolean(key = "unrestricted_file", default = false)
+        set(value) = Preference.setBoolean(key = "unrestricted_file",value)
+    var github
+        get() = Preference.getBoolean(key = "github", default = true)
+        set(value) = Preference.setBoolean(key = "github",value)
+    var has_shown_private_data_dir_warning
+        get() = Preference.getBoolean(key = "has_shown_private_data_dir_warning", default = false)
+        set(value) = Preference.setBoolean(key = "has_shown_private_data_dir_warning", value)
+    var has_shown_terminal_dir_warning
+        get() = Preference.getBoolean(key = "has_shown_terminal_dir_warning", default = false)
+        set(value) = Preference.setBoolean(key = "has_shown_terminal_dir_warning", value)
+
+
+
+    //Int
+    var tab_size
+        get() = Preference.getInt(key = "tabsize", default = 4)
+        set(value) = Preference.setInt(key = "tabsize", value)
+    var editor_text_size
+        get() = Preference.getInt(key = "textsize", default = 14)
+        set(value) = Preference.setInt(key = "textsize", value)
+    var auto_save_interval
+        get() = Preference.getInt(key = "auto_save_interval", default = 10000)
+        set(value) = Preference.setInt(key = "auto_save_interval", value)
+    var default_night_mode
+        get() = Preference.getInt(key = "default_night_mode", default = AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
+        set(value) = Preference.setInt(key = "default_night_mode",value)
+
+    //String
+    var projects
+        get() = Preference.getString(key = "projects", default = "")
+        set(value) = Preference.setString(key = "projects",value)
+    var font_gson
+        get() = Preference.getString(key = "selected_font", default = "")
+        set(value) = Preference.setString(key = "selected_font",value)
+    var selected_font_path
+        get() = Preference.getString(key = "selected_font_path", default = "")
+        set(value) = Preference.setString(key = "selected_font_path",value)
+    var encoding
+        get() = Preference.getString(key = "encoding", default = Charset.defaultCharset().name())
+        set(value) = Preference.setString(key = "encoding",value)
+    var mutators
+        get() = Preference.getString(key = "mutators", default = "")
+        set(value) = Preference.setString(key = "mutators",value)
+    var terminal_runtime
+        get() = Preference.getString(key = "terminal_runtime", default = "Alpine")
+        set(value) = Preference.setString(key = "terminal_runtime",value)
+    var git_url
+        get() = Preference.getString(key = "git_url", default = "github.com")
+        set(value) = Preference.setString(key = "git_url",value)
+
+
+    //Long
+    var last_update_check_timestamp
+        get() = Preference.getLong(key = "last_update", default = 0)
+        set(value) = Preference.setLong(key = "last_update",value)
+    var lastVersionCode
+        get() = Preference.getLong(key = "last_version_code", default = -1)
+        set(value) = Preference.setLong(key = "last_version_code",value)
+
+
+
+    //Float
+    var line_spacing
+        get() = Preference.getFloat(key = "line_spacing", default = 0F)
+        set(value) = Preference.setFloat(key = "line_spacing",value)
 
 
 }
