@@ -4,6 +4,7 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
+import android.os.Build
 import android.os.Bundle
 import android.os.IBinder
 import androidx.activity.ComponentActivity
@@ -54,7 +55,11 @@ class Terminal : ComponentActivity() {
 
     override fun onStart() {
         super.onStart()
-        startService(Intent(this, SessionService::class.java))
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            startForegroundService(Intent(this, SessionService::class.java))
+        }else{
+            startService(Intent(this, SessionService::class.java))
+        }
         Intent(this, SessionService::class.java).also { intent ->
             bindService(intent, serviceConnection, BIND_AUTO_CREATE)
         }
