@@ -46,6 +46,16 @@ sh path/to/script
 
 If you have Shizuku installed, you can execute files stored in /data/local/tmp with shell access.
 
+```bash
+#login as shell
+sh rish
+mv path/of/binary /data/local/tmp
+chmod +x /data/local/tmp/your/binary
+cd /data/local/tmp
+./your/binary
+```
+
+
 ## Find this app useful? :heart:
 Support it by giving a star :star: <br>
 Also, **__[follow](https://github.com/Rohitkushvaha01)__** me for my next creations!
