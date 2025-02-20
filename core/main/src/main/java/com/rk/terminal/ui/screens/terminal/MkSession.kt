@@ -1,5 +1,6 @@
 package com.rk.terminal.ui.screens.terminal
 
+import androidx.lifecycle.lifecycleScope
 import com.rk.libcommons.localLibDir
 import com.rk.libcommons.pendingCommand
 import com.rk.terminal.App.Companion.getTempDir
@@ -8,6 +9,8 @@ import com.rk.terminal.ui.activities.terminal.Terminal
 import com.termux.terminal.TerminalEmulator
 import com.termux.terminal.TerminalSession
 import com.termux.terminal.TerminalSessionClient
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import java.io.File
 
 object MkSession {
@@ -39,7 +42,8 @@ object MkSession {
 
             val env = mutableListOf(
                 "PROOT_TMP_DIR=${tmpDir.absolutePath}",
-                "HOME=${application!!.filesDir.path}",
+                "PATH=${System.getenv("PATH")}:/sbin",
+                "HOME=${filesDir.parentFile!!.path}",
                 "PUBLIC_HOME=${getExternalFilesDir(null)?.absolutePath}",
                 "COLORTERM=truecolor",
                 "TERM=xterm-256color",

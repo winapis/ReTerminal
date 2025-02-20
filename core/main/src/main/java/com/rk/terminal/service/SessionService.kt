@@ -100,7 +100,7 @@ class SessionService : Service() {
         )
 
         return NotificationCompat.Builder(this, CHANNEL_ID)
-            .setContentTitle("Karbon Terminal")
+            .setContentTitle("Terminal")
             .setContentText(getNotificationContentText())
             .setSmallIcon(drawables.baseline_android_24)
             .setContentIntent(pendingIntent)
@@ -136,6 +136,9 @@ class SessionService : Service() {
 
     private fun getNotificationContentText(): String {
         val count = sessions.size
+        if (count == 1){
+            return "1 session running"
+        }
         return "$count sessions running"
     }
 }

@@ -10,4 +10,4 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Verify Release apkDiff
-      run: kotlinc -script .github/workflows/verifyDiff.kts
+      run: bash .github/workflows/verifyDiff.sh
