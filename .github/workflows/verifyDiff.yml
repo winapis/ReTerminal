@@ -1,0 +1,13 @@
+name: Run Kotlin script
+
+on:
+  workflow_dispatch:
+    
+
+jobs:
+  awesome-action:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Verify Release apkDiff
+      run: kotlinc -script ./apkDiff.kts
