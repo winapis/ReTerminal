@@ -183,12 +183,7 @@ fun TerminalScreen(modifier: Modifier = Modifier, terminalActivity: Terminal) {
                                     session.updateTerminalSessionClient(client)
                                     attachSession(session)
                                     setTerminalViewClient(client)
-                                    setTypeface(
-                                        Typeface.createFromAsset(
-                                            context.assets,
-                                            "fonts/Default.ttf"
-                                        )
-                                    )
+                                    setTypeface(Typeface.MONOSPACE)
 
                                     post {
                                         val typedValue = TypedValue()
