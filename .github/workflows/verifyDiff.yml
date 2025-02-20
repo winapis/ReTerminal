@@ -1,4 +1,4 @@
-name: Run Kotlin script
+name: VerifyDiff
 
 on:
   workflow_dispatch:
@@ -10,4 +10,4 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Verify Release apkDiff
-      run: kotlinc -script ./verifyDiff.kts
+      run: ls && kotlinc -script ./verifyDiff.kts
