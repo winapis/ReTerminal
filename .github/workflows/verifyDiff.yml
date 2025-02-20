@@ -5,9 +5,9 @@ on:
     
 
 jobs:
-  awesome-action:
+  verifyDiff:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
     - name: Verify Release apkDiff
-      run: kotlinc -script ./apkDiff.kts
+      run: kotlinc -script ./verifyDiff.kts
