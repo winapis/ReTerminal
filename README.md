@@ -24,7 +24,7 @@ Join the reTerminal community to stay updated and engage with other users:
 
 **Q: Why there's no commands like git wget etc.**
 
-**A: ReTerminal only provides a interface for the core system binaries not the binaries themselves if you want those commands use Termux instead**
+**A:** ReTerminal only provides a interface for the core system binaries not the binaries themselves if you want those commands use Termux instead
 
 
 **Q: Why do I get a "Permission Denied" error when trying to execute a binary or script?**  
