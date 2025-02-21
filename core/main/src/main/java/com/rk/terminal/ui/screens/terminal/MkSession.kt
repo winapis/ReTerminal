@@ -1,6 +1,8 @@
 package com.rk.terminal.ui.screens.terminal
 
 import androidx.lifecycle.lifecycleScope
+import com.rk.libcommons.child
+import com.rk.libcommons.createFileIfNot
 import com.rk.libcommons.localLibDir
 import com.rk.libcommons.pendingCommand
 import com.rk.terminal.App.Companion.getTempDir
@@ -30,7 +32,7 @@ object MkSession {
                 "EXTERNAL_STORAGE" to System.getenv("EXTERNAL_STORAGE")
             )
 
-            val workingDir = pendingCommand?.workingDir ?: activity.filesDir.absolutePath
+            val workingDir = pendingCommand?.workingDir ?: activity.filesDir.parentFile!!.absolutePath
 
             val tmpDir = File(getTempDir(), "terminal/$session_id")
 
@@ -40,9 +42,19 @@ object MkSession {
 
             tmpDir.mkdirs()
 
+            val initFile: File
+            filesDir.parentFile!!.child("bin").apply {
+                if (exists().not()){
+                    mkdirs()
+                }
+                initFile = child("init").createFileIfNot()
+                initFile.writeText(assets.open("init.sh").bufferedReader().use { it.readText() })
+                child("rish").createFileIfNot().writeText(assets.open("rish.sh").bufferedReader().use { it.readText() })
+            }
+
             val env = mutableListOf(
                 "PROOT_TMP_DIR=${tmpDir.absolutePath}",
-                "PATH=${System.getenv("PATH")}:/sbin",
+                "PATH=${System.getenv("PATH")}:/sbin:${filesDir.parentFile!!.child("bin").path}",
                 "HOME=${filesDir.parentFile!!.path}",
                 "PUBLIC_HOME=${getExternalFilesDir(null)?.absolutePath}",
                 "COLORTERM=truecolor",
@@ -51,7 +63,10 @@ object MkSession {
                 "DEBUG=${BuildConfig.DEBUG}",
                 "PREFIX=${filesDir.parentFile!!.path}",
                 "LD_LIBRARY_PATH=${localLibDir().absolutePath}",
-                "LINKER=${if(File("/system/bin/linker64").exists()){"/system/bin/linker64"}else{"/system/bin/linker"}}"
+                "LINKER=${if(File("/system/bin/linker64").exists()){"/system/bin/linker64"}else{"/system/bin/linker"}}",
+                "PKG=${packageName}",
+                "RISH_APPLICATION_ID=${packageName}",
+                "PKG_PATH=${applicationInfo.sourceDir}"
             )
 
 
@@ -64,7 +79,7 @@ object MkSession {
             val args: Array<String>
 
             val shell = if (pendingCommand == null) {
-                args = arrayOf()
+                args = arrayOf("-c",initFile.absolutePath)
                 "/system/bin/sh"
             } else{
                 args = pendingCommand!!.args

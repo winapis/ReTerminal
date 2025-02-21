@@ -112,4 +112,6 @@ dependencies {
 
     api(project(":core:resources"))
     api(project(":core:components"))
+
+    api(project(":core:rish"))
 }
