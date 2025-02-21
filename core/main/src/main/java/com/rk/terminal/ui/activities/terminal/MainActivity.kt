@@ -17,13 +17,15 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.compose.rememberNavController
 import com.rk.terminal.service.SessionService
+import com.rk.terminal.ui.navHosts.MainActivityNavHost
 import com.rk.terminal.ui.screens.terminal.TerminalScreen
 import com.rk.terminal.ui.theme.KarbonTheme
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-class Terminal : ComponentActivity() {
+class MainActivity : ComponentActivity() {
     var sessionBinder:SessionService.SessionBinder? = null
     var isBound = false
 
@@ -38,7 +40,8 @@ class Terminal : ComponentActivity() {
                 setContent {
                     KarbonTheme {
                         Surface {
-                            TerminalScreenHost(this@Terminal)
+                            val navController = rememberNavController()
+                            MainActivityNavHost(navController = navController, mainActivity = this@MainActivity)
                         }
                     }
                 }
@@ -76,14 +79,5 @@ class Terminal : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-    }
-
-    @Composable
-    fun TerminalScreenHost(context: Context) {
-        Box(
-            modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center
-        ) {
-            TerminalScreen(terminalActivity = this@Terminal)
-        }
     }
 }

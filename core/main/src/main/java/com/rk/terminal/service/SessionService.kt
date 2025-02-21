@@ -3,7 +3,6 @@ package com.rk.terminal.service
 import android.app.*
 import android.content.Intent
 import android.content.pm.ServiceInfo
-import android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK
 import android.os.Binder
 import android.os.Build
 import android.os.IBinder
@@ -12,7 +11,7 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.core.app.NotificationCompat
 import com.rk.resources.drawables
-import com.rk.terminal.ui.activities.terminal.Terminal
+import com.rk.terminal.ui.activities.terminal.MainActivity
 import com.rk.terminal.ui.screens.terminal.MkSession
 import com.termux.terminal.TerminalSession
 import com.termux.terminal.TerminalSessionClient
@@ -26,7 +25,7 @@ class SessionService : Service() {
         fun getService():SessionService{
             return this@SessionService
         }
-        fun createSession(id: String, client: TerminalSessionClient, activity: Terminal): TerminalSession {
+        fun createSession(id: String, client: TerminalSessionClient, activity: MainActivity): TerminalSession {
             return MkSession.createSession(activity, client, id).also {
                 sessions[id] = it
                 sessionList.add(id)
@@ -88,7 +87,7 @@ class SessionService : Service() {
     }
 
     private fun createNotification(): Notification {
-        val intent = Intent(this, Terminal::class.java)
+        val intent = Intent(this, MainActivity::class.java)
         val pendingIntent = PendingIntent.getActivity(
             this, 0, intent, PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
         )

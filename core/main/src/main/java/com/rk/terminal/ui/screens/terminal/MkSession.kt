@@ -1,23 +1,21 @@
 package com.rk.terminal.ui.screens.terminal
 
-import androidx.lifecycle.lifecycleScope
 import com.rk.libcommons.child
 import com.rk.libcommons.createFileIfNot
 import com.rk.libcommons.localLibDir
 import com.rk.libcommons.pendingCommand
+import com.rk.settings.Settings
 import com.rk.terminal.App.Companion.getTempDir
 import com.rk.terminal.BuildConfig
-import com.rk.terminal.ui.activities.terminal.Terminal
+import com.rk.terminal.ui.activities.terminal.MainActivity
 import com.termux.terminal.TerminalEmulator
 import com.termux.terminal.TerminalSession
 import com.termux.terminal.TerminalSessionClient
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 import java.io.File
 
 object MkSession {
     fun createSession(
-        activity: Terminal, sessionClient: TerminalSessionClient, session_id: String
+        activity: MainActivity, sessionClient: TerminalSessionClient, session_id: String
     ): TerminalSession {
         with(activity) {
             val envVariables = mapOf(
@@ -43,13 +41,16 @@ object MkSession {
             tmpDir.mkdirs()
 
             val initFile: File
+            val rish: File
             filesDir.parentFile!!.child("bin").apply {
                 if (exists().not()){
                     mkdirs()
                 }
                 initFile = child("init").createFileIfNot()
+                rish = child("rish").createFileIfNot()
+
                 initFile.writeText(assets.open("init.sh").bufferedReader().use { it.readText() })
-                child("rish").createFileIfNot().writeText(assets.open("rish.sh").bufferedReader().use { it.readText() })
+                rish.writeText(assets.open("rish.sh").bufferedReader().use { it.readText() })
             }
 
             val env = mutableListOf(
@@ -79,8 +80,14 @@ object MkSession {
             val args: Array<String>
 
             val shell = if (pendingCommand == null) {
-                args = arrayOf("-c",initFile.absolutePath)
-                "/system/bin/sh"
+                if (Settings.use_shizuku){
+                    args = arrayOf("-c",initFile.absolutePath,rish.absolutePath)
+                    "/system/bin/sh"
+                }else{
+                    args = arrayOf("-c",initFile.absolutePath)
+                    "/system/bin/sh"
+                }
+
             } else{
                 args = pendingCommand!!.args
                 pendingCommand!!.shell

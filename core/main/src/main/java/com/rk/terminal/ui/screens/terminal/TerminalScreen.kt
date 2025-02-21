@@ -20,6 +20,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DrawerValue
@@ -42,9 +43,11 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.navigation.NavController
 import com.rk.libcommons.dpToPx
 import com.rk.libcommons.pendingCommand
-import com.rk.terminal.ui.activities.terminal.Terminal
+import com.rk.terminal.ui.activities.terminal.MainActivity
+import com.rk.terminal.ui.routes.MainActivityRoutes
 import com.rk.terminal.ui.screens.terminal.virtualkeys.VirtualKeysConstants
 import com.rk.terminal.ui.screens.terminal.virtualkeys.VirtualKeysInfo
 import com.rk.terminal.ui.screens.terminal.virtualkeys.VirtualKeysListener
@@ -60,7 +63,7 @@ var virtualKeysId = View.generateViewId()
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TerminalScreen(modifier: Modifier = Modifier, terminalActivity: Terminal) {
+fun TerminalScreen(modifier: Modifier = Modifier, mainActivityActivity: MainActivity,navController: NavController) {
     val context = LocalContext.current
 
     Box(modifier = Modifier.imePadding()) {
@@ -90,42 +93,57 @@ fun TerminalScreen(modifier: Modifier = Modifier, terminalActivity: Terminal) {
                                 text = "Session",
                                 style = MaterialTheme.typography.titleLarge
                             )
-                            IconButton(onClick = {
-                                fun generateUniqueString(existingStrings: List<String>): String {
-                                    var index = 1
-                                    var newString: String
 
-                                    do {
-                                        newString = "main$index"
-                                        index++
-                                    } while (newString in existingStrings)
-
-                                    return newString
+                            Row {
+                                IconButton(onClick = {
+                                    navController.navigate(MainActivityRoutes.Settings.route)
+                                }) {
+                                    Icon(
+                                        imageVector = Icons.Default.Settings,
+                                        contentDescription = null
+                                    )
                                 }
-                                terminalView.get()
-                                    ?.let {
-                                        val client = TerminalBackEnd(it, terminalActivity)
-                                        terminalActivity.sessionBinder!!.createSession(
-                                            generateUniqueString(terminalActivity.sessionBinder!!.getService().sessionList),
-                                            client,
-                                            terminalActivity
-                                        )
-                                    }
 
-                            }) {
-                                Icon(
-                                    imageVector = Icons.Default.Add, // Material Design "Add" icon
-                                    contentDescription = null
-                                )
+                                IconButton(onClick = {
+                                    fun generateUniqueString(existingStrings: List<String>): String {
+                                        var index = 1
+                                        var newString: String
+
+                                        do {
+                                            newString = "main$index"
+                                            index++
+                                        } while (newString in existingStrings)
+
+                                        return newString
+                                    }
+                                    terminalView.get()
+                                        ?.let {
+                                            val client = TerminalBackEnd(it, mainActivityActivity)
+                                            mainActivityActivity.sessionBinder!!.createSession(
+                                                generateUniqueString(mainActivityActivity.sessionBinder!!.getService().sessionList),
+                                                client,
+                                                mainActivityActivity
+                                            )
+                                        }
+
+                                }) {
+                                    Icon(
+                                        imageVector = Icons.Default.Add,
+                                        contentDescription = null
+                                    )
+                                }
+
                             }
+
+
                         }
 
-                        terminalActivity.sessionBinder?.getService()?.sessionList?.let{
+                        mainActivityActivity.sessionBinder?.getService()?.sessionList?.let{
                             LazyColumn {
                                 items(it){ session_id ->
                                     SelectableCard(
-                                        selected = session_id == terminalActivity.sessionBinder?.getService()?.currentSession?.value,
-                                        onSelect = { changeSession(terminalActivity,session_id) },
+                                        selected = session_id == mainActivityActivity.sessionBinder?.getService()?.currentSession?.value,
+                                        onSelect = { changeSession(mainActivityActivity,session_id) },
                                         modifier = Modifier
                                             .fillMaxWidth()
                                             .padding(8.dp)
@@ -161,22 +179,22 @@ fun TerminalScreen(modifier: Modifier = Modifier, terminalActivity: Terminal) {
                                 TerminalView(context, null).apply {
                                     terminalView = WeakReference(this)
                                     setTextSize(dpToPx(14f, context))
-                                    val client = TerminalBackEnd(this, terminalActivity)
+                                    val client = TerminalBackEnd(this, mainActivityActivity)
 
                                     val session = if (pendingCommand != null){
-                                        terminalActivity.sessionBinder!!.getService().currentSession.value = pendingCommand!!.id
-                                        terminalActivity.sessionBinder!!.getSession(pendingCommand!!.id)
-                                            ?: terminalActivity.sessionBinder!!.createSession(
+                                        mainActivityActivity.sessionBinder!!.getService().currentSession.value = pendingCommand!!.id
+                                        mainActivityActivity.sessionBinder!!.getSession(pendingCommand!!.id)
+                                            ?: mainActivityActivity.sessionBinder!!.createSession(
                                                 pendingCommand!!.id,
                                                 client,
-                                                terminalActivity
+                                                mainActivityActivity
                                             )
                                     }else{
-                                        terminalActivity.sessionBinder!!.getSession(terminalActivity.sessionBinder!!.getService().currentSession.value)
-                                            ?: terminalActivity.sessionBinder!!.createSession(
-                                                terminalActivity.sessionBinder!!.getService().currentSession.value,
+                                        mainActivityActivity.sessionBinder!!.getSession(mainActivityActivity.sessionBinder!!.getService().currentSession.value)
+                                            ?: mainActivityActivity.sessionBinder!!.createSession(
+                                                mainActivityActivity.sessionBinder!!.getService().currentSession.value,
                                                 client,
-                                                terminalActivity
+                                                mainActivityActivity
                                             )
                                     }
 
@@ -306,15 +324,15 @@ fun SelectableCard(
 }
 
 
-fun changeSession(terminalActivity: Terminal, session_id:String){
+fun changeSession(mainActivityActivity: MainActivity, session_id:String){
     terminalView.get()?.apply {
-        val client = TerminalBackEnd(this, terminalActivity)
+        val client = TerminalBackEnd(this, mainActivityActivity)
         val session =
-            terminalActivity.sessionBinder!!.getSession(session_id)
-                ?: terminalActivity.sessionBinder!!.createSession(
+            mainActivityActivity.sessionBinder!!.getSession(session_id)
+                ?: mainActivityActivity.sessionBinder!!.createSession(
                     session_id,
                     client,
-                    terminalActivity
+                    mainActivityActivity
                 )
         session.updateTerminalSessionClient(client)
         attachSession(session)
@@ -341,7 +359,7 @@ fun changeSession(terminalActivity: Terminal, session_id:String){
         }
 
     }
-    terminalActivity.sessionBinder!!.getService().currentSession.value = session_id
+    mainActivityActivity.sessionBinder!!.getService().currentSession.value = session_id
 
 }
 

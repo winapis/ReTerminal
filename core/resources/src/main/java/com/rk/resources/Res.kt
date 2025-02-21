@@ -6,7 +6,7 @@ import androidx.annotation.DrawableRes
 import androidx.core.content.ContextCompat
 
 typealias drawables = R.drawable
-//typealias strings = R.string
+typealias strings = R.string
 
 object Res{
     @JvmField
