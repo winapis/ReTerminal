@@ -57,7 +57,7 @@ If you have Shizuku installed, you can execute files stored in /data/local/tmp w
 
 ```bash
 #login as shell
-sh rish
+sh $PREFIX/bin/rish
 mv path/of/binary /data/local/tmp
 chmod +x /data/local/tmp/your/binary
 cd /data/local/tmp
