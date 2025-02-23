@@ -79,7 +79,7 @@ class TerminalBackEnd(val terminal: TerminalView,val activity: MainActivity) : T
     }
     
     override fun onScale(scale: Float): Float {
-        return dpToPx(14f,terminal.context).toFloat()
+        return dpToPx(13f,terminal.context).toFloat()
     }
     
     override fun onSingleTapUp(e: MotionEvent) {

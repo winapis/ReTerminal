@@ -178,7 +178,7 @@ fun TerminalScreen(modifier: Modifier = Modifier, mainActivityActivity: MainActi
                             factory = { context ->
                                 TerminalView(context, null).apply {
                                     terminalView = WeakReference(this)
-                                    setTextSize(dpToPx(14f, context))
+                                    setTextSize(dpToPx(13f, context))
                                     val client = TerminalBackEnd(this, mainActivityActivity)
 
                                     val session = if (pendingCommand != null){
