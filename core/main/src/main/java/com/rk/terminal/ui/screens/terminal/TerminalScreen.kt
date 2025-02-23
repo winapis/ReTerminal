@@ -9,16 +9,19 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Card
@@ -143,15 +146,43 @@ fun TerminalScreen(modifier: Modifier = Modifier, mainActivityActivity: MainActi
                                 items(it){ session_id ->
                                     SelectableCard(
                                         selected = session_id == mainActivityActivity.sessionBinder?.getService()?.currentSession?.value,
-                                        onSelect = { changeSession(mainActivityActivity,session_id) },
+                                        onSelect = { changeSession(mainActivityActivity, session_id) },
                                         modifier = Modifier
                                             .fillMaxWidth()
                                             .padding(8.dp)
                                     ) {
-                                        Text(
-                                            text = session_id,
-                                            style = MaterialTheme.typography.bodyLarge
-                                        )
+                                        Row(
+                                            modifier = Modifier.fillMaxWidth(),
+                                            verticalAlignment = Alignment.CenterVertically
+                                        ) {
+                                            Text(
+                                                text = session_id,
+                                                style = MaterialTheme.typography.bodyLarge
+                                            )
+
+                                            if (session_id != mainActivityActivity.sessionBinder?.getService()?.currentSession?.value) {
+                                                Spacer(modifier = Modifier.weight(1f))
+
+                                                IconButton(
+                                                    onClick = {
+                                                        println(session_id)
+                                                        mainActivityActivity.sessionBinder?.terminateSession(
+                                                            session_id, isDeleteButton = true
+                                                        )
+                                                    },
+                                                    modifier = Modifier.size(24.dp)
+                                                ) {
+
+                                                    //todo make the icon outlined
+                                                    Icon(
+                                                        imageVector = Icons.Default.Delete,
+                                                        contentDescription = null,
+                                                        modifier = Modifier.size(20.dp)
+                                                    )
+                                                }
+                                            }
+
+                                        }
                                     }
                                 }
                             }

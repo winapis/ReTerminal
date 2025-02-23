@@ -35,15 +35,18 @@ class SessionService : Service() {
         fun getSession(id: String): TerminalSession? {
             return sessions[id]
         }
-        fun terminateSession(id: String) {
-            sessions[id]?.finishIfRunning()
-            sessions.remove(id)
-            sessionList.remove(id)
-            if (sessions.isEmpty()) {
-                stopSelf()
-            } else {
-                updateNotification()
+        fun terminateSession(id: String,isDeleteButton: Boolean = false) {
+            runCatching {
+                sessions[id]?.finishIfRunning()
+                sessions.remove(id)
+                sessionList.remove(id)
+                if (sessions.isEmpty() && isDeleteButton) {
+                    stopSelf()
+                } else {
+                    updateNotification()
+                }
             }
+
         }
     }
 

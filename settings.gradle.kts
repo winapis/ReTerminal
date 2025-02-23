@@ -50,7 +50,6 @@ dependencyResolutionManagement {
 
 rootProject.name = "Xed-Editor"
 include(":app")
-include(":shell")
 include(":core:main")
 
 include(":core:components")
