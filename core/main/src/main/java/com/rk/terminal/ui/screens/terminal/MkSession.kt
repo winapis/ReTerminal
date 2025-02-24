@@ -57,7 +57,7 @@ object MkSession {
             assets.list("arm/bin")?.forEach { fileName ->
                 val outputFile = File(localBinDir(), fileName)
                 if (outputFile.exists().not()){
-                    val inputStream = assets.open("bin/$fileName")
+                    val inputStream = assets.open("bin/arm/$fileName")
                     inputStream.use { input ->
                         FileOutputStream(outputFile).use { output ->
                             input.copyTo(output)
@@ -69,7 +69,7 @@ object MkSession {
             assets.list("arm/lib")?.forEach { fileName ->
                 val outputFile = File(localLibDir(), fileName)
                 if (outputFile.exists().not()){
-                    val inputStream = assets.open("lib/$fileName")
+                    val inputStream = assets.open("lib/arm/$fileName")
                     inputStream.use { input ->
                         FileOutputStream(outputFile).use { output ->
                             input.copyTo(output)
