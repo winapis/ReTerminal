@@ -3,7 +3,6 @@ package com.rk.terminal.ui.screens.terminal
 import com.rk.libcommons.child
 import com.rk.libcommons.createFileIfNot
 import com.rk.libcommons.localBinDir
-import com.rk.libcommons.localDir
 import com.rk.libcommons.localLibDir
 import com.rk.libcommons.pendingCommand
 import com.rk.settings.Settings
@@ -55,7 +54,7 @@ object MkSession {
 
 
 
-            assets.list("bin")?.forEach { fileName ->
+            assets.list("arm/bin")?.forEach { fileName ->
                 val outputFile = File(localBinDir(), fileName)
                 if (outputFile.exists().not()){
                     val inputStream = assets.open("bin/$fileName")
@@ -67,7 +66,7 @@ object MkSession {
                 }
             }
 
-            assets.list("lib")?.forEach { fileName ->
+            assets.list("arm/lib")?.forEach { fileName ->
                 val outputFile = File(localLibDir(), fileName)
                 if (outputFile.exists().not()){
                     val inputStream = assets.open("lib/$fileName")
@@ -78,14 +77,6 @@ object MkSession {
                     }
                 }
             }
-
-            localDir().child(".busybox_installed").apply {
-                if (exists().not()){
-
-                }
-            }
-
-
 
             val env = mutableListOf(
                 "PROOT_TMP_DIR=${tmpDir.absolutePath}",

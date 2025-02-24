@@ -1,6 +1,5 @@
 package com.rk.libcommons
 
-import android.content.Context
 import java.io.File
 
 fun localDir(): File {
@@ -12,7 +11,7 @@ fun localDir(): File {
 }
 
 fun localBinDir(): File {
-    return localDir().child("bin").also {
+    return localDir().child("arm/bin").also {
         if (!it.exists()) {
             it.mkdirs()
         }
@@ -20,7 +19,7 @@ fun localBinDir(): File {
 }
 
 fun localLibDir(): File {
-    return localDir().child("lib").also {
+    return localDir().child("arm/lib").also {
         if (!it.exists()) {
             it.mkdirs()
         }
