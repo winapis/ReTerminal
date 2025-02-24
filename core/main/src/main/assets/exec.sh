@@ -17,4 +17,6 @@ else
 fi
 
 # Execute the found file with $LINKER
-exec $LINKER "$EXEC_PATH"
+shift
+$LINKER "$EXEC_PATH" "$@"
+

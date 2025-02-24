@@ -11,7 +11,7 @@ fun localDir(): File {
 }
 
 fun localBinDir(): File {
-    return localDir().child("arm/bin").also {
+    return localDir().child("bin").also {
         if (!it.exists()) {
             it.mkdirs()
         }
@@ -19,7 +19,7 @@ fun localBinDir(): File {
 }
 
 fun localLibDir(): File {
-    return localDir().child("arm/lib").also {
+    return localDir().child("lib").also {
         if (!it.exists()) {
             it.mkdirs()
         }
