@@ -2,6 +2,8 @@ package com.rk.terminal.ui.screens.terminal
 
 import com.rk.libcommons.child
 import com.rk.libcommons.createFileIfNot
+import com.rk.libcommons.localBinDir
+import com.rk.libcommons.localDir
 import com.rk.libcommons.localLibDir
 import com.rk.libcommons.pendingCommand
 import com.rk.settings.Settings
@@ -12,6 +14,7 @@ import com.termux.terminal.TerminalEmulator
 import com.termux.terminal.TerminalSession
 import com.termux.terminal.TerminalSessionClient
 import java.io.File
+import java.io.FileOutputStream
 
 object MkSession {
     fun createSession(
@@ -30,7 +33,7 @@ object MkSession {
                 "EXTERNAL_STORAGE" to System.getenv("EXTERNAL_STORAGE")
             )
 
-            val workingDir = pendingCommand?.workingDir ?: activity.filesDir.parentFile!!.absolutePath
+            val workingDir = pendingCommand?.workingDir ?: activity.filesDir.absolutePath
 
             val tmpDir = File(getTempDir(), "terminal/$session_id")
 
@@ -42,25 +45,58 @@ object MkSession {
 
             val initFile: File
             val rish: File
-            filesDir.parentFile!!.child("bin").apply {
-                if (exists().not()){
-                    mkdirs()
-                }
+            localBinDir().apply {
                 initFile = child("init").createFileIfNot()
                 rish = child("rish").createFileIfNot()
-
+                child("exec").createFileIfNot().writeText(assets.open("exec.sh").bufferedReader().use { it.readText() })
                 initFile.writeText(assets.open("init.sh").bufferedReader().use { it.readText() })
                 rish.writeText(assets.open("rish.sh").bufferedReader().use { it.readText() })
             }
 
+
+
+            assets.list("bin")?.forEach { fileName ->
+                val outputFile = File(localBinDir(), fileName)
+                if (outputFile.exists().not()){
+                    val inputStream = assets.open("bin/$fileName")
+                    inputStream.use { input ->
+                        FileOutputStream(outputFile).use { output ->
+                            input.copyTo(output)
+                        }
+                    }
+                }
+            }
+
+            assets.list("lib")?.forEach { fileName ->
+                val outputFile = File(localLibDir(), fileName)
+                if (outputFile.exists().not()){
+                    val inputStream = assets.open("lib/$fileName")
+                    inputStream.use { input ->
+                        FileOutputStream(outputFile).use { output ->
+                            input.copyTo(output)
+                        }
+                    }
+                }
+            }
+
+            localDir().child(".busybox_installed").apply {
+                if (exists().not()){
+
+                }
+            }
+
+
+
             val env = mutableListOf(
                 "PROOT_TMP_DIR=${tmpDir.absolutePath}",
-                "PATH=${System.getenv("PATH")}:/sbin:${filesDir.parentFile!!.child("bin").path}",
-                "HOME=${filesDir.parentFile!!.path}",
+                "PATH=${System.getenv("PATH")}:/sbin:${localBinDir().absolutePath}",
+                "HOME=${filesDir.path}",
                 "PUBLIC_HOME=${getExternalFilesDir(null)?.absolutePath}",
                 "COLORTERM=truecolor",
                 "TERM=xterm-256color",
                 "LANG=C.UTF-8",
+                "BIN=${localBinDir()}",
+                "EXEC=sh ${localBinDir().child("exec")}",
                 "DEBUG=${BuildConfig.DEBUG}",
                 "PREFIX=${filesDir.parentFile!!.path}",
                 "LD_LIBRARY_PATH=${localLibDir().absolutePath}",

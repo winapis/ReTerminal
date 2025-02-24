@@ -37,6 +37,7 @@ class SessionService : Service() {
         }
         fun terminateSession(id: String,isDeleteButton: Boolean = false) {
             runCatching {
+                //crash is here
                 sessions[id]?.finishIfRunning()
                 sessions.remove(id)
                 sessionList.remove(id)
@@ -45,7 +46,7 @@ class SessionService : Service() {
                 } else {
                     updateNotification()
                 }
-            }
+            }.onFailure { it.printStackTrace() }
 
         }
     }

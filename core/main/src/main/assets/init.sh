@@ -1,4 +1,2 @@
-
-
-#at last start the shell
-sh "$@"
+#Start bash
+$LINKER $PREFIX/local/bin/bash --login
