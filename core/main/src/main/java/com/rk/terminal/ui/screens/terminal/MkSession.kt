@@ -42,13 +42,16 @@ object MkSession {
 
             tmpDir.mkdirs()
 
-            val initFile: File
-            val rish: File
-            localBinDir().apply {
-                initFile = child("init").createFileIfNot()
-                rish = child("rish").createFileIfNot()
-                child("exec").createFileIfNot().writeText(assets.open("exec.sh").bufferedReader().use { it.readText() })
+            val initFile: File = localBinDir().child("init")
+            val rish: File = localBinDir().child("rish")
+
+            if (initFile.exists().not()){
+                initFile.createFileIfNot()
                 initFile.writeText(assets.open("init.sh").bufferedReader().use { it.readText() })
+            }
+
+            if (rish.exists().not()){
+                rish.createFileIfNot()
                 rish.writeText(assets.open("rish.sh").bufferedReader().use { it.readText() })
             }
 
