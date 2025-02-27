@@ -53,33 +53,7 @@ object MkSession {
             }
 
 
-
-            assets.list("bin")?.forEach { fileName ->
-                val outputFile = File(localBinDir(), fileName)
-                if (outputFile.exists().not()){
-                    val inputStream = assets.open("bin/$fileName")
-                    inputStream.use { input ->
-                        FileOutputStream(outputFile).use { output ->
-                            input.copyTo(output)
-                        }
-                    }
-                }
-            }
-
-            assets.list("lib")?.forEach { fileName ->
-                val outputFile = File(localLibDir(), fileName)
-                if (outputFile.exists().not()){
-                    val inputStream = assets.open("lib/$fileName")
-                    inputStream.use { input ->
-                        FileOutputStream(outputFile).use { output ->
-                            input.copyTo(output)
-                        }
-                    }
-                }
-            }
-
             val env = mutableListOf(
-                "PROOT_TMP_DIR=${tmpDir.absolutePath}",
                 "PATH=${System.getenv("PATH")}:/sbin:${localBinDir().absolutePath}",
                 "HOME=${filesDir.path}",
                 "PUBLIC_HOME=${getExternalFilesDir(null)?.absolutePath}",

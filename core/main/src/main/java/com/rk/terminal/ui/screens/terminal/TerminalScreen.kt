@@ -49,6 +49,7 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.navigation.NavController
 import com.rk.libcommons.dpToPx
 import com.rk.libcommons.pendingCommand
+import com.rk.settings.Settings
 import com.rk.terminal.ui.activities.terminal.MainActivity
 import com.rk.terminal.ui.routes.MainActivityRoutes
 import com.rk.terminal.ui.screens.terminal.virtualkeys.VirtualKeysConstants
@@ -209,7 +210,7 @@ fun TerminalScreen(modifier: Modifier = Modifier, mainActivityActivity: MainActi
                             factory = { context ->
                                 TerminalView(context, null).apply {
                                     terminalView = WeakReference(this)
-                                    setTextSize(dpToPx(13f, context))
+                                    setTextSize(dpToPx(Settings.terminal_font_size.toFloat(), context))
                                     val client = TerminalBackEnd(this, mainActivityActivity)
 
                                     val session = if (pendingCommand != null){

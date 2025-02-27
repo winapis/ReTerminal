@@ -6,6 +6,7 @@ import android.view.MotionEvent
 import com.blankj.utilcode.util.ClipboardUtils
 import com.blankj.utilcode.util.KeyboardUtils
 import com.rk.libcommons.dpToPx
+import com.rk.settings.Settings
 import com.rk.terminal.ui.activities.terminal.MainActivity
 import com.rk.terminal.ui.screens.terminal.virtualkeys.SpecialButton
 import com.rk.terminal.ui.screens.terminal.virtualkeys.VirtualKeysView
@@ -79,7 +80,7 @@ class TerminalBackEnd(val terminal: TerminalView,val activity: MainActivity) : T
     }
     
     override fun onScale(scale: Float): Float {
-        return dpToPx(13f,terminal.context).toFloat()
+        return dpToPx(Settings.terminal_font_size.toFloat(),terminal.context).toFloat()
     }
     
     override fun onSingleTapUp(e: MotionEvent) {
