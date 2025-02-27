@@ -19,6 +19,10 @@ import com.rk.settings.Settings
 import com.rk.terminal.ui.components.SettingsToggle
 import com.rk.terminal.ui.screens.terminal.terminalView
 
+
+private const val min_text_size = 10f
+private const val max_text_size = 20f
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Settings(modifier: Modifier = Modifier) {
@@ -53,8 +57,8 @@ fun Settings(modifier: Modifier = Modifier) {
                         Settings.terminal_font_size = it.toInt()
                         terminalView.get()?.setTextSize(dpToPx(it.toFloat(),context))
                     },
-                    steps = 10,
-                    valueRange = 10f..20f,
+                    steps = (max_text_size-min_text_size).toInt() -1 ,
+                    valueRange = min_text_size..max_text_size,
                 )
             }
         }

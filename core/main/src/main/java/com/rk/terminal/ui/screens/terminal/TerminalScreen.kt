@@ -3,6 +3,7 @@ package com.rk.terminal.ui.screens.terminal
 import android.graphics.Typeface
 import android.util.TypedValue
 import android.view.View
+import androidx.activity.compose.BackHandler
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -76,6 +77,12 @@ fun TerminalScreen(modifier: Modifier = Modifier, mainActivityActivity: MainActi
         val configuration = LocalConfiguration.current
         val screenWidthDp = configuration.screenWidthDp
         val drawerWidth = (screenWidthDp * 0.84).dp
+
+        BackHandler(enabled = drawerState.isOpen) {
+            scope.launch{
+                drawerState.close()
+            }
+        }
 
         ModalNavigationDrawer(
             drawerState = drawerState,
