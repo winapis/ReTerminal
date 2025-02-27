@@ -38,10 +38,15 @@ class SessionService : Service() {
         fun terminateSession(id: String,isDeleteButton: Boolean = false) {
             runCatching {
                 //crash is here
-                sessions[id]?.finishIfRunning()
+                sessions[id]?.apply {
+                    if (emulator != null){
+                        sessions[id]?.finishIfRunning()
+                    }
+                }
+
                 sessions.remove(id)
                 sessionList.remove(id)
-                if (sessions.isEmpty() && isDeleteButton) {
+                if (sessions.isEmpty() && isDeleteButton.not()) {
                     stopSelf()
                 } else {
                     updateNotification()
