@@ -175,7 +175,7 @@ fun TerminalScreen(modifier: Modifier = Modifier, mainActivityActivity: MainActi
                                                     onClick = {
                                                         println(session_id)
                                                         mainActivityActivity.sessionBinder?.terminateSession(
-                                                            session_id, isDeleteButton = true
+                                                            session_id
                                                         )
                                                     },
                                                     modifier = Modifier.size(24.dp)

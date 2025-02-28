@@ -41,9 +41,8 @@ fun Settings(modifier: Modifier = Modifier) {
 
 
         }
+
         var sliderPosition by remember { mutableFloatStateOf(Settings.terminal_font_size.toFloat()) }
-
-
         PreferenceGroup {
             PreferenceTemplate(title = {Text("Text Size")}){
                 Text(sliderPosition.toInt().toString())

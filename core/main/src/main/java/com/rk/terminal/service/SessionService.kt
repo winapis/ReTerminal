@@ -35,7 +35,7 @@ class SessionService : Service() {
         fun getSession(id: String): TerminalSession? {
             return sessions[id]
         }
-        fun terminateSession(id: String,isDeleteButton: Boolean = false) {
+        fun terminateSession(id: String) {
             runCatching {
                 //crash is here
                 sessions[id]?.apply {
@@ -46,7 +46,7 @@ class SessionService : Service() {
 
                 sessions.remove(id)
                 sessionList.remove(id)
-                if (sessions.isEmpty() && isDeleteButton.not()) {
+                if (sessions.isEmpty()) {
                     stopSelf()
                 } else {
                     updateNotification()
