@@ -4,6 +4,12 @@
 > [!IMPORTANT]
 ReTerminal is neither a fork nor a replacement for Termux.
 
+[<img src="https://fdroid.gitlab.io/artwork/badge/get-it-on.png"
+     alt="Get it on F-Droid"
+     height="80">](https://f-droid.org/packages/com.rk.terminal/)
+
+Or download the latest APK from the [Releases Section](https://github.com/RohitKushvaha01/ReTerminal/releases/latest).
+
 # Features
 - [x] Basic Terminal
 - [x] Virtual Keys
