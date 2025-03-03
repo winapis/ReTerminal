@@ -10,6 +10,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.pm.PackageInfoCompat
 import com.rk.components.compose.preferences.normal.Preference
 import com.rk.libcommons.application
+import com.rk.terminal.ui.screens.settings.WorkingMode
 import java.nio.charset.Charset
 
 object Settings {
@@ -30,9 +31,7 @@ object Settings {
     var github
         get() = Preference.getBoolean(key = "github", default = true)
         set(value) = Preference.setBoolean(key = "github",value)
-    var use_shizuku
-        get() = Preference.getBoolean(key = "use_shizuku",default = false)
-        set(value) = Preference.setBoolean(key = "use_shizuku",value)
+
 
 
    var default_night_mode
@@ -42,6 +41,9 @@ object Settings {
     var terminal_font_size
         get() = Preference.getInt(key = "terminal_font_size", default = 13)
         set(value) = Preference.setInt(key = "terminal_font_size",value)
+    var workingMode
+        get() = Preference.getInt(key = "workingMode", default = WorkingMode.ALPINE)
+        set(value) = Preference.setInt(key = "workingMode",value)
 }
 
 object Preference {

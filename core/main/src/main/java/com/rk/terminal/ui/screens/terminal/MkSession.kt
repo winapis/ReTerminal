@@ -1,5 +1,7 @@
 package com.rk.terminal.ui.screens.terminal
 
+import android.os.Environment
+import com.rk.libcommons.application
 import com.rk.libcommons.child
 import com.rk.libcommons.createFileIfNot
 import com.rk.libcommons.localBinDir
@@ -9,6 +11,7 @@ import com.rk.settings.Settings
 import com.rk.terminal.App.Companion.getTempDir
 import com.rk.terminal.BuildConfig
 import com.rk.terminal.ui.activities.terminal.MainActivity
+import com.rk.terminal.ui.screens.settings.WorkingMode
 import com.termux.terminal.TerminalEmulator
 import com.termux.terminal.TerminalSession
 import com.termux.terminal.TerminalSessionClient
@@ -32,15 +35,7 @@ object MkSession {
                 "EXTERNAL_STORAGE" to System.getenv("EXTERNAL_STORAGE")
             )
 
-            val workingDir = pendingCommand?.workingDir ?: activity.filesDir.absolutePath
-
-            val tmpDir = File(getTempDir(), "terminal/$session_id")
-
-            if (tmpDir.exists()) {
-                tmpDir.deleteRecursively()
-            }
-
-            tmpDir.mkdirs()
+            val workingDir = pendingCommand?.workingDir ?: "/sdcard"
 
             val initFile: File = localBinDir().child("init")
             val rish: File = localBinDir().child("rish")
@@ -54,7 +49,6 @@ object MkSession {
                 rish.createFileIfNot()
                 rish.writeText(assets.open("rish.sh").bufferedReader().use { it.readText() })
             }
-
 
             val env = mutableListOf(
                 "PATH=${System.getenv("PATH")}:/sbin:${localBinDir().absolutePath}",
@@ -84,14 +78,16 @@ object MkSession {
             val args: Array<String>
 
             val shell = if (pendingCommand == null) {
-                if (Settings.use_shizuku){
-                    args = arrayOf("-c",initFile.absolutePath,rish.absolutePath)
+                if (Settings.workingMode == WorkingMode.ALPINE){
+                    args = arrayOf("-c",initFile.absolutePath, WorkingMode.ALPINE.toString())
+                    "/system/bin/sh"
+                }else if (Settings.workingMode == WorkingMode.SHIZUKU_SHELL){
+                    args = arrayOf("-c",initFile.absolutePath, WorkingMode.SHIZUKU_SHELL.toString())
                     "/system/bin/sh"
                 }else{
-                    args = arrayOf("-c",initFile.absolutePath)
+                    args = arrayOf("-c",initFile.absolutePath, WorkingMode.UNPRIVILEGED_SHELL.toString())
                     "/system/bin/sh"
                 }
-
             } else{
                 args = pendingCommand!!.args
                 pendingCommand!!.shell
