@@ -13,6 +13,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.rk.libcommons.*
 import com.rk.terminal.ui.activities.terminal.MainActivity
+import com.rk.terminal.ui.screens.terminal.Rootfs
 import com.rk.terminal.ui.screens.terminal.TerminalScreen
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -34,8 +35,6 @@ fun Downloader(
     var needsDownload by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
-        val reTerminal = application!!.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS)!!
-        reTerminal.mkdirs()
 
         try {
             val abi = Build.SUPPORTED_ABIS.firstOrNull {
@@ -46,7 +45,7 @@ fun Downloader(
                 "libtalloc.so.2" to abiMap[abi]!!.talloc,
                 "proot" to abiMap[abi]!!.proot,
                 "alpine.tar.gz" to abiMap[abi]!!.alpine
-            ).map { (name, url) -> DownloadFile(url, reTerminal.child(name)) }
+            ).map { (name, url) -> DownloadFile(url, Rootfs.reTerminal.child(name)) }
 
             needsDownload = filesToDownload.any { !it.outputFile.exists() }
 

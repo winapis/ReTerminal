@@ -73,7 +73,7 @@ android {
     
     defaultConfig {
         applicationId = "com.rk.terminal"
-        minSdk = 24
+        minSdk = 26
         targetSdk = 35
 
         //versioning
