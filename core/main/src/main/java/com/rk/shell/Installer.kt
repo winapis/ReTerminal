@@ -47,12 +47,9 @@ class Installer {
                 File("$alpineDir/tmp").mkdirs()
                 File("$alpineDir/tmp").setExecutable(true, false)
             }
+
             argsList.addAll(listOf("-b", "$alpineDir/tmp:/dev/shm", "-r", alpineDir, "-0", "--link2symlink", "--sysvipc", "-L"))
-
             println(argsList.joinToString(" "))
-
-            //executeShell("LD_LIBRARY_PATH=$workingDir PROOT_TMP_DIR=$workingDir/${args[0]} $workingDir/proot ${argsList.joinToString(" ")}")
-
         }
 
         fun moveFileIfNeeded(source: String, destination: String) {
@@ -72,6 +69,10 @@ class Installer {
                 executeShell("tar -xvf ${tarFile.absolutePath} -C ${destFile.absolutePath}",useShell = true)
                 executeShell("mkdir -p ${destFile.child("tmp").absolutePath}")
                 executeShell("chmod +x ${destFile.child("tmp").absolutePath}")
+                destFile.child("etc/resolv.conf").writeText("""
+                    nameserver 1.1.1.1
+                    nameserver 8.8.8.8
+                """.trimIndent())
             }
         }
 
