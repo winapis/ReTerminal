@@ -49,7 +49,9 @@ class Installer {
             }
             argsList.addAll(listOf("-b", "$alpineDir/tmp:/dev/shm", "-r", alpineDir, "-0", "--link2symlink", "--sysvipc", "-L"))
 
-            executeShell("LD_LIBRARY_PATH=$workingDir PROOT_TMP_DIR=$workingDir/${args[0]} $workingDir/proot ${argsList.joinToString(" ")}")
+            println(argsList.joinToString(" "))
+
+            //executeShell("LD_LIBRARY_PATH=$workingDir PROOT_TMP_DIR=$workingDir/${args[0]} $workingDir/proot ${argsList.joinToString(" ")}")
 
         }
 
