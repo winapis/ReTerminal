@@ -84,9 +84,12 @@ fun Settings(modifier: Modifier = Modifier) {
                 description = {Text("Alpine Linux")},
                 startWidget = {
                     RadioButton(
-                        modifier = Modifier.padding(start = 8.dp).clickable(false, onClick = {}),
+                        modifier = Modifier.padding(start = 8.dp),
                         selected = selectedOption == WorkingMode.ALPINE,
-                        onClick = {})
+                        onClick = {
+                            selectedOption = WorkingMode.ALPINE
+                            Settings.workingMode = selectedOption
+                        })
                 },
                 onClick = {
                     selectedOption = WorkingMode.ALPINE
@@ -97,9 +100,12 @@ fun Settings(modifier: Modifier = Modifier) {
                 description = {Text("Shizuku Android shell")},
                 startWidget = {
                     RadioButton(
-                        modifier = Modifier.padding(start = 8.dp).clickable(false, onClick = {}),
+                        modifier = Modifier.padding(start = 8.dp),
                         selected = selectedOption == WorkingMode.SHIZUKU_SHELL,
-                        onClick = {})
+                        onClick = {
+                            selectedOption = WorkingMode.SHIZUKU_SHELL
+                            Settings.workingMode = selectedOption
+                        })
                 },
                 onClick = {
                     selectedOption = WorkingMode.SHIZUKU_SHELL
@@ -112,9 +118,12 @@ fun Settings(modifier: Modifier = Modifier) {
                     RadioButton(
                         modifier = Modifier
                             .padding(start = 8.dp)
-                            .clickable(false, onClick = {}),
+                            ,
                         selected = selectedOption == WorkingMode.UNPRIVILEGED_SHELL,
-                        onClick = {})
+                        onClick = {
+                            selectedOption = WorkingMode.UNPRIVILEGED_SHELL
+                            Settings.workingMode = selectedOption
+                        })
                 },
                 onClick = {
                     selectedOption = WorkingMode.UNPRIVILEGED_SHELL
