@@ -28,46 +28,65 @@ Join the reTerminal community to stay updated and engage with other users:
 - [Telegram](https://t.me/reTerminal)
 
 
-
 # FAQ
 
-**Q: Why there's no commands like git wget etc.**
+### **Q: Why do I need Shizuku to run Alpine?**
+**A:** ReTerminal targets the latest Android API, which enforces **W^X (Write XOR Execute)** restrictions. This means files downloaded or created in regular app directories can't be executed directly. However, **Shizuku** provides access to `/data/local/tmp`, which has executable permissions. ReTerminal uses this to bypass the restriction and allow running binaries.
 
-**A:** ReTerminal only provides a interface for the core system binaries not the binaries themselves if you want those commands use Termux instead
+---
 
+### **Q: Why do I get a "Permission Denied" error when trying to execute a binary or script?**
+**A:** This happens because ReTerminal runs on the latest Android API, which enforces **W^X restrictions** — meaning files can either be writable or executable, but not both. Since files in `$PREFIX` or regular storage directories can't be executed directly, you need to use one of the following workarounds:
 
-**Q: Why do I get a "Permission Denied" error when trying to execute a binary or script?**  
+---
 
-**A:** ReTerminal targets the latest Android API, which enforces W^X restrictions, preventing direct execution of files. Here are some ways to work around this:
-
-### 1. Use the Dynamic Linker  
-For binaries, you can use the dynamic linker to execute them:
+### **Option 1: Use the Dynamic Linker (for Binaries)**
+If you're trying to run a binary (not a script), you can use the dynamic linker to execute it:
 
 ```bash
 $LINKER /absolute/path/to/binary
 ```
 
-Note: This method does not work with static binaries.
+- **32-bit**: `LINKER=/system/bin/linker`
+- **64-bit**: `LINKER=/system/bin/linker64`
 
-2. Use sh for Scripts
+✅ **Note:** This method won't work for **statically linked binaries** (binaries without external dependencies).
 
-If the file is a script, execute it with sh:
+---
+
+### **Option 2: Use `sh` for Scripts**
+If you're trying to execute a shell script, simply use `sh` to run it:
 
 ```bash
-sh path/to/script
+sh /path/to/script
 ```
 
-3. Use Shizuku for Shell Access
+This bypasses the need for execute permissions since the script is interpreted by the shell.
 
-If you have Shizuku installed, you can execute files stored in /data/local/tmp with shell access.
+---
 
+### **Option 3: Use Shizuku for Full Shell Access (Recommended)**
+If you have **Shizuku** installed, you can gain shell access to `/data/local/tmp`, which has executable permissions. This is the easiest way to run binaries without restrictions.
+
+1. **Login as the shell user:**
 ```bash
-#login as shell
 sh $PREFIX/bin/rish
-mv path/of/binary /data/local/tmp
-chmod +x /data/local/tmp/your/binary
+```
+
+2. **Move your binary to `/data/local/tmp` (which has execute permissions):**
+```bash
+mv /path/to/binary /data/local/tmp
+```
+
+3. **Grant execute permissions:**
+```bash
+chmod +x /data/local/tmp/binary
+```
+
+4. **Execute your binary:**
+```bash
 cd /data/local/tmp
-./your/binary
+./binary
 ```
 
 

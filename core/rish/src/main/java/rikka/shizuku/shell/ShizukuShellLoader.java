@@ -38,7 +38,7 @@ public class ShizukuShellLoader {
                 if (binder != null) {
                     handler.post(() -> onBinderReceived(binder, sourceDir));
                 } else {
-                    System.err.println("Server is not running");
+                    System.err.println("Shizuku Server is not running");
                     System.err.flush();
                     System.exit(1);
                 }

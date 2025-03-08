@@ -7,7 +7,7 @@ if [ "$1" = "0" ]; then
        mkdir -p /data/local/tmp/ReTerminal/$2
        export LD_LIBRARY_PATH=/data/local/tmp/ReTerminal
        export PROOT_TMP_DIR=/data/local/tmp/ReTerminal/$2
-       /data/local/tmp/ReTerminal/proot $result
+       /data/local/tmp/ReTerminal/proot $result /bin/login -f root
    "
 
 elif [ "$1" = "1" ]; then
