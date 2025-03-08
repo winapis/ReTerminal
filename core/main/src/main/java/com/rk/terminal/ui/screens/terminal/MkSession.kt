@@ -85,7 +85,7 @@ object MkSession {
                     args = arrayOf("-c",initFile.absolutePath, WorkingMode.SHIZUKU_SHELL.toString(),session_id)
                     "/system/bin/sh"
                 }else{
-                    args = arrayOf(WorkingMode.UNPRIVILEGED_SHELL.toString(),session_id)
+                    args = arrayOf("-c",initFile.absolutePath,WorkingMode.UNPRIVILEGED_SHELL.toString(),session_id)
                     "/system/bin/sh"
                 }
             } else{
