@@ -63,9 +63,10 @@ fun SettingsCard(
 
 
 object WorkingMode{
-    const val ALPINE = 0
+    const val ALPINE_SHIZUKU = 0
     const val SHIZUKU_SHELL = 1
     const val UNPRIVILEGED_SHELL = 2
+    const val ALPINE_ROOT = 3
 }
 
 private const val min_text_size = 10f
@@ -79,22 +80,43 @@ fun Settings(modifier: Modifier = Modifier) {
 
     PreferenceLayout(label = stringResource(strings.settings)) {
         PreferenceGroup(heading = "Working mode") {
+
             SettingsCard(
                 title = { Text("Alpine (Shizuku)") },
                 description = {Text("Alpine Linux")},
                 startWidget = {
                     RadioButton(
                         modifier = Modifier.padding(start = 8.dp),
-                        selected = selectedOption == WorkingMode.ALPINE,
+                        selected = selectedOption == WorkingMode.ALPINE_SHIZUKU,
                         onClick = {
-                            selectedOption = WorkingMode.ALPINE
+                            selectedOption = WorkingMode.ALPINE_SHIZUKU
                             Settings.workingMode = selectedOption
                         })
                 },
                 onClick = {
-                    selectedOption = WorkingMode.ALPINE
+                    selectedOption = WorkingMode.ALPINE_SHIZUKU
                     Settings.workingMode = selectedOption
                 })
+
+            SettingsCard(
+                title = { Text("Alpine (Root)") },
+                description = {Text("Alpine Linux")},
+                startWidget = {
+                    RadioButton(
+                        modifier = Modifier.padding(start = 8.dp),
+                        selected = selectedOption == WorkingMode.ALPINE_ROOT,
+                        onClick = {
+                            selectedOption = WorkingMode.ALPINE_ROOT
+                            Settings.workingMode = selectedOption
+                        })
+                },
+                onClick = {
+                    selectedOption = WorkingMode.ALPINE_ROOT
+                    Settings.workingMode = selectedOption
+                })
+
+
+
             SettingsCard(
                 title = { Text("Android (Shizuku)") },
                 description = {Text("Shizuku Android shell")},

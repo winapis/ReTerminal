@@ -78,16 +78,8 @@ object MkSession {
             val args: Array<String>
 
             val shell = if (pendingCommand == null) {
-                if (Settings.workingMode == WorkingMode.ALPINE){
-                    args = arrayOf("-c",initFile.absolutePath, WorkingMode.ALPINE.toString(),session_id)
-                    "/system/bin/sh"
-                }else if (Settings.workingMode == WorkingMode.SHIZUKU_SHELL){
-                    args = arrayOf("-c",initFile.absolutePath, WorkingMode.SHIZUKU_SHELL.toString(),session_id)
-                    "/system/bin/sh"
-                }else{
-                    args = arrayOf("-c",initFile.absolutePath,WorkingMode.UNPRIVILEGED_SHELL.toString(),session_id)
-                    "/system/bin/sh"
-                }
+                args = arrayOf("-c",initFile.absolutePath, Settings.workingMode.toString(),session_id)
+                "/system/bin/sh"
             } else{
                 args = pendingCommand!!.args
                 pendingCommand!!.shell

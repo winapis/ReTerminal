@@ -33,7 +33,6 @@ object Settings {
         set(value) = Preference.setBoolean(key = "github",value)
 
 
-
    var default_night_mode
         get() = Preference.getInt(key = "default_night_mode", default = AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
         set(value) = Preference.setInt(key = "default_night_mode",value)
@@ -42,7 +41,7 @@ object Settings {
         get() = Preference.getInt(key = "terminal_font_size", default = 13)
         set(value) = Preference.setInt(key = "terminal_font_size",value)
     var workingMode
-        get() = Preference.getInt(key = "workingMode", default = WorkingMode.ALPINE)
+        get() = Preference.getInt(key = "workingMode", default = WorkingMode.ALPINE_SHIZUKU)
         set(value) = Preference.setInt(key = "workingMode",value)
 }
 
