@@ -11,6 +11,7 @@ import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
@@ -94,9 +95,7 @@ private val DarkColorScheme =
         scrim = md_theme_dark_scrim,
     )
 
-/*
- * A Basic Blue theme
- */
+
 @Composable
 fun KarbonTheme(
     darkTheme: Boolean = when (Settings.default_night_mode) {

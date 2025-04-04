@@ -1,12 +1,25 @@
 package com.rk.terminal.ui.screens.settings
 
+import android.content.ContentResolver
+import android.content.Context
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.net.Uri
+import android.provider.OpenableColumns
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
@@ -15,17 +28,27 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.palette.graphics.Palette
 import com.rk.components.compose.preferences.base.PreferenceGroup
 import com.rk.components.compose.preferences.base.PreferenceLayout
 import com.rk.components.compose.preferences.base.PreferenceTemplate
+import com.rk.components.compose.preferences.switch.PreferenceSwitch
+import com.rk.libcommons.child
+import com.rk.libcommons.createFileIfNot
 import com.rk.libcommons.dpToPx
 import com.rk.resources.strings
 import com.rk.settings.Settings
+import com.rk.terminal.ui.components.SettingsToggle
+import com.rk.terminal.ui.screens.terminal.darkText
 import com.rk.terminal.ui.screens.terminal.terminalView
-
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import java.io.File
 
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -171,6 +194,112 @@ fun Settings(modifier: Modifier = Modifier) {
                     valueRange = min_text_size..max_text_size,
                 )
             }
+        }
+
+
+
+        PreferenceGroup {
+            val context = LocalContext.current
+            val scope = rememberCoroutineScope()
+            val image by remember { mutableStateOf<File>(context.filesDir.child("background")) }
+            var imageExists by remember { mutableStateOf(image.exists()) }
+            var backgroundName by remember { mutableStateOf(if (!image.exists() || !image.canRead()){
+                "No Image Selected"
+            }else{
+                Settings.custom_background_name
+            }) }
+
+
+            val launcher = rememberLauncherForActivityResult(
+                contract = ActivityResultContracts.GetContent()
+            ) { uri: Uri? ->
+                uri?.let {
+                    scope.launch(Dispatchers.IO){
+                        image.createFileIfNot()
+                        context.contentResolver.openInputStream(it)?.use { inputStream ->
+                            image.outputStream().use { outputStream ->
+                                inputStream.copyTo(outputStream)
+                            }
+                        }
+
+                        fun getFileNameFromUri(context: Context, uri: Uri): String? {
+                            if (uri.scheme == ContentResolver.SCHEME_CONTENT) {
+                                context.contentResolver.query(uri, null, null, null, null)?.use { cursor ->
+                                    val nameIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME)
+                                    if (cursor.moveToFirst() && nameIndex != -1) {
+                                        return cursor.getString(nameIndex)
+                                    }
+                                }
+                            } else if (uri.scheme == ContentResolver.SCHEME_FILE) {
+                                return File(uri.path!!).name
+                            }
+                            return null
+                        }
+
+                        val name = getFileNameFromUri(context,uri).toString()
+                        Settings.custom_background_name = name
+                        backgroundName = name
+
+
+                        withContext(Dispatchers.IO) {
+                            val file = context.filesDir.child("background")
+                            if (!file.exists()) return@withContext
+                            val smallBitmap = BitmapFactory.decodeFile(file.absolutePath)?.asImageBitmap()
+
+                            smallBitmap?.apply {
+                                val androidBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+                                val buffer = IntArray(width * height)
+                                readPixels(buffer, 0, 0, width, height)
+                                androidBitmap.setPixels(buffer, 0, width, 0, 0, width, height)
+                                Palette.from(androidBitmap).generate { palette ->
+                                    val dominantColor = palette?.getDominantColor(android.graphics.Color.WHITE)
+                                    val luminance = androidx.core.graphics.ColorUtils.calculateLuminance(dominantColor ?: android.graphics.Color.WHITE)
+                                    val blackText = luminance > 0.5f
+                                    Settings.blackTextColor = blackText
+                                    darkText.value = blackText
+                                }
+                            }
+
+                        }
+                        imageExists = image.exists()
+                    }
+
+                }
+
+
+            }
+
+            PreferenceTemplate(
+                modifier = Modifier.clickable(onClick = {
+                    scope.launch{
+                        launcher.launch("image/*")
+                    }
+                }),
+                title = {
+                    Text("Custom Background")
+                },
+                description = {
+                    Text(backgroundName)
+                },
+                endWidget = {
+                    val darkMode = isSystemInDarkTheme()
+                    if (imageExists){
+                        IconButton(onClick = {
+                            scope.launch{
+                                image.delete()
+                                Settings.custom_background_name = "No Image Selected"
+                                backgroundName = "No Image Selected"
+                                darkText.value = !darkMode
+                                imageExists = image.exists()
+                            }
+                        }) {
+                            Icon(imageVector = Icons.Outlined.Delete,contentDescription = "delete")
+                        }
+                    }
+
+                }
+            )
+
         }
     }
 }

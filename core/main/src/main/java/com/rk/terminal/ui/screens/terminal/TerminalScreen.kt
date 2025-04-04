@@ -1,10 +1,16 @@
 package com.rk.terminal.ui.screens.terminal
 
+import android.app.Activity
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.graphics.Color
 import android.graphics.Typeface
 import android.util.TypedValue
 import android.view.View
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.animateColorAsState
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -34,20 +40,37 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.compose.ui.zIndex
+import androidx.core.view.WindowCompat
 import androidx.navigation.NavController
+import androidx.palette.graphics.Palette
+import com.rk.libcommons.child
 import com.rk.libcommons.dpToPx
 import com.rk.libcommons.pendingCommand
 import com.rk.settings.Settings
@@ -57,8 +80,12 @@ import com.rk.terminal.ui.screens.terminal.virtualkeys.VirtualKeysConstants
 import com.rk.terminal.ui.screens.terminal.virtualkeys.VirtualKeysInfo
 import com.rk.terminal.ui.screens.terminal.virtualkeys.VirtualKeysListener
 import com.rk.terminal.ui.screens.terminal.virtualkeys.VirtualKeysView
+import com.rk.terminal.ui.theme.KarbonTheme
 import com.termux.view.TerminalView
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import java.io.File
 import java.lang.ref.WeakReference
 
 var terminalView = WeakReference<TerminalView?>(null)
@@ -66,12 +93,69 @@ var virtualKeysView = WeakReference<VirtualKeysView?>(null)
 var virtualKeysId = View.generateViewId()
 
 
+var darkText = mutableStateOf(Settings.blackTextColor)
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TerminalScreen(modifier: Modifier = Modifier, mainActivityActivity: MainActivity,navController: NavController) {
+fun TerminalScreen(
+    modifier: Modifier = Modifier,
+    mainActivityActivity: MainActivity,
+    navController: NavController
+) {
     val context = LocalContext.current
+    val isDarkMode = isSystemInDarkTheme()
+    val scope = rememberCoroutineScope()
 
-    Box(modifier = Modifier.imePadding()) {
+    LaunchedEffect(Unit){
+        if (context.filesDir.child("background").exists().not()){
+            darkText.value = !isDarkMode
+        }
+
+        scope.launch(Dispatchers.Main){
+            virtualKeysView.get()?.apply {
+                virtualKeysViewClient =
+                    terminalView.get()?.mTermSession?.let {
+                        VirtualKeysListener(
+                            it
+                        )
+                    }
+
+
+                buttonTextColor = if (darkText.value){
+                    Color.BLACK
+                }else{
+                    Color.WHITE
+                }
+
+
+                reload(
+                    VirtualKeysInfo(
+                        VIRTUAL_KEYS,
+                        "",
+                        VirtualKeysConstants.CONTROL_CHARS_ALIASES
+                    )
+                )
+            }
+
+            terminalView.get()?.apply {
+                onScreenUpdated()
+                val color = if (darkText.value){
+                    Color.BLACK
+                }else{
+                    Color.WHITE
+                }
+
+                mEmulator?.mColors?.mCurrentColors?.apply {
+                    set(256, color)
+                    set(258, color)
+                }
+            }
+        }
+
+
+    }
+
+    Box {
         val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
         val scope = rememberCoroutineScope()
         val configuration = LocalConfiguration.current
@@ -79,9 +163,15 @@ fun TerminalScreen(modifier: Modifier = Modifier, mainActivityActivity: MainActi
         val drawerWidth = (screenWidthDp * 0.84).dp
 
         BackHandler(enabled = drawerState.isOpen) {
-            scope.launch{
+            scope.launch {
                 drawerState.close()
             }
+        }
+
+        if (drawerState.isClosed){
+            SetStatusBarTextColor(isDarkIcons = darkText.value)
+        }else{
+            SetStatusBarTextColor(isDarkIcons = !isDarkMode)
         }
 
         ModalNavigationDrawer(
@@ -149,12 +239,17 @@ fun TerminalScreen(modifier: Modifier = Modifier, mainActivityActivity: MainActi
 
                         }
 
-                        mainActivityActivity.sessionBinder?.getService()?.sessionList?.let{
+                        mainActivityActivity.sessionBinder?.getService()?.sessionList?.let {
                             LazyColumn {
-                                items(it){ session_id ->
+                                items(it) { session_id ->
                                     SelectableCard(
                                         selected = session_id == mainActivityActivity.sessionBinder?.getService()?.currentSession?.value,
-                                        onSelect = { changeSession(mainActivityActivity, session_id) },
+                                        onSelect = {
+                                            changeSession(
+                                                mainActivityActivity,
+                                                session_id
+                                            )
+                                        },
                                         modifier = Modifier
                                             .fillMaxWidth()
                                             .padding(8.dp)
@@ -201,126 +296,252 @@ fun TerminalScreen(modifier: Modifier = Modifier, mainActivityActivity: MainActi
 
             },
             content = {
-                Scaffold(topBar = {
-                    TopAppBar(
-                        title = { Text(text = "ReTerminal") },
-                        navigationIcon = {
-                            IconButton(onClick = {
-                                scope.launch { drawerState.open() }
-                            }) {
-                                Icon(Icons.Default.Menu, null)
-                            }
-                        })
-                }) { paddingValues ->
-                    Column(modifier = Modifier.padding(paddingValues)) {
-                        AndroidView(
-                            factory = { context ->
-                                TerminalView(context, null).apply {
-                                    terminalView = WeakReference(this)
-                                    setTextSize(dpToPx(Settings.terminal_font_size.toFloat(), context))
-                                    val client = TerminalBackEnd(this, mainActivityActivity)
-
-                                    val session = if (pendingCommand != null){
-                                        mainActivityActivity.sessionBinder!!.getService().currentSession.value = pendingCommand!!.id
-                                        mainActivityActivity.sessionBinder!!.getSession(pendingCommand!!.id)
-                                            ?: mainActivityActivity.sessionBinder!!.createSession(
-                                                pendingCommand!!.id,
-                                                client,
-                                                mainActivityActivity
+                val density = LocalDensity.current
+                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    LoadBackgroundImage()
+                    val color = if (darkText.value){
+                        androidx.compose.ui.graphics.Color.Black
+                    }else{
+                        androidx.compose.ui.graphics.Color.White
+                    }
+                        Column {
+                            Row(modifier = Modifier
+                                .padding(
+                                    top = with(density) {
+                                        TopAppBarDefaults.windowInsets
+                                            .getTop(this)
+                                            .toDp()
+                                    },
+                                    bottom = with(density) {
+                                        TopAppBarDefaults.windowInsets
+                                            .getBottom(
+                                                this
                                             )
-                                    }else{
-                                        mainActivityActivity.sessionBinder!!.getSession(mainActivityActivity.sessionBinder!!.getService().currentSession.value)
-                                            ?: mainActivityActivity.sessionBinder!!.createSession(
-                                                mainActivityActivity.sessionBinder!!.getService().currentSession.value,
-                                                client,
-                                                mainActivityActivity
+                                            .toDp()
+                                    },
+                                    start = with(density) {
+                                        TopAppBarDefaults.windowInsets
+                                            .getLeft(
+                                                this,
+                                                LayoutDirection.Ltr
                                             )
-                                    }
-
-                                    session.updateTerminalSessionClient(client)
-                                    attachSession(session)
-                                    setTerminalViewClient(client)
-                                    setTypeface(Typeface.MONOSPACE)
-
-                                    post {
-                                        val typedValue = TypedValue()
-
-                                        context.theme.resolveAttribute(
-                                            com.google.android.material.R.attr.colorOnSurface,
-                                            typedValue,
-                                            true
-                                        )
-                                        keepScreenOn = true
-                                        requestFocus()
-                                        isFocusableInTouchMode = true
-
-                                        mEmulator?.mColors?.mCurrentColors?.apply {
-                                            set(256, typedValue.data)
-                                            set(258, typedValue.data)
-                                        }
-                                    }
+                                            .toDp()
+                                    },
+                                    end = with(density) {
+                                        TopAppBarDefaults.windowInsets
+                                            .getRight(
+                                                this,
+                                                LayoutDirection.Ltr
+                                            )
+                                            .toDp()
+                                    })
+                                .padding(bottom = 10.dp),
+                                horizontalArrangement = Arrangement.Start,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                IconButton(
+                                    modifier = Modifier.padding(start = 8.dp),
+                                    onClick = {
+                                        scope.launch { drawerState.open() }
+                                    }) {
+                                    Icon(Icons.Default.Menu, null, tint = color)
                                 }
-                            },
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .weight(1f),
-                            update = { terminalView ->
-                                terminalView.onScreenUpdated();
+                                Text(
+                                    "ReTerminal", style = TextStyle(
+                                        fontSize = 21.sp,
+                                        fontWeight = FontWeight.Normal
+                                    ),
+                                    modifier = Modifier.padding(start = 6.dp, top = 2.dp),
+                                    color = color
+                                )
+                            }
+                            Column(modifier = Modifier.imePadding()) {
+                                AndroidView(
+                                    factory = { context ->
+                                        TerminalView(context, null).apply {
+                                            terminalView = WeakReference(this)
+                                            setTextSize(
+                                                dpToPx(
+                                                    Settings.terminal_font_size.toFloat(),
+                                                    context
+                                                )
+                                            )
+                                            val client = TerminalBackEnd(this, mainActivityActivity)
 
-                                val typedValue = TypedValue()
+                                            val session = if (pendingCommand != null) {
+                                                mainActivityActivity.sessionBinder!!.getService().currentSession.value =
+                                                    pendingCommand!!.id
+                                                mainActivityActivity.sessionBinder!!.getSession(
+                                                    pendingCommand!!.id
+                                                )
+                                                    ?: mainActivityActivity.sessionBinder!!.createSession(
+                                                        pendingCommand!!.id,
+                                                        client,
+                                                        mainActivityActivity
+                                                    )
+                                            } else {
+                                                mainActivityActivity.sessionBinder!!.getSession(
+                                                    mainActivityActivity.sessionBinder!!.getService().currentSession.value
+                                                )
+                                                    ?: mainActivityActivity.sessionBinder!!.createSession(
+                                                        mainActivityActivity.sessionBinder!!.getService().currentSession.value,
+                                                        client,
+                                                        mainActivityActivity
+                                                    )
+                                            }
 
-                                context.theme.resolveAttribute(
-                                    com.google.android.material.R.attr.colorOnSurface,
-                                    typedValue,
-                                    true
+                                            session.updateTerminalSessionClient(client)
+                                            attachSession(session)
+                                            setTerminalViewClient(client)
+                                            setTypeface(Typeface.MONOSPACE)
+
+                                            post {
+
+                                                val color = if (darkText.value){
+                                                    Color.BLACK
+                                                }else{
+                                                    Color.WHITE
+                                                }
+
+                                                keepScreenOn = true
+                                                requestFocus()
+                                                isFocusableInTouchMode = true
+
+                                                mEmulator?.mColors?.mCurrentColors?.apply {
+                                                    set(256, color)
+                                                    set(258, color)
+                                                }
+                                            }
+                                        }
+                                    },
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .weight(1f),
+                                    update = { terminalView ->
+                                        terminalView.onScreenUpdated()
+                                       val color = if (darkText.value){
+                                           Color.BLACK
+                                       }else{
+                                           Color.WHITE
+                                       }
+
+                                        terminalView.mEmulator?.mColors?.mCurrentColors?.apply {
+                                            set(256, color)
+                                            set(258, color)
+                                        }
+                                    },
                                 )
 
-                                terminalView.mEmulator?.mColors?.mCurrentColors?.apply {
-                                    set(256, typedValue.data)
-                                    set(258, typedValue.data)
-                                } },
-                        )
-
-                        AndroidView(
-                            factory = { context ->
-                                VirtualKeysView(context, null).apply {
-                                    virtualKeysView = WeakReference(this)
-                                    id = virtualKeysId
-                                    val typedValue = TypedValue()
-                                    context.theme.resolveAttribute(
-                                        com.google.android.material.R.attr.colorOnSurface,
-                                        typedValue,
-                                        true
-                                    )
+                                AndroidView(update = {
+                                    it.apply {
+                                        virtualKeysViewClient =
+                                            terminalView.get()?.mTermSession?.let {
+                                                VirtualKeysListener(
+                                                    it
+                                                )
+                                            }
 
 
-                                    virtualKeysViewClient =
-                                        terminalView.get()?.mTermSession?.let {
-                                            VirtualKeysListener(
-                                                it
-                                            )
+                                        buttonTextColor = if (darkText.value){
+                                            Color.BLACK
+                                        }else{
+                                            Color.WHITE
                                         }
 
-                                    buttonTextColor = typedValue.data
 
-                                    reload(
-                                        VirtualKeysInfo(
-                                            VIRTUAL_KEYS,
-                                            "",
-                                            VirtualKeysConstants.CONTROL_CHARS_ALIASES
+                                        reload(
+                                            VirtualKeysInfo(
+                                                VIRTUAL_KEYS,
+                                                "",
+                                                VirtualKeysConstants.CONTROL_CHARS_ALIASES
+                                            )
                                         )
-                                    )
-                                }
-                            },
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(75.dp)
-                        )
-                    }
+                                    }
+                                },
+                                    factory = { context ->
+                                        VirtualKeysView(context, null).apply {
+                                            virtualKeysView = WeakReference(this)
+                                            id = virtualKeysId
+
+
+                                            virtualKeysViewClient =
+                                                terminalView.get()?.mTermSession?.let {
+                                                    VirtualKeysListener(
+                                                        it
+                                                    )
+                                                }
+
+
+                                            buttonTextColor = if (darkText.value){
+                                                    Color.BLACK
+                                                }else{
+                                                    Color.WHITE
+                                                }
+
+
+                                            reload(
+                                                VirtualKeysInfo(
+                                                    VIRTUAL_KEYS,
+                                                    "",
+                                                    VirtualKeysConstants.CONTROL_CHARS_ALIASES
+                                                )
+                                            )
+                                        }
+                                    },
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .height(75.dp)
+                                )
+                            }
+                        }
+
+
+
                 }
+
             })
     }
 }
+
+@Composable
+fun LoadBackgroundImage() {
+    val context = LocalContext.current
+    var bitmap by remember { mutableStateOf<ImageBitmap?>(null) }
+
+    LaunchedEffect(Unit) {
+        withContext(Dispatchers.IO) {
+            val file = context.filesDir.child("background")
+            if (!file.exists()) return@withContext
+
+            val fullBitmap = BitmapFactory.decodeFile(file.absolutePath)?.asImageBitmap()
+            if (fullBitmap != null) bitmap = fullBitmap
+        }
+
+    }
+
+    bitmap?.let {
+        Image(
+            bitmap = it,
+            contentDescription = null,
+            contentScale = ContentScale.Crop,
+            modifier = Modifier
+                .fillMaxSize()
+                .zIndex(-1f)
+        )
+    }
+}
+
+@Composable
+fun SetStatusBarTextColor(isDarkIcons: Boolean) {
+    val view = LocalView.current
+    val window = (view.context as? Activity)?.window ?: return
+
+    SideEffect {
+        WindowCompat.getInsetsController(window, view)?.isAppearanceLightStatusBars = isDarkIcons
+    }
+}
+
+
 
 @Composable
 fun SelectableCard(
@@ -363,7 +584,7 @@ fun SelectableCard(
 }
 
 
-fun changeSession(mainActivityActivity: MainActivity, session_id:String){
+fun changeSession(mainActivityActivity: MainActivity, session_id: String) {
     terminalView.get()?.apply {
         val client = TerminalBackEnd(this, mainActivityActivity)
         val session =
@@ -386,7 +607,7 @@ fun changeSession(mainActivityActivity: MainActivity, session_id:String){
             )
             keepScreenOn = true
             requestFocus()
-            setFocusableInTouchMode(true)
+            isFocusableInTouchMode = true
 
             mEmulator?.mColors?.mCurrentColors?.apply {
                 set(256, typedValue.data)
@@ -394,14 +615,14 @@ fun changeSession(mainActivityActivity: MainActivity, session_id:String){
             }
         }
         virtualKeysView.get()?.apply {
-            virtualKeysViewClient = terminalView.get()?.mTermSession?.let { VirtualKeysListener(it) }
+            virtualKeysViewClient =
+                terminalView.get()?.mTermSession?.let { VirtualKeysListener(it) }
         }
 
     }
     mainActivityActivity.sessionBinder!!.getService().currentSession.value = session_id
 
 }
-
 
 
 const val VIRTUAL_KEYS =

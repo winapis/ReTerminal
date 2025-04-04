@@ -43,6 +43,14 @@ object Settings {
     var workingMode
         get() = Preference.getInt(key = "workingMode", default = WorkingMode.ALPINE_SHIZUKU)
         set(value) = Preference.setInt(key = "workingMode",value)
+
+    var custom_background_name
+        get() = Preference.getString(key = "custom_bg_name", default = "No Image Selected")
+        set(value) = Preference.setString(key = "custom_bg_name",value)
+    var blackTextColor
+        get() = Preference.getBoolean(key = "blackText", default = false)
+        set(value) = Preference.setBoolean(key = "blackText",value)
+
 }
 
 object Preference {

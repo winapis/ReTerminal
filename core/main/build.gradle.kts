@@ -109,6 +109,8 @@ dependencies {
     //api(libs.commons.net)
     api(libs.okhttp)
     api(libs.anrwatchdog)
+    api(libs.androidx.palette)
+
 
     api(project(":core:resources"))
     api(project(":core:components"))
