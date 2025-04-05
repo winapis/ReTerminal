@@ -26,6 +26,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
@@ -40,7 +41,9 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
@@ -53,13 +56,21 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.graphics.drawscope.clipRect
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.LayoutDirection
@@ -70,9 +81,11 @@ import androidx.compose.ui.zIndex
 import androidx.core.view.WindowCompat
 import androidx.navigation.NavController
 import androidx.palette.graphics.Palette
+import com.google.android.material.R
 import com.rk.libcommons.child
 import com.rk.libcommons.dpToPx
 import com.rk.libcommons.pendingCommand
+import com.rk.resources.strings
 import com.rk.settings.Settings
 import com.rk.terminal.ui.activities.terminal.MainActivity
 import com.rk.terminal.ui.routes.MainActivityRoutes
@@ -94,6 +107,23 @@ var virtualKeysId = View.generateViewId()
 
 
 var darkText = mutableStateOf(Settings.blackTextColor)
+var bitmap = mutableStateOf<ImageBitmap?>(null)
+
+inline fun getViewColor(): Int{
+    return if (darkText.value){
+        Color.BLACK
+    }else{
+        Color.WHITE
+    }
+}
+
+inline fun getComposeColor():androidx.compose.ui.graphics.Color{
+    return if (darkText.value){
+        androidx.compose.ui.graphics.Color.Black
+    }else{
+        androidx.compose.ui.graphics.Color.White
+    }
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -107,9 +137,15 @@ fun TerminalScreen(
     val scope = rememberCoroutineScope()
 
     LaunchedEffect(Unit){
-        if (context.filesDir.child("background").exists().not()){
-            darkText.value = !isDarkMode
+        withContext(Dispatchers.IO){
+            if (context.filesDir.child("background").exists().not()){
+                darkText.value = !isDarkMode
+            }else if (bitmap.value == null){
+                val fullBitmap = BitmapFactory.decodeFile(context.filesDir.child("background").absolutePath)?.asImageBitmap()
+                if (fullBitmap != null) bitmap.value = fullBitmap
+            }
         }
+
 
         scope.launch(Dispatchers.Main){
             virtualKeysView.get()?.apply {
@@ -120,12 +156,7 @@ fun TerminalScreen(
                         )
                     }
 
-
-                buttonTextColor = if (darkText.value){
-                    Color.BLACK
-                }else{
-                    Color.WHITE
-                }
+                buttonTextColor = getViewColor()
 
 
                 reload(
@@ -139,15 +170,10 @@ fun TerminalScreen(
 
             terminalView.get()?.apply {
                 onScreenUpdated()
-                val color = if (darkText.value){
-                    Color.BLACK
-                }else{
-                    Color.WHITE
-                }
 
                 mEmulator?.mColors?.mCurrentColors?.apply {
-                    set(256, color)
-                    set(258, color)
+                    set(256, getViewColor())
+                    set(258, getViewColor())
                 }
             }
         }
@@ -296,65 +322,41 @@ fun TerminalScreen(
 
             },
             content = {
-                val density = LocalDensity.current
-                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    LoadBackgroundImage()
-                    val color = if (darkText.value){
-                        androidx.compose.ui.graphics.Color.Black
-                    }else{
-                        androidx.compose.ui.graphics.Color.White
+                fun Modifier.clipSides(
+                    left: Boolean = true,
+                    top: Boolean = true,
+                    right: Boolean = true,
+                    bottom: Boolean = true
+                ): Modifier = drawWithContent {
+                    clipRect(
+                        left = if (left) 0f else -Float.MAX_VALUE,
+                        top = if (top) 0f else -Float.MAX_VALUE,
+                        right = if (right) size.width else Float.MAX_VALUE,
+                        bottom = if (bottom) size.height else Float.MAX_VALUE,
+                    ) {
+                        this@drawWithContent.drawContent()
                     }
+                }
+                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        BackgroundImage()
+                        val color = getComposeColor()
                         Column {
-                            Row(modifier = Modifier
-                                .padding(
-                                    top = with(density) {
-                                        TopAppBarDefaults.windowInsets
-                                            .getTop(this)
-                                            .toDp()
-                                    },
-                                    bottom = with(density) {
-                                        TopAppBarDefaults.windowInsets
-                                            .getBottom(
-                                                this
-                                            )
-                                            .toDp()
-                                    },
-                                    start = with(density) {
-                                        TopAppBarDefaults.windowInsets
-                                            .getLeft(
-                                                this,
-                                                LayoutDirection.Ltr
-                                            )
-                                            .toDp()
-                                    },
-                                    end = with(density) {
-                                        TopAppBarDefaults.windowInsets
-                                            .getRight(
-                                                this,
-                                                LayoutDirection.Ltr
-                                            )
-                                            .toDp()
-                                    })
-                                .padding(bottom = 10.dp),
-                                horizontalArrangement = Arrangement.Start,
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                IconButton(
-                                    modifier = Modifier.padding(start = 8.dp),
-                                    onClick = {
+                            TopAppBar(
+                                colors = TopAppBarDefaults.topAppBarColors(
+                                    containerColor = androidx.compose.ui.graphics.Color.Transparent,
+                                    scrolledContainerColor = androidx.compose.ui.graphics.Color.Transparent
+                                ),
+                                title = {
+                                    Text(text = "ReTerminal",color = color)},
+                                navigationIcon = {
+                                    IconButton(onClick = {
                                         scope.launch { drawerState.open() }
                                     }) {
-                                    Icon(Icons.Default.Menu, null, tint = color)
+                                        Icon(Icons.Default.Menu, null, tint = color)
+                                    }
                                 }
-                                Text(
-                                    "ReTerminal", style = TextStyle(
-                                        fontSize = 21.sp,
-                                        fontWeight = FontWeight.Normal
-                                    ),
-                                    modifier = Modifier.padding(start = 6.dp, top = 2.dp),
-                                    color = color
-                                )
-                            }
+                            )
+
                             Column(modifier = Modifier.imePadding()) {
                                 AndroidView(
                                     factory = { context ->
@@ -397,11 +399,7 @@ fun TerminalScreen(
 
                                             post {
 
-                                                val color = if (darkText.value){
-                                                    Color.BLACK
-                                                }else{
-                                                    Color.WHITE
-                                                }
+                                                val color = getViewColor()
 
                                                 keepScreenOn = true
                                                 requestFocus()
@@ -419,11 +417,7 @@ fun TerminalScreen(
                                         .weight(1f),
                                     update = { terminalView ->
                                         terminalView.onScreenUpdated()
-                                       val color = if (darkText.value){
-                                           Color.BLACK
-                                       }else{
-                                           Color.WHITE
-                                       }
+                                       val color = getViewColor()
 
                                         terminalView.mEmulator?.mColors?.mCurrentColors?.apply {
                                             set(256, color)
@@ -442,11 +436,7 @@ fun TerminalScreen(
                                             }
 
 
-                                        buttonTextColor = if (darkText.value){
-                                            Color.BLACK
-                                        }else{
-                                            Color.WHITE
-                                        }
+                                        buttonTextColor = getViewColor()
 
 
                                         reload(
@@ -472,11 +462,7 @@ fun TerminalScreen(
                                                 }
 
 
-                                            buttonTextColor = if (darkText.value){
-                                                    Color.BLACK
-                                                }else{
-                                                    Color.WHITE
-                                                }
+                                            buttonTextColor = getViewColor()
 
 
                                             reload(
@@ -504,22 +490,8 @@ fun TerminalScreen(
 }
 
 @Composable
-fun LoadBackgroundImage() {
-    val context = LocalContext.current
-    var bitmap by remember { mutableStateOf<ImageBitmap?>(null) }
-
-    LaunchedEffect(Unit) {
-        withContext(Dispatchers.IO) {
-            val file = context.filesDir.child("background")
-            if (!file.exists()) return@withContext
-
-            val fullBitmap = BitmapFactory.decodeFile(file.absolutePath)?.asImageBitmap()
-            if (fullBitmap != null) bitmap = fullBitmap
-        }
-
-    }
-
-    bitmap?.let {
+fun BackgroundImage() {
+    bitmap.value?.let {
         Image(
             bitmap = it,
             contentDescription = null,
@@ -601,7 +573,7 @@ fun changeSession(mainActivityActivity: MainActivity, session_id: String) {
             val typedValue = TypedValue()
 
             context.theme.resolveAttribute(
-                com.google.android.material.R.attr.colorOnSurface,
+                R.attr.colorOnSurface,
                 typedValue,
                 true
             )

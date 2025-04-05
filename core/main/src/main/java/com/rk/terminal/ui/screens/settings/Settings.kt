@@ -43,6 +43,7 @@ import com.rk.libcommons.dpToPx
 import com.rk.resources.strings
 import com.rk.settings.Settings
 import com.rk.terminal.ui.components.SettingsToggle
+import com.rk.terminal.ui.screens.terminal.bitmap
 import com.rk.terminal.ui.screens.terminal.darkText
 import com.rk.terminal.ui.screens.terminal.terminalView
 import kotlinx.coroutines.Dispatchers
@@ -244,9 +245,8 @@ fun Settings(modifier: Modifier = Modifier) {
                         withContext(Dispatchers.IO) {
                             val file = context.filesDir.child("background")
                             if (!file.exists()) return@withContext
-                            val smallBitmap = BitmapFactory.decodeFile(file.absolutePath)?.asImageBitmap()
-
-                            smallBitmap?.apply {
+                            bitmap.value = BitmapFactory.decodeFile(file.absolutePath)?.asImageBitmap()
+                            bitmap.value?.apply {
                                 val androidBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
                                 val buffer = IntArray(width * height)
                                 readPixels(buffer, 0, 0, width, height)
@@ -291,6 +291,7 @@ fun Settings(modifier: Modifier = Modifier) {
                                 backgroundName = "No Image Selected"
                                 darkText.value = !darkMode
                                 imageExists = image.exists()
+                                bitmap.value = null
                             }
                         }) {
                             Icon(imageVector = Icons.Outlined.Delete,contentDescription = "delete")
