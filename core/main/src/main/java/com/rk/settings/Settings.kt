@@ -47,6 +47,9 @@ object Settings {
     var custom_background_name
         get() = Preference.getString(key = "custom_bg_name", default = "No Image Selected")
         set(value) = Preference.setString(key = "custom_bg_name",value)
+    var custom_font_name
+        get() = Preference.getString(key = "custom_ttf_name", default = "No Font Selected")
+        set(value) = Preference.setString(key = "custom_ttf_name",value)
     var blackTextColor
         get() = Preference.getBoolean(key = "blackText", default = false)
         set(value) = Preference.setBoolean(key = "blackText",value)

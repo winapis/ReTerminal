@@ -82,6 +82,7 @@ import androidx.core.view.WindowCompat
 import androidx.navigation.NavController
 import androidx.palette.graphics.Palette
 import com.google.android.material.R
+import com.rk.libcommons.application
 import com.rk.libcommons.child
 import com.rk.libcommons.dpToPx
 import com.rk.libcommons.pendingCommand
@@ -108,6 +109,21 @@ var virtualKeysId = View.generateViewId()
 
 var darkText = mutableStateOf(Settings.blackTextColor)
 var bitmap = mutableStateOf<ImageBitmap?>(null)
+
+private val file = application!!.filesDir.child("font.ttf")
+private var font = (if (file.exists() && file.canRead()){
+    Typeface.createFromFile(file)
+}else{
+    Typeface.MONOSPACE
+})
+
+suspend fun setFont(typeface: Typeface) = withContext(Dispatchers.Main){
+    font = typeface
+    terminalView.get()?.apply {
+        setTypeface(typeface)
+        onScreenUpdated()
+    }
+}
 
 inline fun getViewColor(): Int{
     return if (darkText.value){
@@ -322,21 +338,6 @@ fun TerminalScreen(
 
             },
             content = {
-                fun Modifier.clipSides(
-                    left: Boolean = true,
-                    top: Boolean = true,
-                    right: Boolean = true,
-                    bottom: Boolean = true
-                ): Modifier = drawWithContent {
-                    clipRect(
-                        left = if (left) 0f else -Float.MAX_VALUE,
-                        top = if (top) 0f else -Float.MAX_VALUE,
-                        right = if (right) size.width else Float.MAX_VALUE,
-                        bottom = if (bottom) size.height else Float.MAX_VALUE,
-                    ) {
-                        this@drawWithContent.drawContent()
-                    }
-                }
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                         BackgroundImage()
                         val color = getComposeColor()
@@ -395,10 +396,9 @@ fun TerminalScreen(
                                             session.updateTerminalSessionClient(client)
                                             attachSession(session)
                                             setTerminalViewClient(client)
-                                            setTypeface(Typeface.MONOSPACE)
+                                            setTypeface(font)
 
                                             post {
-
                                                 val color = getViewColor()
 
                                                 keepScreenOn = true

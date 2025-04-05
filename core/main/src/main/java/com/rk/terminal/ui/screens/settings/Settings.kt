@@ -4,6 +4,7 @@ import android.content.ContentResolver
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.graphics.Typeface
 import android.net.Uri
 import android.provider.OpenableColumns
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -17,6 +18,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Delete
+import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -42,9 +44,11 @@ import com.rk.libcommons.createFileIfNot
 import com.rk.libcommons.dpToPx
 import com.rk.resources.strings
 import com.rk.settings.Settings
+import com.rk.terminal.ui.components.InfoBlock
 import com.rk.terminal.ui.components.SettingsToggle
 import com.rk.terminal.ui.screens.terminal.bitmap
 import com.rk.terminal.ui.screens.terminal.darkText
+import com.rk.terminal.ui.screens.terminal.setFont
 import com.rk.terminal.ui.screens.terminal.terminalView
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -198,17 +202,102 @@ fun Settings(modifier: Modifier = Modifier) {
         }
 
 
+        fun getFileNameFromUri(context: Context, uri: Uri): String? {
+            if (uri.scheme == ContentResolver.SCHEME_CONTENT) {
+                context.contentResolver.query(uri, null, null, null, null)?.use { cursor ->
+                    val nameIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME)
+                    if (cursor.moveToFirst() && nameIndex != -1) {
+                        return cursor.getString(nameIndex)
+                    }
+                }
+            } else if (uri.scheme == ContentResolver.SCHEME_FILE) {
+                return File(uri.path!!).name
+            }
+            return null
+        }
+
+        InfoBlock(text = "Only monospaced fonts are supported. Non-monospaced fonts may not render correctly.", icon = {
+            Icon(imageVector = Icons.Outlined.Info, contentDescription = null)
+        })
+        PreferenceGroup {
+            val scope = rememberCoroutineScope()
+            val font by remember { mutableStateOf<File>(context.filesDir.child("font.ttf")) }
+            var fontExists by remember { mutableStateOf(font.exists()) }
+
+            var fontName by remember { mutableStateOf(if (!fontExists || !font.canRead()){
+                "No Font Selected"
+            }else{
+                Settings.custom_font_name
+            }) }
+
+            val fontLauncher = rememberLauncherForActivityResult(
+                contract = ActivityResultContracts.GetContent()
+            ) { uri: Uri? ->
+                uri?.let {
+                    scope.launch(Dispatchers.IO){
+                        font.createFileIfNot()
+                        context.contentResolver.openInputStream(it)?.use { inputStream ->
+                            font.outputStream().use { outputStream ->
+                                inputStream.copyTo(outputStream)
+                            }
+                        }
+
+                        val name = getFileNameFromUri(context,uri).toString()
+                        Settings.custom_font_name = name
+                        fontName = name
+                        fontExists = font.exists()
+                        setFont(Typeface.createFromFile(font))
+                    }
+                }
+
+            }
+
+            PreferenceTemplate(
+                modifier = Modifier.clickable(onClick = {
+                    scope.launch{
+                        fontLauncher.launch("font/ttf")
+                    }
+                }),
+                title = {
+                    Text("Custom Font")
+                },
+                description = {
+                    Text(fontName)
+                },
+                endWidget = {
+                    if (fontExists){
+                        IconButton(onClick = {
+                            scope.launch{
+                                font.delete()
+                                fontName = "No Font Selected"
+                                Settings.custom_font_name = "No Font Selected"
+                                setFont(Typeface.MONOSPACE)
+                                fontExists = font.exists()
+                            }
+                        }) {
+                            Icon(imageVector = Icons.Outlined.Delete,contentDescription = "delete")
+                        }
+                    }
+                }
+            )
+        }
 
         PreferenceGroup {
             val context = LocalContext.current
             val scope = rememberCoroutineScope()
             val image by remember { mutableStateOf<File>(context.filesDir.child("background")) }
+
+
             var imageExists by remember { mutableStateOf(image.exists()) }
-            var backgroundName by remember { mutableStateOf(if (!image.exists() || !image.canRead()){
+
+
+
+            var backgroundName by remember { mutableStateOf(if (!imageExists || !image.canRead()){
                 "No Image Selected"
             }else{
                 Settings.custom_background_name
             }) }
+
 
 
             val launcher = rememberLauncherForActivityResult(
@@ -221,20 +310,6 @@ fun Settings(modifier: Modifier = Modifier) {
                             image.outputStream().use { outputStream ->
                                 inputStream.copyTo(outputStream)
                             }
-                        }
-
-                        fun getFileNameFromUri(context: Context, uri: Uri): String? {
-                            if (uri.scheme == ContentResolver.SCHEME_CONTENT) {
-                                context.contentResolver.query(uri, null, null, null, null)?.use { cursor ->
-                                    val nameIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME)
-                                    if (cursor.moveToFirst() && nameIndex != -1) {
-                                        return cursor.getString(nameIndex)
-                                    }
-                                }
-                            } else if (uri.scheme == ContentResolver.SCHEME_FILE) {
-                                return File(uri.path!!).name
-                            }
-                            return null
                         }
 
                         val name = getFileNameFromUri(context,uri).toString()
