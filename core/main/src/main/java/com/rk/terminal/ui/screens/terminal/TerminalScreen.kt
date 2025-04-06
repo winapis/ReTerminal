@@ -32,6 +32,8 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.outlined.Delete
+import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DrawerValue
@@ -242,7 +244,7 @@ fun TerminalScreen(
                                     navController.navigate(MainActivityRoutes.Settings.route)
                                 }) {
                                     Icon(
-                                        imageVector = Icons.Default.Settings,
+                                        imageVector = Icons.Outlined.Settings,
                                         contentDescription = null
                                     )
                                 }
@@ -317,10 +319,9 @@ fun TerminalScreen(
                                                     },
                                                     modifier = Modifier.size(24.dp)
                                                 ) {
-
-                                                    //todo make the icon outlined
+                                                    
                                                     Icon(
-                                                        imageVector = Icons.Default.Delete,
+                                                        imageVector = Icons.Outlined.Delete,
                                                         contentDescription = null,
                                                         modifier = Modifier.size(20.dp)
                                                     )

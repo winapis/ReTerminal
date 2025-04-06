@@ -10,6 +10,7 @@ import androidx.navigation.compose.composable
 import com.rk.terminal.ui.activities.terminal.MainActivity
 import com.rk.terminal.ui.animations.NavigationAnimationTransitions
 import com.rk.terminal.ui.routes.MainActivityRoutes
+import com.rk.terminal.ui.screens.customization.Customization
 import com.rk.terminal.ui.screens.downloader.Downloader
 import com.rk.terminal.ui.screens.settings.Settings
 import com.rk.terminal.ui.screens.terminal.Rootfs
@@ -32,6 +33,7 @@ fun MainActivityNavHost(modifier: Modifier = Modifier,navController: NavHostCont
                 Downloader(mainActivity = mainActivity, navController = navController)
             }
         }
-        composable(MainActivityRoutes.Settings.route) { Settings() }
+        composable(MainActivityRoutes.Settings.route) { Settings(navController = navController) }
+        composable(MainActivityRoutes.Customization.route){ Customization() }
     }
 }

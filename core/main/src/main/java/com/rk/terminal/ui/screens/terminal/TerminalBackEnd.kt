@@ -1,10 +1,14 @@
 package com.rk.terminal.ui.screens.terminal
 
+import android.media.MediaPlayer
 import android.util.Log
 import android.view.KeyEvent
 import android.view.MotionEvent
+import androidx.lifecycle.lifecycleScope
 import com.blankj.utilcode.util.ClipboardUtils
 import com.blankj.utilcode.util.KeyboardUtils
+import com.rk.libcommons.child
+import com.rk.libcommons.createFileIfNot
 import com.rk.libcommons.dpToPx
 import com.rk.settings.Settings
 import com.rk.terminal.ui.activities.terminal.MainActivity
@@ -15,13 +19,20 @@ import com.termux.terminal.TerminalSession
 import com.termux.terminal.TerminalSessionClient
 import com.termux.view.TerminalView
 import com.termux.view.TerminalViewClient
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import java.io.File
+import java.io.FileOutputStream
 
 class TerminalBackEnd(val terminal: TerminalView,val activity: MainActivity) : TerminalViewClient, TerminalSessionClient {
     override fun onTextChanged(changedSession: TerminalSession) {
         terminal.onScreenUpdated()
     }
     
-    override fun onTitleChanged(changedSession: TerminalSession) {}
+    override fun onTitleChanged(changedSession: TerminalSession) {
+
+    }
     
     override fun onSessionFinished(finishedSession: TerminalSession) {
 
@@ -39,7 +50,30 @@ class TerminalBackEnd(val terminal: TerminalView,val activity: MainActivity) : T
     }
     
     override fun onBell(session: TerminalSession) {
+        if (Settings.bell){
+            activity.lifecycleScope.launch{
+                val bellFile = activity.cacheDir.child("bell.oga")
+                if (bellFile.exists().not()){
+                    bellFile.createNewFile()
+                    withContext(Dispatchers.IO){
+                        activity.assets.open("bell.oga").use { assetIS ->
+                            FileOutputStream(bellFile).use { bellFileOutS ->
+                                assetIS.copyTo(bellFileOutS)
+                            }
+                        }
+                    }
 
+                }
+
+                val mediaPlayer = MediaPlayer()
+                mediaPlayer.setOnCompletionListener{
+                    it?.release()
+                }
+                mediaPlayer.setDataSource(bellFile.absolutePath)
+                mediaPlayer.prepare()
+                mediaPlayer.start()
+            }
+        }
     }
     
     override fun onColorsChanged(session: TerminalSession) {}

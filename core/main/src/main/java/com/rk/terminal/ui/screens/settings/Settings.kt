@@ -17,8 +17,10 @@ import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.outlined.KeyboardArrowRight
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.Info
+import androidx.compose.material.icons.outlined.KeyboardArrowRight
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -34,6 +36,7 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import androidx.palette.graphics.Palette
 import com.rk.components.compose.preferences.base.PreferenceGroup
 import com.rk.components.compose.preferences.base.PreferenceLayout
@@ -46,14 +49,7 @@ import com.rk.resources.strings
 import com.rk.settings.Settings
 import com.rk.terminal.ui.components.InfoBlock
 import com.rk.terminal.ui.components.SettingsToggle
-import com.rk.terminal.ui.screens.terminal.bitmap
-import com.rk.terminal.ui.screens.terminal.darkText
-import com.rk.terminal.ui.screens.terminal.setFont
-import com.rk.terminal.ui.screens.terminal.terminalView
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import java.io.File
+import com.rk.terminal.ui.routes.MainActivityRoutes
 
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -97,12 +93,10 @@ object WorkingMode{
     const val ALPINE_ROOT = 3
 }
 
-private const val min_text_size = 10f
-private const val max_text_size = 20f
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun Settings(modifier: Modifier = Modifier) {
+fun Settings(modifier: Modifier = Modifier,navController: NavController) {
     val context = LocalContext.current
     var selectedOption by remember { mutableIntStateOf(Settings.workingMode) }
 
@@ -181,201 +175,17 @@ fun Settings(modifier: Modifier = Modifier) {
                 })
         }
 
-        var sliderPosition by remember { mutableFloatStateOf(Settings.terminal_font_size.toFloat()) }
-        PreferenceGroup {
-            PreferenceTemplate(title = { Text("Text Size") }) {
-                Text(sliderPosition.toInt().toString())
-            }
-            PreferenceTemplate(title = {}) {
-                Slider(
-                    modifier = modifier,
-                    value = sliderPosition,
-                    onValueChange = {
-                        sliderPosition = it
-                        Settings.terminal_font_size = it.toInt()
-                        terminalView.get()?.setTextSize(dpToPx(it.toFloat(), context))
-                    },
-                    steps = (max_text_size - min_text_size).toInt() - 1,
-                    valueRange = min_text_size..max_text_size,
-                )
-            }
-        }
-
-
-        fun getFileNameFromUri(context: Context, uri: Uri): String? {
-            if (uri.scheme == ContentResolver.SCHEME_CONTENT) {
-                context.contentResolver.query(uri, null, null, null, null)?.use { cursor ->
-                    val nameIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME)
-                    if (cursor.moveToFirst() && nameIndex != -1) {
-                        return cursor.getString(nameIndex)
-                    }
-                }
-            } else if (uri.scheme == ContentResolver.SCHEME_FILE) {
-                return File(uri.path!!).name
-            }
-            return null
-        }
-
-        InfoBlock(text = "Only monospaced fonts are supported. Non-monospaced fonts may not render correctly.", icon = {
-            Icon(imageVector = Icons.Outlined.Info, contentDescription = null)
-        })
-        PreferenceGroup {
-            val scope = rememberCoroutineScope()
-            val font by remember { mutableStateOf<File>(context.filesDir.child("font.ttf")) }
-            var fontExists by remember { mutableStateOf(font.exists()) }
-
-            var fontName by remember { mutableStateOf(if (!fontExists || !font.canRead()){
-                "No Font Selected"
-            }else{
-                Settings.custom_font_name
-            }) }
-
-            val fontLauncher = rememberLauncherForActivityResult(
-                contract = ActivityResultContracts.GetContent()
-            ) { uri: Uri? ->
-                uri?.let {
-                    scope.launch(Dispatchers.IO){
-                        font.createFileIfNot()
-                        context.contentResolver.openInputStream(it)?.use { inputStream ->
-                            font.outputStream().use { outputStream ->
-                                inputStream.copyTo(outputStream)
-                            }
-                        }
-
-                        val name = getFileNameFromUri(context,uri).toString()
-                        Settings.custom_font_name = name
-                        fontName = name
-                        fontExists = font.exists()
-                        setFont(Typeface.createFromFile(font))
-                    }
-                }
-
-            }
-
-            PreferenceTemplate(
-                modifier = Modifier.clickable(onClick = {
-                    scope.launch{
-                        fontLauncher.launch("font/ttf")
-                    }
-                }),
-                title = {
-                    Text("Custom Font")
-                },
-                description = {
-                    Text(fontName)
-                },
-                endWidget = {
-                    if (fontExists){
-                        IconButton(onClick = {
-                            scope.launch{
-                                font.delete()
-                                fontName = "No Font Selected"
-                                Settings.custom_font_name = "No Font Selected"
-                                setFont(Typeface.MONOSPACE)
-                                fontExists = font.exists()
-                            }
-                        }) {
-                            Icon(imageVector = Icons.Outlined.Delete,contentDescription = "delete")
-                        }
-                    }
-                }
-            )
-        }
 
         PreferenceGroup {
-            val context = LocalContext.current
-            val scope = rememberCoroutineScope()
-            val image by remember { mutableStateOf<File>(context.filesDir.child("background")) }
-
-
-            var imageExists by remember { mutableStateOf(image.exists()) }
-
-
-
-            var backgroundName by remember { mutableStateOf(if (!imageExists || !image.canRead()){
-                "No Image Selected"
-            }else{
-                Settings.custom_background_name
-            }) }
-
-
-
-            val launcher = rememberLauncherForActivityResult(
-                contract = ActivityResultContracts.GetContent()
-            ) { uri: Uri? ->
-                uri?.let {
-                    scope.launch(Dispatchers.IO){
-                        image.createFileIfNot()
-                        context.contentResolver.openInputStream(it)?.use { inputStream ->
-                            image.outputStream().use { outputStream ->
-                                inputStream.copyTo(outputStream)
-                            }
-                        }
-
-                        val name = getFileNameFromUri(context,uri).toString()
-                        Settings.custom_background_name = name
-                        backgroundName = name
-
-
-                        withContext(Dispatchers.IO) {
-                            val file = context.filesDir.child("background")
-                            if (!file.exists()) return@withContext
-                            bitmap.value = BitmapFactory.decodeFile(file.absolutePath)?.asImageBitmap()
-                            bitmap.value?.apply {
-                                val androidBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
-                                val buffer = IntArray(width * height)
-                                readPixels(buffer, 0, 0, width, height)
-                                androidBitmap.setPixels(buffer, 0, width, 0, 0, width, height)
-                                Palette.from(androidBitmap).generate { palette ->
-                                    val dominantColor = palette?.getDominantColor(android.graphics.Color.WHITE)
-                                    val luminance = androidx.core.graphics.ColorUtils.calculateLuminance(dominantColor ?: android.graphics.Color.WHITE)
-                                    val blackText = luminance > 0.5f
-                                    Settings.blackTextColor = blackText
-                                    darkText.value = blackText
-                                }
-                            }
-
-                        }
-                        imageExists = image.exists()
-                    }
-
-                }
-
-
-            }
-
-            PreferenceTemplate(
-                modifier = Modifier.clickable(onClick = {
-                    scope.launch{
-                        launcher.launch("image/*")
-                    }
-                }),
-                title = {
-                    Text("Custom Background")
-                },
-                description = {
-                    Text(backgroundName)
-                },
-                endWidget = {
-                    val darkMode = isSystemInDarkTheme()
-                    if (imageExists){
-                        IconButton(onClick = {
-                            scope.launch{
-                                image.delete()
-                                Settings.custom_background_name = "No Image Selected"
-                                backgroundName = "No Image Selected"
-                                darkText.value = !darkMode
-                                imageExists = image.exists()
-                                bitmap.value = null
-                            }
-                        }) {
-                            Icon(imageVector = Icons.Outlined.Delete,contentDescription = "delete")
-                        }
-                    }
-
-                }
-            )
-
+            SettingsToggle(
+                label = "Customizations",
+                showSwitch = false,
+                default = false,
+                sideEffect = {
+                   navController.navigate(MainActivityRoutes.Customization.route)
+            }, endWidget = {
+                Icon(imageVector = Icons.AutoMirrored.Outlined.KeyboardArrowRight, contentDescription = null,modifier = Modifier.padding(16.dp))
+            })
         }
     }
 }

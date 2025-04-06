@@ -50,9 +50,14 @@ object Settings {
     var custom_font_name
         get() = Preference.getString(key = "custom_ttf_name", default = "No Font Selected")
         set(value) = Preference.setString(key = "custom_ttf_name",value)
+
     var blackTextColor
         get() = Preference.getBoolean(key = "blackText", default = false)
         set(value) = Preference.setBoolean(key = "blackText",value)
+
+    var bell
+        get() = Preference.getBoolean(key = "bell", default = false)
+        set(value) = Preference.setBoolean(key = "bell",value)
 
 }
 
