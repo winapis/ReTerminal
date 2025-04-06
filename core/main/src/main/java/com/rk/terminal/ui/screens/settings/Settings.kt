@@ -47,6 +47,7 @@ import com.rk.libcommons.createFileIfNot
 import com.rk.libcommons.dpToPx
 import com.rk.resources.strings
 import com.rk.settings.Settings
+import com.rk.terminal.ui.activities.terminal.MainActivity
 import com.rk.terminal.ui.components.InfoBlock
 import com.rk.terminal.ui.components.SettingsToggle
 import com.rk.terminal.ui.routes.MainActivityRoutes
@@ -96,7 +97,7 @@ object WorkingMode{
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun Settings(modifier: Modifier = Modifier,navController: NavController) {
+fun Settings(modifier: Modifier = Modifier,navController: NavController,mainActivity: MainActivity) {
     val context = LocalContext.current
     var selectedOption by remember { mutableIntStateOf(Settings.workingMode) }
 

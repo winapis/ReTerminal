@@ -33,7 +33,7 @@ fun MainActivityNavHost(modifier: Modifier = Modifier,navController: NavHostCont
                 Downloader(mainActivity = mainActivity, navController = navController)
             }
         }
-        composable(MainActivityRoutes.Settings.route) { Settings(navController = navController) }
+        composable(MainActivityRoutes.Settings.route) { Settings(navController = navController, mainActivity = mainActivity) }
         composable(MainActivityRoutes.Customization.route){ Customization() }
     }
 }

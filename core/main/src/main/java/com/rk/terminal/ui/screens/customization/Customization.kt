@@ -39,9 +39,11 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.palette.graphics.Palette
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.rk.components.compose.preferences.base.PreferenceGroup
 import com.rk.components.compose.preferences.base.PreferenceLayout
 import com.rk.components.compose.preferences.base.PreferenceTemplate
+import com.rk.components.compose.preferences.switch.PreferenceSwitch
 import com.rk.libcommons.child
 import com.rk.libcommons.createFileIfNot
 import com.rk.libcommons.dpToPx
@@ -51,6 +53,9 @@ import com.rk.terminal.ui.components.SettingsToggle
 import com.rk.terminal.ui.screens.terminal.bitmap
 import com.rk.terminal.ui.screens.terminal.darkText
 import com.rk.terminal.ui.screens.terminal.setFont
+import com.rk.terminal.ui.screens.terminal.showHorizontalToolbar
+import com.rk.terminal.ui.screens.terminal.showToolbar
+import com.rk.terminal.ui.screens.terminal.showVirtualKeys
 import com.rk.terminal.ui.screens.terminal.terminalView
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -85,7 +90,6 @@ fun Customization(modifier: Modifier = Modifier) {
                 )
             }
         }
-
 
         fun getFileNameFromUri(context: Context, uri: Uri): String? {
             if (uri.scheme == ContentResolver.SCHEME_CONTENT) {
@@ -286,6 +290,66 @@ fun Customization(modifier: Modifier = Modifier) {
                 Settings.bell = it
             })
         }
+
+        PreferenceGroup {
+            val sideEffect:(Boolean)-> Unit = {
+                if (!it && showToolbar.value){
+                    MaterialAlertDialogBuilder(context).apply {
+                        setTitle("Attention")
+                        setMessage("Turning off the toolbar may prevent the drawer from opening on some devices. If this happens, you'll need to clear the app data to fix it.");
+                        setPositiveButton("OK"){_,_ ->
+                            Settings.toolbar = it
+                            showToolbar.value = it
+                        }
+                        setNegativeButton("Cancel",null)
+                        show()
+                    }
+                }else{
+                    Settings.toolbar = it
+                    showToolbar.value = it
+                }
+
+            }
+            PreferenceSwitch(checked = showToolbar.value,
+                onCheckedChange = {
+                    sideEffect.invoke(it)
+                },
+                label = "Toolbar",
+                modifier = modifier,
+                description = "Show toolbar",
+                onClick = {
+                    sideEffect.invoke(!showToolbar.value)
+                })
+
+            SettingsToggle(
+                isEnabled = showToolbar.value,
+                label = "Horizontal Toolbar",
+                description = "Show ToolBar in horizontal mode",
+                showSwitch = true,
+                default = Settings.toolbar_in_horizontal, sideEffect = {
+                    Settings.toolbar_in_horizontal = it
+                    showHorizontalToolbar.value = it
+                })
+            SettingsToggle(
+                label = "Virtual Keys",
+                description = "Show virtual keys below terminal",
+                showSwitch = true,
+                default = Settings.virtualKeys, sideEffect = {
+                    Settings.virtualKeys = it
+                    showVirtualKeys.value = it
+                })
+
+            SettingsToggle(
+                label = "Hide soft Keyboard",
+                description = "Hide virtual keyboard if hardware keyboard is connected",
+                showSwitch = true,
+                default = Settings.hide_soft_keyboard_if_hwd, sideEffect = {
+                    Settings.hide_soft_keyboard_if_hwd = it
+                })
+
+        }
+
+
     }
 
 

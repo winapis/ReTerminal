@@ -1,6 +1,7 @@
 package com.rk.terminal.ui.screens.terminal
 
 import android.app.Activity
+import android.content.res.Configuration
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Color
@@ -10,6 +11,7 @@ import android.view.View
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -106,7 +108,6 @@ import java.lang.ref.WeakReference
 
 var terminalView = WeakReference<TerminalView?>(null)
 var virtualKeysView = WeakReference<VirtualKeysView?>(null)
-var virtualKeysId = View.generateViewId()
 
 
 var darkText = mutableStateOf(Settings.blackTextColor)
@@ -142,6 +143,10 @@ inline fun getComposeColor():androidx.compose.ui.graphics.Color{
         androidx.compose.ui.graphics.Color.White
     }
 }
+
+var showToolbar = mutableStateOf(Settings.toolbar)
+var showVirtualKeys = mutableStateOf(Settings.virtualKeys)
+var showHorizontalToolbar = mutableStateOf(Settings.toolbar)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -220,7 +225,7 @@ fun TerminalScreen(
 
         ModalNavigationDrawer(
             drawerState = drawerState,
-            gesturesEnabled = drawerState.isOpen,
+            gesturesEnabled = drawerState.isOpen || !(showToolbar.value && (LocalConfiguration.current.orientation != Configuration.ORIENTATION_LANDSCAPE || showHorizontalToolbar.value)),
             drawerContent = {
                 ModalDrawerSheet(modifier = Modifier.width(drawerWidth)) {
                     Column(
@@ -343,23 +348,30 @@ fun TerminalScreen(
                         BackgroundImage()
                         val color = getComposeColor()
                         Column {
-                            TopAppBar(
-                                colors = TopAppBarDefaults.topAppBarColors(
-                                    containerColor = androidx.compose.ui.graphics.Color.Transparent,
-                                    scrolledContainerColor = androidx.compose.ui.graphics.Color.Transparent
-                                ),
-                                title = {
-                                    Text(text = "ReTerminal",color = color)},
-                                navigationIcon = {
-                                    IconButton(onClick = {
-                                        scope.launch { drawerState.open() }
-                                    }) {
-                                        Icon(Icons.Default.Menu, null, tint = color)
+                            if (showToolbar.value && (LocalConfiguration.current.orientation != Configuration.ORIENTATION_LANDSCAPE || showHorizontalToolbar.value)){
+                                TopAppBar(
+                                    colors = TopAppBarDefaults.topAppBarColors(
+                                        containerColor = androidx.compose.ui.graphics.Color.Transparent,
+                                        scrolledContainerColor = androidx.compose.ui.graphics.Color.Transparent
+                                    ),
+                                    title = {
+                                        Text(text = "ReTerminal",color = color)},
+                                    navigationIcon = {
+                                        IconButton(onClick = {
+                                            scope.launch { drawerState.open() }
+                                        }) {
+                                            Icon(Icons.Default.Menu, null, tint = color)
+                                        }
                                     }
-                                }
-                            )
+                                )
+                            }
 
-                            Column(modifier = Modifier.imePadding()) {
+                            val density = LocalDensity.current
+                            Column(modifier = Modifier.imePadding().padding(top = if (showToolbar.value){0.dp}else{
+                                with(density){
+                                    TopAppBarDefaults.windowInsets.getTop(density).toDp()
+                                }
+                            })) {
                                 AndroidView(
                                     factory = { context ->
                                         TerminalView(context, null).apply {
@@ -427,34 +439,9 @@ fun TerminalScreen(
                                     },
                                 )
 
-                                AndroidView(update = {
-                                    it.apply {
-                                        virtualKeysViewClient =
-                                            terminalView.get()?.mTermSession?.let {
-                                                VirtualKeysListener(
-                                                    it
-                                                )
-                                            }
-
-
-                                        buttonTextColor = getViewColor()
-
-
-                                        reload(
-                                            VirtualKeysInfo(
-                                                VIRTUAL_KEYS,
-                                                "",
-                                                VirtualKeysConstants.CONTROL_CHARS_ALIASES
-                                            )
-                                        )
-                                    }
-                                },
-                                    factory = { context ->
-                                        VirtualKeysView(context, null).apply {
-                                            virtualKeysView = WeakReference(this)
-                                            id = virtualKeysId
-
-
+                                if (showVirtualKeys.value){
+                                    AndroidView(update = {
+                                        it.apply {
                                             virtualKeysViewClient =
                                                 terminalView.get()?.mTermSession?.let {
                                                     VirtualKeysListener(
@@ -475,10 +462,38 @@ fun TerminalScreen(
                                             )
                                         }
                                     },
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .height(75.dp)
-                                )
+                                        factory = { context ->
+                                            VirtualKeysView(context, null).apply {
+                                                virtualKeysView = WeakReference(this)
+
+                                                virtualKeysViewClient =
+                                                    terminalView.get()?.mTermSession?.let {
+                                                        VirtualKeysListener(
+                                                            it
+                                                        )
+                                                    }
+
+
+                                                buttonTextColor = getViewColor()
+
+
+                                                reload(
+                                                    VirtualKeysInfo(
+                                                        VIRTUAL_KEYS,
+                                                        "",
+                                                        VirtualKeysConstants.CONTROL_CHARS_ALIASES
+                                                    )
+                                                )
+                                            }
+                                        },
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .height(75.dp)
+                                    )
+                                }else{
+                                    virtualKeysView = WeakReference(null)
+                                }
+
                             }
                         }
 

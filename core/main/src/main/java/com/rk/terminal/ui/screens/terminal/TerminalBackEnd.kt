@@ -1,5 +1,7 @@
 package com.rk.terminal.ui.screens.terminal
 
+import android.content.res.Configuration
+import android.content.res.Resources
 import android.media.MediaPlayer
 import android.util.Log
 import android.view.KeyEvent
@@ -116,9 +118,18 @@ class TerminalBackEnd(val terminal: TerminalView,val activity: MainActivity) : T
     override fun onScale(scale: Float): Float {
         return dpToPx(Settings.terminal_font_size.toFloat(),terminal.context).toFloat()
     }
-    
+
+    val isHardwareKeyboardConnected: Boolean
+        get() {
+            val config = Resources.getSystem().configuration
+            return config.keyboard != Configuration.KEYBOARD_NOKEYS
+        }
+
+
     override fun onSingleTapUp(e: MotionEvent) {
-        showSoftInput()
+        if (!(isHardwareKeyboardConnected && Settings.hide_soft_keyboard_if_hwd)){
+            showSoftInput()
+        }
     }
     
     override fun shouldBackButtonBeMappedToEscape(): Boolean {
@@ -162,25 +173,25 @@ class TerminalBackEnd(val terminal: TerminalView,val activity: MainActivity) : T
     
     // keys
     override fun readControlKey(): Boolean {
-        val state = activity.findViewById<VirtualKeysView>(virtualKeysId).readSpecialButton(
+        val state = virtualKeysView.get()?.readSpecialButton(
             SpecialButton.CTRL, true)
         return state != null && state
     }
     
     override fun readAltKey(): Boolean {
-       val state = activity.findViewById<VirtualKeysView>(virtualKeysId).readSpecialButton(
+       val state = virtualKeysView.get()?.readSpecialButton(
            SpecialButton.ALT, true)
         return state != null && state
     }
     
     override fun readShiftKey(): Boolean {
-        val state = activity.findViewById<VirtualKeysView>(virtualKeysId).readSpecialButton(
+        val state = virtualKeysView.get()?.readSpecialButton(
             SpecialButton.SHIFT, true)
         return state != null && state
     }
     
     override fun readFnKey(): Boolean {
-        val state = activity.findViewById<VirtualKeysView>(virtualKeysId).readSpecialButton(
+        val state = virtualKeysView.get()?.readSpecialButton(
             SpecialButton.FN, true)
         return state != null && state
     }

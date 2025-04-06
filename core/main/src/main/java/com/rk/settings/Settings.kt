@@ -59,6 +59,22 @@ object Settings {
         get() = Preference.getBoolean(key = "bell", default = false)
         set(value) = Preference.setBoolean(key = "bell",value)
 
+    var toolbar
+        get() = Preference.getBoolean(key = "toolbar", default = true)
+        set(value) = Preference.setBoolean(key = "toolbar",value)
+
+    var toolbar_in_horizontal
+        get() = Preference.getBoolean(key = "toolbar_h", default = true)
+        set(value) = Preference.setBoolean(key = "toolbar_h",value)
+
+    var virtualKeys
+        get() = Preference.getBoolean(key = "virtualKeys", default = true)
+        set(value) = Preference.setBoolean(key = "virtualKeys",value)
+
+    var hide_soft_keyboard_if_hwd
+        get() = Preference.getBoolean(key = "force_soft_keyboard", default = true)
+        set(value) = Preference.setBoolean(key = "force_soft_keyboard",value)
+
 }
 
 object Preference {

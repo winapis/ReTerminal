@@ -73,6 +73,18 @@ class Installer {
                     nameserver 1.1.1.1
                     nameserver 8.8.8.8
                 """.trimIndent())
+                destFile.child("etc/motd").writeText("""
+                    Welcome to Alpine!
+
+                    The Alpine Wiki contains a large amount of how-to guides and general
+                    information about administrating Alpine systems.
+                    See <https://wiki.alpinelinux.org/>.
+                    
+                    Note: This reTerminal session is running with elevated permissions either as 'shell' or 'root'
+                    The developer of reTerminal will no be responsible for any kind damages
+                    
+                    You may change this message by editing /etc/motd.
+                """.trimIndent())
             }
         }
 

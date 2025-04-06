@@ -25,6 +25,14 @@ class SessionService : Service() {
         fun getService():SessionService{
             return this@SessionService
         }
+        fun terminateAllSessions(){
+            sessions.values.forEach{
+                it.finishIfRunning()
+            }
+            sessions.clear()
+            sessionList.clear()
+            updateNotification()
+        }
         fun createSession(id: String, client: TerminalSessionClient, activity: MainActivity): TerminalSession {
             return MkSession.createSession(activity, client, id).also {
                 sessions[id] = it
