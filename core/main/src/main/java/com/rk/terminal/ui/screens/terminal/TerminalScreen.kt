@@ -6,8 +6,10 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.graphics.Typeface
+import android.os.Build
 import android.util.TypedValue
 import android.view.View
+import android.view.Window
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.Image
@@ -84,8 +86,11 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.zIndex
 import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.WindowInsetsControllerCompat
 import androidx.navigation.NavController
 import androidx.palette.graphics.Palette
+import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.google.android.material.R
 import com.rk.libcommons.application
 import com.rk.libcommons.child
@@ -102,6 +107,8 @@ import com.rk.terminal.ui.screens.terminal.virtualkeys.VirtualKeysView
 import com.rk.terminal.ui.theme.KarbonTheme
 import com.termux.view.TerminalView
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
@@ -149,6 +156,8 @@ var showToolbar = mutableStateOf(Settings.toolbar)
 var showVirtualKeys = mutableStateOf(Settings.virtualKeys)
 var showHorizontalToolbar = mutableStateOf(Settings.toolbar)
 
+
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TerminalScreen(
@@ -159,6 +168,7 @@ fun TerminalScreen(
     val context = LocalContext.current
     val isDarkMode = isSystemInDarkTheme()
     val scope = rememberCoroutineScope()
+
 
     LaunchedEffect(Unit){
         withContext(Dispatchers.IO){

@@ -50,6 +50,7 @@ import com.rk.libcommons.dpToPx
 import com.rk.settings.Settings
 import com.rk.terminal.ui.components.InfoBlock
 import com.rk.terminal.ui.components.SettingsToggle
+import com.rk.terminal.ui.navHosts.showStatusBar
 import com.rk.terminal.ui.screens.terminal.bitmap
 import com.rk.terminal.ui.screens.terminal.darkText
 import com.rk.terminal.ui.screens.terminal.setFont
@@ -292,6 +293,16 @@ fun Customization(modifier: Modifier = Modifier) {
         }
 
         PreferenceGroup {
+            SettingsToggle(
+                label = "StatusBar",
+                description = "Show statusbar",
+                showSwitch = true,
+                default = Settings.statusBar, sideEffect = {
+                    Settings.statusBar = it
+                    showStatusBar.value = it
+                })
+
+
             val sideEffect:(Boolean)-> Unit = {
                 if (!it && showToolbar.value){
                     MaterialAlertDialogBuilder(context).apply {
@@ -310,20 +321,22 @@ fun Customization(modifier: Modifier = Modifier) {
                 }
 
             }
+
+
             PreferenceSwitch(checked = showToolbar.value,
                 onCheckedChange = {
                     sideEffect.invoke(it)
                 },
-                label = "Toolbar",
+                label = "TitleBar",
                 modifier = modifier,
-                description = "Show toolbar",
+                description = "Show titlebar",
                 onClick = {
                     sideEffect.invoke(!showToolbar.value)
                 })
 
             SettingsToggle(
                 isEnabled = showToolbar.value,
-                label = "Horizontal Toolbar",
+                label = "Horizontal TitleBar",
                 description = "Show ToolBar in horizontal mode",
                 showSwitch = true,
                 default = Settings.toolbar_in_horizontal, sideEffect = {

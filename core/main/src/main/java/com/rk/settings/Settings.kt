@@ -63,6 +63,10 @@ object Settings {
         get() = Preference.getBoolean(key = "toolbar", default = true)
         set(value) = Preference.setBoolean(key = "toolbar",value)
 
+    var statusBar
+        get() = Preference.getBoolean(key = "statusBar", default = true)
+        set(value) = Preference.setBoolean(key = "statusBar",value)
+
     var toolbar_in_horizontal
         get() = Preference.getBoolean(key = "toolbar_h", default = true)
         set(value) = Preference.setBoolean(key = "toolbar_h",value)
@@ -74,6 +78,8 @@ object Settings {
     var hide_soft_keyboard_if_hwd
         get() = Preference.getBoolean(key = "force_soft_keyboard", default = true)
         set(value) = Preference.setBoolean(key = "force_soft_keyboard",value)
+
+
 
 }
 

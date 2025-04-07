@@ -110,7 +110,7 @@ dependencies {
     api(libs.okhttp)
     api(libs.anrwatchdog)
     api(libs.androidx.palette)
-
+    api("com.google.accompanist:accompanist-systemuicontroller:0.36.0")
 
     api(project(":core:resources"))
     api(project(":core:components"))
