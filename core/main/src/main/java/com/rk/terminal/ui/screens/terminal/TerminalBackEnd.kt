@@ -114,9 +114,11 @@ class TerminalBackEnd(val terminal: TerminalView,val activity: MainActivity) : T
     override fun logStackTrace(tag: String?, e: Exception?) {
         e?.printStackTrace()
     }
-    
+
     override fun onScale(scale: Float): Float {
-        return dpToPx(Settings.terminal_font_size.toFloat(),terminal.context).toFloat()
+        val fontScale = scale.coerceIn(11f, 45f)
+        terminal.setTextSize(fontScale.toInt())
+        return fontScale
     }
 
     val isHardwareKeyboardConnected: Boolean
