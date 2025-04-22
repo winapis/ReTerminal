@@ -2,12 +2,14 @@ package com.rk.terminal.ui.navHosts
 
 
 import android.app.Activity
+import android.content.res.Configuration
 import android.os.Build
 import android.view.Window
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import androidx.navigation.NavHostController
@@ -24,6 +26,7 @@ import com.rk.terminal.ui.screens.terminal.Rootfs
 import com.rk.terminal.ui.screens.terminal.TerminalScreen
 
 var showStatusBar = mutableStateOf(Settings.statusBar)
+var horizontal_statusBar = mutableStateOf(Settings.horizontal_statusBar)
 
 fun showStatusBar(show: Boolean,window: Window){
     if (Build.VERSION.SDK_INT > Build.VERSION_CODES.Q){
@@ -71,9 +74,16 @@ fun MainActivityNavHost(modifier: Modifier = Modifier,navController: NavHostCont
         popEnterTransition = { NavigationAnimationTransitions.popEnterTransition },
         popExitTransition = { NavigationAnimationTransitions.popExitTransition },
     ) {
+
         composable(MainActivityRoutes.MainScreen.route) {
             if (Rootfs.isDownloaded.value){
-                UpdateStatusBar(mainActivity, show = showStatusBar.value)
+                val config = LocalConfiguration.current
+                if (Configuration.ORIENTATION_LANDSCAPE == config.orientation){
+                    UpdateStatusBar(mainActivity, show = horizontal_statusBar.value)
+                }else{
+                    UpdateStatusBar(mainActivity, show = showStatusBar.value)
+                }
+
                 TerminalScreen(mainActivityActivity = mainActivity, navController = navController)
             }else{
                 Downloader(mainActivity = mainActivity, navController = navController)

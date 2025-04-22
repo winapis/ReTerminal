@@ -67,6 +67,10 @@ object Settings {
         get() = Preference.getBoolean(key = "statusBar", default = true)
         set(value) = Preference.setBoolean(key = "statusBar",value)
 
+    var horizontal_statusBar
+        get() = Preference.getBoolean(key = "horizontal_statusBar", default = true)
+        set(value) = Preference.setBoolean(key = "horizontal_statusBar",value)
+
     var toolbar_in_horizontal
         get() = Preference.getBoolean(key = "toolbar_h", default = true)
         set(value) = Preference.setBoolean(key = "toolbar_h",value)

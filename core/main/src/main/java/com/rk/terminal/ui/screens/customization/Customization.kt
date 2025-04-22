@@ -50,6 +50,7 @@ import com.rk.libcommons.dpToPx
 import com.rk.settings.Settings
 import com.rk.terminal.ui.components.InfoBlock
 import com.rk.terminal.ui.components.SettingsToggle
+import com.rk.terminal.ui.navHosts.horizontal_statusBar
 import com.rk.terminal.ui.navHosts.showStatusBar
 import com.rk.terminal.ui.screens.terminal.bitmap
 import com.rk.terminal.ui.screens.terminal.darkText
@@ -300,6 +301,15 @@ fun Customization(modifier: Modifier = Modifier) {
                 default = Settings.statusBar, sideEffect = {
                     Settings.statusBar = it
                     showStatusBar.value = it
+                })
+
+            SettingsToggle(
+                label = "Horizontal StatusBar",
+                description = "Show statusbar in horizontal mode",
+                showSwitch = true,
+                default = Settings.horizontal_statusBar, sideEffect = {
+                    Settings.horizontal_statusBar = it
+                    horizontal_statusBar.value = it
                 })
 
 

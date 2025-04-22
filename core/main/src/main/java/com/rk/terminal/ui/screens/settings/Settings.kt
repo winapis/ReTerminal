@@ -102,7 +102,7 @@ fun Settings(modifier: Modifier = Modifier,navController: NavController,mainActi
     var selectedOption by remember { mutableIntStateOf(Settings.working_Mode) }
 
     PreferenceLayout(label = stringResource(strings.settings)) {
-        PreferenceGroup(heading = "Launch Working mode") {
+        PreferenceGroup(heading = "Default Working mode") {
 
             SettingsCard(
                 title = { Text("Alpine (Shizuku)") },
