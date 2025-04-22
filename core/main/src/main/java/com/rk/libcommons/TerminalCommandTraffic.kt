@@ -7,6 +7,7 @@ data class TerminalCommand(
     val shell: String,
     val args: Array<String> = arrayOf(),
     val id: String,
+    val workingMode:Int,
     val terminatePreviousSession: Boolean = true,
     val workingDir: String,
     val env: Array<String> = arrayOf()

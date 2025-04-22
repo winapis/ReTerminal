@@ -40,7 +40,7 @@ object Settings {
     var terminal_font_size
         get() = Preference.getInt(key = "terminal_font_size", default = 13)
         set(value) = Preference.setInt(key = "terminal_font_size",value)
-    var workingMode
+    var working_Mode
         get() = Preference.getInt(key = "workingMode", default = WorkingMode.ALPINE_SHIZUKU)
         set(value) = Preference.setInt(key = "workingMode",value)
 

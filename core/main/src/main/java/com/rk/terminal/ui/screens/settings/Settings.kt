@@ -99,10 +99,10 @@ object WorkingMode{
 @Composable
 fun Settings(modifier: Modifier = Modifier,navController: NavController,mainActivity: MainActivity) {
     val context = LocalContext.current
-    var selectedOption by remember { mutableIntStateOf(Settings.workingMode) }
+    var selectedOption by remember { mutableIntStateOf(Settings.working_Mode) }
 
     PreferenceLayout(label = stringResource(strings.settings)) {
-        PreferenceGroup(heading = "Working mode") {
+        PreferenceGroup(heading = "Launch Working mode") {
 
             SettingsCard(
                 title = { Text("Alpine (Shizuku)") },
@@ -113,12 +113,12 @@ fun Settings(modifier: Modifier = Modifier,navController: NavController,mainActi
                         selected = selectedOption == WorkingMode.ALPINE_SHIZUKU,
                         onClick = {
                             selectedOption = WorkingMode.ALPINE_SHIZUKU
-                            Settings.workingMode = selectedOption
+                            Settings.working_Mode = selectedOption
                         })
                 },
                 onClick = {
                     selectedOption = WorkingMode.ALPINE_SHIZUKU
-                    Settings.workingMode = selectedOption
+                    Settings.working_Mode = selectedOption
                 })
 
             SettingsCard(
@@ -130,12 +130,12 @@ fun Settings(modifier: Modifier = Modifier,navController: NavController,mainActi
                         selected = selectedOption == WorkingMode.ALPINE_ROOT,
                         onClick = {
                             selectedOption = WorkingMode.ALPINE_ROOT
-                            Settings.workingMode = selectedOption
+                            Settings.working_Mode = selectedOption
                         })
                 },
                 onClick = {
                     selectedOption = WorkingMode.ALPINE_ROOT
-                    Settings.workingMode = selectedOption
+                    Settings.working_Mode = selectedOption
                 })
 
 
@@ -149,12 +149,12 @@ fun Settings(modifier: Modifier = Modifier,navController: NavController,mainActi
                         selected = selectedOption == WorkingMode.SHIZUKU_SHELL,
                         onClick = {
                             selectedOption = WorkingMode.SHIZUKU_SHELL
-                            Settings.workingMode = selectedOption
+                            Settings.working_Mode = selectedOption
                         })
                 },
                 onClick = {
                     selectedOption = WorkingMode.SHIZUKU_SHELL
-                    Settings.workingMode = selectedOption
+                    Settings.working_Mode = selectedOption
                 })
             SettingsCard(
                 title = { Text("Android (Unprivileged)") },
@@ -167,12 +167,12 @@ fun Settings(modifier: Modifier = Modifier,navController: NavController,mainActi
                         selected = selectedOption == WorkingMode.UNPRIVILEGED_SHELL,
                         onClick = {
                             selectedOption = WorkingMode.UNPRIVILEGED_SHELL
-                            Settings.workingMode = selectedOption
+                            Settings.working_Mode = selectedOption
                         })
                 },
                 onClick = {
                     selectedOption = WorkingMode.UNPRIVILEGED_SHELL
-                    Settings.workingMode = selectedOption
+                    Settings.working_Mode = selectedOption
                 })
         }
 

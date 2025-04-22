@@ -8,18 +8,21 @@ import android.os.Build
 import android.os.IBinder
 import androidx.annotation.RequiresApi
 import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.core.app.NotificationCompat
 import com.rk.resources.drawables
 import com.rk.terminal.ui.activities.terminal.MainActivity
+import com.rk.terminal.ui.screens.settings.Settings
 import com.rk.terminal.ui.screens.terminal.MkSession
 import com.termux.terminal.TerminalSession
 import com.termux.terminal.TerminalSessionClient
+import okhttp3.internal.wait
 
 class SessionService : Service() {
     private val sessions = hashMapOf<String, TerminalSession>()
-    val sessionList = mutableStateListOf<String>()
-    var currentSession = mutableStateOf<String>("main")
+    val sessionList = mutableStateMapOf<String,Int>()
+    var currentSession = mutableStateOf(Pair("main",com.rk.settings.Settings.working_Mode))
 
     inner class SessionBinder : Binder() {
         fun getService():SessionService{
@@ -33,10 +36,10 @@ class SessionService : Service() {
             sessionList.clear()
             updateNotification()
         }
-        fun createSession(id: String, client: TerminalSessionClient, activity: MainActivity): TerminalSession {
-            return MkSession.createSession(activity, client, id).also {
+        fun createSession(id: String, client: TerminalSessionClient, activity: MainActivity,workingMode:Int): TerminalSession {
+            return MkSession.createSession(activity, client, id, workingMode = workingMode).also {
                 sessions[id] = it
-                sessionList.add(id)
+                sessionList[id] = workingMode
                 updateNotification()
             }
         }
@@ -85,7 +88,7 @@ class SessionService : Service() {
         }
         val notification = createNotification()
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
             startForeground(1, notification, ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE)
         } else {
             startForeground(1, notification)

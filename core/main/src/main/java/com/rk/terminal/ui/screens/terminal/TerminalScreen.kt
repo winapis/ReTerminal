@@ -39,6 +39,8 @@ import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.Settings
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.BasicAlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DrawerValue
@@ -48,6 +50,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
+import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -73,6 +76,7 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.drawscope.clipRect
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
@@ -81,6 +85,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
@@ -92,6 +97,8 @@ import androidx.navigation.NavController
 import androidx.palette.graphics.Palette
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.google.android.material.R
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.rk.components.compose.preferences.base.PreferenceGroup
 import com.rk.libcommons.application
 import com.rk.libcommons.child
 import com.rk.libcommons.dpToPx
@@ -99,7 +106,10 @@ import com.rk.libcommons.pendingCommand
 import com.rk.resources.strings
 import com.rk.settings.Settings
 import com.rk.terminal.ui.activities.terminal.MainActivity
+import com.rk.terminal.ui.components.SettingsToggle
 import com.rk.terminal.ui.routes.MainActivityRoutes
+import com.rk.terminal.ui.screens.settings.SettingsCard
+import com.rk.terminal.ui.screens.settings.WorkingMode
 import com.rk.terminal.ui.screens.terminal.virtualkeys.VirtualKeysConstants
 import com.rk.terminal.ui.screens.terminal.virtualkeys.VirtualKeysInfo
 import com.rk.terminal.ui.screens.terminal.virtualkeys.VirtualKeysListener
@@ -221,6 +231,7 @@ fun TerminalScreen(
         val configuration = LocalConfiguration.current
         val screenWidthDp = configuration.screenWidthDp
         val drawerWidth = (screenWidthDp * 0.84).dp
+        var showAddDialog by remember { mutableStateOf(false) }
 
         BackHandler(enabled = drawerState.isOpen) {
             scope.launch {
@@ -232,6 +243,78 @@ fun TerminalScreen(
             SetStatusBarTextColor(isDarkIcons = darkText.value)
         }else{
             SetStatusBarTextColor(isDarkIcons = !isDarkMode)
+        }
+
+        if (showAddDialog){
+            BasicAlertDialog(
+                onDismissRequest = {
+                    showAddDialog = false
+                }
+            ) {
+
+                fun createSession(workingMode:Int){
+                    fun generateUniqueString(existingStrings: List<String>): String {
+                        var index = 1
+                        var newString: String
+
+                        do {
+                            newString = "main$index"
+                            index++
+                        } while (newString in existingStrings)
+
+                        return newString
+                    }
+
+                    val sessionId = generateUniqueString(mainActivityActivity.sessionBinder!!.getService().sessionList.keys.toList())
+
+                    terminalView.get()
+                        ?.let {
+                            val client = TerminalBackEnd(it, mainActivityActivity)
+                            mainActivityActivity.sessionBinder!!.createSession(
+                                sessionId,
+                                client,
+                                mainActivityActivity, workingMode = workingMode
+                            )
+                        }
+
+
+                    changeSession(mainActivityActivity, session_id = sessionId)
+                }
+
+
+                PreferenceGroup {
+                    SettingsCard(
+                        title = { Text("Alpine (Shizuku)") },
+                        description = {Text("Alpine Linux")},
+                        onClick = {
+                           createSession(workingMode = WorkingMode.ALPINE_SHIZUKU)
+                            showAddDialog = false
+                        })
+
+                    SettingsCard(
+                        title = { Text("Alpine (Root)") },
+                        description = {Text("Alpine Linux")},
+                        onClick = {
+                            createSession(workingMode = WorkingMode.ALPINE_ROOT)
+                            showAddDialog = false
+                        })
+
+                    SettingsCard(
+                        title = { Text("Android (Shizuku)") },
+                        description = {Text("Shizuku Android shell")},
+                        onClick = {
+                            createSession(workingMode = WorkingMode.SHIZUKU_SHELL)
+                            showAddDialog = false
+                        })
+                    SettingsCard(
+                        title = { Text("Android (Unprivileged)") },
+                        description = {Text("ReTerminal Android shell")},
+                        onClick = {
+                            createSession(workingMode = WorkingMode.UNPRIVILEGED_SHELL)
+                            showAddDialog = false
+                        })
+                }
+            }
         }
 
         ModalNavigationDrawer(
@@ -266,27 +349,7 @@ fun TerminalScreen(
                                 }
 
                                 IconButton(onClick = {
-                                    fun generateUniqueString(existingStrings: List<String>): String {
-                                        var index = 1
-                                        var newString: String
-
-                                        do {
-                                            newString = "main$index"
-                                            index++
-                                        } while (newString in existingStrings)
-
-                                        return newString
-                                    }
-                                    terminalView.get()
-                                        ?.let {
-                                            val client = TerminalBackEnd(it, mainActivityActivity)
-                                            mainActivityActivity.sessionBinder!!.createSession(
-                                                generateUniqueString(mainActivityActivity.sessionBinder!!.getService().sessionList),
-                                                client,
-                                                mainActivityActivity
-                                            )
-                                        }
-
+                                    showAddDialog = true
                                 }) {
                                     Icon(
                                         imageVector = Icons.Default.Add,
@@ -299,11 +362,11 @@ fun TerminalScreen(
 
                         }
 
-                        mainActivityActivity.sessionBinder?.getService()?.sessionList?.let {
+                        mainActivityActivity.sessionBinder?.getService()?.sessionList?.keys?.toList()?.let {
                             LazyColumn {
                                 items(it) { session_id ->
                                     SelectableCard(
-                                        selected = session_id == mainActivityActivity.sessionBinder?.getService()?.currentSession?.value,
+                                        selected = session_id == mainActivityActivity.sessionBinder?.getService()?.currentSession?.value?.first,
                                         onSelect = {
                                             changeSession(
                                                 mainActivityActivity,
@@ -323,7 +386,7 @@ fun TerminalScreen(
                                                 style = MaterialTheme.typography.bodyLarge
                                             )
 
-                                            if (session_id != mainActivityActivity.sessionBinder?.getService()?.currentSession?.value) {
+                                            if (session_id != mainActivityActivity.sessionBinder?.getService()?.currentSession?.value?.first) {
                                                 Spacer(modifier = Modifier.weight(1f))
 
                                                 IconButton(
@@ -359,6 +422,19 @@ fun TerminalScreen(
                         BackgroundImage()
                         val color = getComposeColor()
                         Column {
+
+                            fun getNameOfWorkingMode(workingMode:Int?):String{
+                                return when(workingMode){
+                                    0 -> "ALPINE_SHIZUKU".lowercase()
+                                    1 -> "SHIZUKU_SHELL".lowercase()
+                                    2 -> "UNPRIVILEGED_SHELL".lowercase()
+                                    3 -> "ALPINE_ROOT".lowercase()
+                                    null -> "null"
+                                    else -> "unknown"
+                                }
+                            }
+
+
                             if (showToolbar.value && (LocalConfiguration.current.orientation != Configuration.ORIENTATION_LANDSCAPE || showHorizontalToolbar.value)){
                                 TopAppBar(
                                     colors = TopAppBarDefaults.topAppBarColors(
@@ -366,12 +442,23 @@ fun TerminalScreen(
                                         scrolledContainerColor = androidx.compose.ui.graphics.Color.Transparent
                                     ),
                                     title = {
-                                        Text(text = "ReTerminal",color = color)},
+                                        Column {
+                                            Text(text = "ReTerminal",color = color)
+                                            Text(style = MaterialTheme.typography.bodySmall,text = mainActivityActivity.sessionBinder?.getService()?.currentSession?.value?.first + " (${getNameOfWorkingMode(mainActivityActivity.sessionBinder?.getService()?.currentSession?.value?.second)})",color = color)
+                                        }
+                                    },
                                     navigationIcon = {
                                         IconButton(onClick = {
                                             scope.launch { drawerState.open() }
                                         }) {
                                             Icon(Icons.Default.Menu, null, tint = color)
+                                        }
+                                    },
+                                    actions = {
+                                        IconButton(onClick = {
+                                            showAddDialog = true
+                                        }) {
+                                            Icon(Icons.Default.Add,null, tint = color)
                                         }
                                     }
                                 )
@@ -396,24 +483,24 @@ fun TerminalScreen(
                                             val client = TerminalBackEnd(this, mainActivityActivity)
 
                                             val session = if (pendingCommand != null) {
-                                                mainActivityActivity.sessionBinder!!.getService().currentSession.value =
-                                                    pendingCommand!!.id
+                                                mainActivityActivity.sessionBinder!!.getService().currentSession.value = Pair(
+                                                    pendingCommand!!.id, pendingCommand!!.workingMode)
                                                 mainActivityActivity.sessionBinder!!.getSession(
                                                     pendingCommand!!.id
                                                 )
                                                     ?: mainActivityActivity.sessionBinder!!.createSession(
                                                         pendingCommand!!.id,
                                                         client,
-                                                        mainActivityActivity
+                                                        mainActivityActivity, workingMode = Settings.working_Mode
                                                     )
                                             } else {
                                                 mainActivityActivity.sessionBinder!!.getSession(
-                                                    mainActivityActivity.sessionBinder!!.getService().currentSession.value
+                                                    mainActivityActivity.sessionBinder!!.getService().currentSession.value.first
                                                 )
                                                     ?: mainActivityActivity.sessionBinder!!.createSession(
-                                                        mainActivityActivity.sessionBinder!!.getService().currentSession.value,
+                                                        mainActivityActivity.sessionBinder!!.getService().currentSession.value.first,
                                                         client,
-                                                        mainActivityActivity
+                                                        mainActivityActivity,workingMode = Settings.working_Mode
                                                     )
                                             }
 
@@ -591,7 +678,7 @@ fun changeSession(mainActivityActivity: MainActivity, session_id: String) {
                 ?: mainActivityActivity.sessionBinder!!.createSession(
                     session_id,
                     client,
-                    mainActivityActivity
+                    mainActivityActivity,workingMode = Settings.working_Mode
                 )
         session.updateTerminalSessionClient(client)
         attachSession(session)
@@ -619,7 +706,7 @@ fun changeSession(mainActivityActivity: MainActivity, session_id: String) {
         }
 
     }
-    mainActivityActivity.sessionBinder!!.getService().currentSession.value = session_id
+    mainActivityActivity.sessionBinder!!.getService().currentSession.value = Pair(session_id,mainActivityActivity.sessionBinder!!.getService().sessionList[session_id]!!)
 
 }
 

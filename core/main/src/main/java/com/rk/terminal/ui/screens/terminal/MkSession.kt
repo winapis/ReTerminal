@@ -20,7 +20,7 @@ import java.io.FileOutputStream
 
 object MkSession {
     fun createSession(
-        activity: MainActivity, sessionClient: TerminalSessionClient, session_id: String
+        activity: MainActivity, sessionClient: TerminalSessionClient, session_id: String,workingMode:Int
     ): TerminalSession {
         with(activity) {
             val envVariables = mapOf(
@@ -78,7 +78,7 @@ object MkSession {
             val args: Array<String>
 
             val shell = if (pendingCommand == null) {
-                args = arrayOf("-c",initFile.absolutePath, Settings.workingMode.toString(),session_id)
+                args = arrayOf("-c",initFile.absolutePath, workingMode.toString(),session_id)
                 "/system/bin/sh"
             } else{
                 args = pendingCommand!!.args
