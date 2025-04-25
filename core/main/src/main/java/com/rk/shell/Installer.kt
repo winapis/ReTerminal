@@ -81,9 +81,11 @@ class Installer {
                     See <https://wiki.alpinelinux.org/>.
                     
                     Note: This reTerminal session is running with elevated permissions either as 'shell' or 'root'
-                    The developer of reTerminal will no be responsible for any kind damages
+                    The developer of reTerminal will not be responsible for any kind of damages.
                     
                     You may change this message by editing /etc/motd.
+
+
                 """.trimIndent())
             }
         }
