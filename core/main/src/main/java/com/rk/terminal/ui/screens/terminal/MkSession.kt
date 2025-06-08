@@ -102,7 +102,7 @@ The Alpine Wiki contains a large amount of how-to guides and general
 information about administrating Alpine systems.
 See <https://wiki.alpinelinux.org/>.
 
-Installing : apk install <pkg>
+Installing : apk add <pkg>
 Updating : apk update && apk upgrade
 
                         """.trimIndent())
