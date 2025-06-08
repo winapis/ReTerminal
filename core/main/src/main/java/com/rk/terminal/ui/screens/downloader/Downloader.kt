@@ -16,6 +16,7 @@ import com.rk.terminal.ui.activities.terminal.MainActivity
 import com.rk.terminal.ui.screens.terminal.Rootfs
 import com.rk.terminal.ui.screens.terminal.TerminalScreen
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
 import okhttp3.Request
@@ -57,7 +58,9 @@ fun Downloader(
                         progressText = "Downloading.. ${(progress * 100).toInt()}%"
                     }
                 },
-                onComplete = { isSetupComplete = true },
+                onComplete = {
+                    isSetupComplete = true
+                },
                 onError = { error ->
                     toast(if (error is UnknownHostException) "Network Error" else "Setup Failed: ${error.message}")
                 }

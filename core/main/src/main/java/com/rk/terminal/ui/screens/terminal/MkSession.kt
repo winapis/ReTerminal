@@ -5,6 +5,7 @@ import com.rk.libcommons.application
 import com.rk.libcommons.child
 import com.rk.libcommons.createFileIfNot
 import com.rk.libcommons.localBinDir
+import com.rk.libcommons.localDir
 import com.rk.libcommons.localLibDir
 import com.rk.libcommons.pendingCommand
 import com.rk.settings.Settings
@@ -37,18 +38,21 @@ object MkSession {
 
             val workingDir = pendingCommand?.workingDir ?: "/sdcard"
 
-            val initFile: File = localBinDir().child("init")
-            val rish: File = localBinDir().child("rish")
+            val initFile: File = localBinDir().child("init-host")
 
             if (initFile.exists().not()){
                 initFile.createFileIfNot()
-                initFile.writeText(assets.open("init.sh").bufferedReader().use { it.readText() })
+                initFile.writeText(assets.open("init-host.sh").bufferedReader().use { it.readText() })
             }
 
-            if (rish.exists().not()){
-                rish.createFileIfNot()
-                rish.writeText(assets.open("rish.sh").bufferedReader().use { it.readText() })
+
+            localBinDir().child("init").apply {
+                if (exists().not()){
+                    createFileIfNot()
+                    writeText(assets.open("init.sh").bufferedReader().use { it.readText() })
+                }
             }
+
 
             val env = mutableListOf(
                 "PATH=${System.getenv("PATH")}:/sbin:${localBinDir().absolutePath}",
@@ -58,18 +62,36 @@ object MkSession {
                 "TERM=xterm-256color",
                 "LANG=C.UTF-8",
                 "BIN=${localBinDir()}",
-                "EXEC=sh ${localBinDir().child("exec")}",
                 "DEBUG=${BuildConfig.DEBUG}",
                 "PREFIX=${filesDir.parentFile!!.path}",
                 "LD_LIBRARY_PATH=${localLibDir().absolutePath}",
                 "LINKER=${if(File("/system/bin/linker64").exists()){"/system/bin/linker64"}else{"/system/bin/linker"}}",
+                "NATIVE_LIB_DIR=${applicationInfo.nativeLibraryDir}",
                 "PKG=${packageName}",
                 "RISH_APPLICATION_ID=${packageName}",
-                "PKG_PATH=${applicationInfo.sourceDir}"
+                "PKG_PATH=${applicationInfo.sourceDir}",
+                "PROOT_TMP_DIR=${getTempDir().child(session_id).also { if (it.exists().not()){it.mkdirs()} }}",
+                "PROOT_LOADER=${applicationInfo.nativeLibraryDir}/libproot-loader.so",
             )
+
+            if (File(applicationInfo.nativeLibraryDir).child("libproot-loader32.so").exists()){
+                env.add("PROOT_LOADER32=${applicationInfo.nativeLibraryDir}/libproot-loader32.so")
+            }
 
 
             env.addAll(envVariables.map { "${it.key}=${it.value}" })
+
+            localDir().child("stat").apply {
+                if (exists().not()){
+                    writeText(stat)
+                }
+            }
+
+            localDir().child("vmstat").apply {
+                if (exists().not()){
+                    writeText(vmstat)
+                }
+            }
 
             pendingCommand?.env?.let {
                 env.addAll(it)
@@ -78,7 +100,11 @@ object MkSession {
             val args: Array<String>
 
             val shell = if (pendingCommand == null) {
-                args = arrayOf("-c",initFile.absolutePath, workingMode.toString(),session_id)
+                args = if (workingMode == WorkingMode.ALPINE){
+                    arrayOf("-c",initFile.absolutePath)
+                }else{
+                    arrayOf()
+                }
                 "/system/bin/sh"
             } else{
                 args = pendingCommand!!.args

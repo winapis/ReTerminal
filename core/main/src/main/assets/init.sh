@@ -1,29 +1,36 @@
-set -e
+set -e  # Exit immediately on Failure
 
-if [ "$1" = "0" ]; then
-   result=$(sh "$PREFIX/local/bin/rish" -c "/system/bin/app_process -Djava.class.path=\"$PKG_PATH\" /system/bin com.rk.shell.Installer" "$2")
-
-   sh "$PREFIX/local/bin/rish" -c "
-       mkdir -p /data/local/tmp/ReTerminal/$2
-       export LD_LIBRARY_PATH=/data/local/tmp/ReTerminal
-       export PROOT_TMP_DIR=/data/local/tmp/ReTerminal/$2
-       /data/local/tmp/ReTerminal/proot $result /bin/login -f root
-   "
-
-elif [ "$1" = "1" ]; then
-    sh "$PREFIX/local/bin/rish"
-elif [ "$1" = "2" ]; then
-    sh
-elif [ "$1" = "3" ]; then
-    result=$(su -c "/system/bin/app_process -Djava.class.path=\"$PKG_PATH\" /system/bin com.rk.shell.Installer" "$2")
-    su -c "
-           mkdir -p /data/local/tmp/ReTerminal/$2
-           export LD_LIBRARY_PATH=/data/local/tmp/ReTerminal
-           export PROOT_TMP_DIR=/data/local/tmp/ReTerminal/$2
-           /data/local/tmp/ReTerminal/proot $result /bin/login -f root
-       "
-else
-    echo "Unknown working mode $1"
+export PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/share/bin:/usr/share/sbin:/usr/local/bin:/usr/local/sbin:/system/bin:/system/xbin
+export HOME=/root
+cd "$XPWD"
+export PS1="\[\e[38;5;46m\]\u\[\033[39m\]@karbon \[\033[39m\]\w \[\033[0m\]\\$ "
+# shellcheck disable=SC2034
+export PIP_BREAK_SYSTEM_PACKAGES=1
+required_packages="bash gcompat glib git nano sudo file"
+missing_packages=""
+for pkg in $required_packages; do
+    if ! apk info -e $pkg >/dev/null 2>&1; then
+        missing_packages="$missing_packages $pkg"
+    fi
+done
+if [ -n "$missing_packages" ]; then
+    echo -e "\e[34;1m[*] \e[37mInstalling Important packages\e[0m"
+    apk update && apk upgrade
+    apk add $missing_packages
+    if [ $? -eq 0 ]; then
+        echo -e "\e[32;1m[+] \e[37mSuccessfully Installed\e[0m"
+    fi
+    echo -e "\e[34m[*] \e[37mUse \e[32mapk\e[37m to install new packages\e[0m"
 fi
 
+#fix linker warning
+if [[ ! -f /linkerconfig/ld.config.txt ]];then
+    mkdir -p /linkerconfig
+    touch /linkerconfig/ld.config.txt
+fi
 
+if [ "$#" -eq 0 ]; then
+    /bin/login -f root
+else
+    exec "$@"
+fi

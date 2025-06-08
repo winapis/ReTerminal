@@ -4,10 +4,11 @@ import android.os.Environment
 import androidx.compose.runtime.mutableStateOf
 import com.rk.libcommons.application
 import com.rk.libcommons.child
+import com.rk.terminal.App
 import java.io.File
 
 object Rootfs {
-    val reTerminal = File("/sdcard/Download/ReTerminal")
+    val reTerminal = application!!.filesDir
 
     init {
         if (reTerminal.exists().not()){

@@ -8,11 +8,14 @@ import java.io.File
 
 class UpdateManager {
     fun onUpdate(){
-        val initFile: File = localBinDir().child("init")
-        initFile.delete()
+        val initFile: File = localBinDir().child("init-host")
+        if(initFile.exists()){
+            initFile.delete()
+        }
+
         if (initFile.exists().not()){
             initFile.createFileIfNot()
-            initFile.writeText(application!!.assets.open("init.sh").bufferedReader().use { it.readText() })
+            initFile.writeText(application!!.assets.open("init-host.sh").bufferedReader().use { it.readText() })
         }
     }
 }

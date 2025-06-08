@@ -14,13 +14,6 @@ pluginManagement {
             url = uri("https://oss.sonatype.org/content/repositories/snapshots/")
         }
         maven("https://oss.sonatype.org/content/repositories/snapshots/")
-        maven {
-            url = uri("https://s01.oss.sonatype.org/content/repositories/releases/")
-            content {
-                includeGroupByRegex("dev.rikka.*")
-                includeGroup("org.lsposed.hiddenapibypass")
-            }
-        }
      
     }
     plugins {
@@ -37,21 +30,12 @@ dependencyResolutionManagement {
             url = uri("https://oss.sonatype.org/content/repositories/snapshots/")
         }
         maven("https://oss.sonatype.org/content/repositories/snapshots/")
-        maven {
-            url = uri("https://s01.oss.sonatype.org/content/repositories/releases/")
-            content {
-                includeGroupByRegex("dev.rikka.*")
-                includeGroup("org.lsposed.hiddenapibypass")
-            }
-        }
-       
     }
 }
 
-rootProject.name = "Xed-Editor"
+rootProject.name = "ReTerminal"
 include(":app")
 include(":core:main")
 
 include(":core:components")
 include(":core:resources")
-include(":core:rish")

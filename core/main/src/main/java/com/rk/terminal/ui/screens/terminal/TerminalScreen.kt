@@ -284,33 +284,18 @@ fun TerminalScreen(
 
                 PreferenceGroup {
                     SettingsCard(
-                        title = { Text("Alpine (Shizuku)") },
+                        title = { Text("Alpine") },
                         description = {Text("Alpine Linux")},
                         onClick = {
-                           createSession(workingMode = WorkingMode.ALPINE_SHIZUKU)
+                           createSession(workingMode = WorkingMode.ALPINE)
                             showAddDialog = false
                         })
 
                     SettingsCard(
-                        title = { Text("Alpine (Root)") },
-                        description = {Text("Alpine Linux")},
-                        onClick = {
-                            createSession(workingMode = WorkingMode.ALPINE_ROOT)
-                            showAddDialog = false
-                        })
-
-                    SettingsCard(
-                        title = { Text("Android (Shizuku)") },
-                        description = {Text("Shizuku Android shell")},
-                        onClick = {
-                            createSession(workingMode = WorkingMode.SHIZUKU_SHELL)
-                            showAddDialog = false
-                        })
-                    SettingsCard(
-                        title = { Text("Android (Unprivileged)") },
+                        title = { Text("Android") },
                         description = {Text("ReTerminal Android shell")},
                         onClick = {
-                            createSession(workingMode = WorkingMode.UNPRIVILEGED_SHELL)
+                            createSession(workingMode = WorkingMode.ANDROID)
                             showAddDialog = false
                         })
                 }
@@ -425,10 +410,8 @@ fun TerminalScreen(
 
                             fun getNameOfWorkingMode(workingMode:Int?):String{
                                 return when(workingMode){
-                                    0 -> "ALPINE_SHIZUKU".lowercase()
-                                    1 -> "SHIZUKU_SHELL".lowercase()
-                                    2 -> "UNPRIVILEGED_SHELL".lowercase()
-                                    3 -> "ALPINE_ROOT".lowercase()
+                                    0 -> "ALPINE".lowercase()
+                                    1 -> "ANDROID".lowercase()
                                     null -> "null"
                                     else -> "unknown"
                                 }
