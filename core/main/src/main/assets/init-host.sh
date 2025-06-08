@@ -2,8 +2,8 @@ ALPINE_DIR=$PREFIX/local/alpine
 
 mkdir -p $ALPINE_DIR
 
-if [ -z "$(ls -A "$ALPINE_DIR")" ]; then
-    tar -xf $PREFIX/files/alpine.tar.gz -C $ALPINE_DIR
+if [ -z "$(ls -A "$ALPINE_DIR" | grep -vE '^(root|tmp)$')" ]; then
+    tar -xf "$PREFIX/files/alpine.tar.gz" -C "$ALPINE_DIR"
 fi
 
 [ ! -e "$PREFIX/local/bin/proot" ] && cp "$PREFIX/files/proot" "$PREFIX/local/bin"
