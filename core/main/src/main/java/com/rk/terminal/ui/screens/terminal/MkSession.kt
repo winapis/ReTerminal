@@ -1,6 +1,7 @@
 package com.rk.terminal.ui.screens.terminal
 
 import android.os.Environment
+import com.rk.libcommons.alpineDir
 import com.rk.libcommons.application
 import com.rk.libcommons.child
 import com.rk.libcommons.createFileIfNot
@@ -90,6 +91,21 @@ object MkSession {
             localDir().child("vmstat").apply {
                 if (exists().not()){
                     writeText(vmstat)
+                }
+            }
+
+            alpineDir().child("etc/motd").apply {
+                if (exists()){
+                    writeText("""Welcome to ReTerminal!
+
+The Alpine Wiki contains a large amount of how-to guides and general
+information about administrating Alpine systems.
+See <https://wiki.alpinelinux.org/>.
+
+Installing : apk install <pkg>
+Updating : apk update && apk upgrade
+
+                        """.trimIndent())
                 }
             }
 

@@ -6,7 +6,7 @@ cd "$XPWD"
 export PS1="\[\e[38;5;46m\]\u\[\033[39m\]@karbon \[\033[39m\]\w \[\033[0m\]\\$ "
 # shellcheck disable=SC2034
 export PIP_BREAK_SYSTEM_PACKAGES=1
-required_packages="bash gcompat glib git nano sudo file"
+required_packages="bash gcompat glib nano"
 missing_packages=""
 for pkg in $required_packages; do
     if ! apk info -e $pkg >/dev/null 2>&1; then

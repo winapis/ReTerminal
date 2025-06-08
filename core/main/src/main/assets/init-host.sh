@@ -3,7 +3,6 @@ ALPINE_DIR=$PREFIX/local/alpine
 mkdir -p $ALPINE_DIR
 
 if [ -z "$(ls -A "$ALPINE_DIR")" ]; then
-    echo "Extracting files..."
     tar -xf $PREFIX/files/alpine.tar.gz -C $ALPINE_DIR
 fi
 
