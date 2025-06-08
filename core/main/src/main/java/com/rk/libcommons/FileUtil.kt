@@ -1,9 +1,23 @@
 package com.rk.libcommons
 
+import android.content.Context
 import java.io.File
+import com.rk.terminal.BuildConfig
+
+private fun getFilesDir(): File{
+    return if (application == null){
+        if (BuildConfig.DEBUG){
+            File("/data/data/com.rk.terminal.debug/files")
+        }else{
+            File("/data/data/com.rk.terminal/files")
+        }
+    }else{
+        application!!.filesDir
+    }
+}
 
 fun localDir(): File {
-    return File(application!!.filesDir.parentFile, "local").also {
+    return File(getFilesDir().parentFile, "local").also {
         if (!it.exists()) {
             it.mkdirs()
         }
