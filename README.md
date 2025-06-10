@@ -11,6 +11,7 @@ Or download the latest APK from the [Releases Section](https://github.com/RohitK
 - [x] Basic Terminal
 - [x] Virtual Keys
 - [x] Multiple Sessions
+- [x] Alpine Linux support
 
 # Screenshots
 <div>
