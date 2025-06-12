@@ -1,8 +1,6 @@
 # ReTerminal
 **ReTerminal** is a sleek, Material 3-inspired terminal emulator designed as a modern alternative to the legacy [Jackpal Terminal](https://github.com/jackpal/Android-Terminal-Emulator). Built on [Termux's](https://github.com/termux/termux-app) robust TerminalView
 
-[<img src="https://fdroid.gitlab.io/artwork/badge/get-it-on.png"
-     alt="Get it on F-Droid"
      height="80">](https://f-droid.org/packages/com.rk.terminal/)
 
 Or download the latest APK from the [Releases Section](https://github.com/RohitKushvaha01/ReTerminal/releases/latest).
