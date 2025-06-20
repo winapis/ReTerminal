@@ -1,5 +1,7 @@
 package com.rk.terminal.ui.activities.terminal
 
+import android.app.Activity
+import android.app.PendingIntent
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
@@ -81,5 +83,9 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+
+        if (intent.hasExtra("awake_intent")){
+            moveTaskToBack(true)
+        }
     }
 }

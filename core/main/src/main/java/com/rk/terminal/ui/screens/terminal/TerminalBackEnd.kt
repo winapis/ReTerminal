@@ -44,13 +44,19 @@ class TerminalBackEnd(val terminal: TerminalView,val activity: MainActivity) : T
         ClipboardUtils.copyText("Terminal", text)
     }
     
-    override fun onPasteTextFromClipboard(session: TerminalSession) {
+    override fun onPasteTextFromClipboard(session: TerminalSession?) {
         val clip = ClipboardUtils.getText().toString()
         if (clip.trim { it <= ' ' }.isNotEmpty() && terminal.mEmulator != null) {
             terminal.mEmulator.paste(clip)
         }
     }
-    
+
+    override fun setTerminalShellPid(
+        session: TerminalSession,
+        pid: Int
+    ) {}
+
+
     override fun onBell(session: TerminalSession) {
         if (Settings.bell){
             activity.lifecycleScope.launch{

@@ -39,3 +39,5 @@ include(":core:main")
 
 include(":core:components")
 include(":core:resources")
+include(":core:terminal-emulator")
+include(":core:terminal-view")

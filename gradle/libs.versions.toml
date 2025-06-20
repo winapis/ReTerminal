@@ -53,6 +53,7 @@ composeBom = "2025.02.00"
 coilCompose = "2.7.0"
 navigationCompose = "2.8.7"
 lifecycleViewmodelAndroid = "2.8.7"
+termuxShared = "8e3a8980a8"
 wordWrap = "0.1.13"
 coreAnimation = "1.0.0"
 runtimeAndroid = "1.7.8"
@@ -99,6 +100,7 @@ photoview = { module = "com.github.chrisbanes:PhotoView", version.ref = "photovi
 quickjs-android = { module = "app.cash.quickjs:quickjs-android", version.ref = "quickjsAndroid" }
 sshj = { module = "com.hierynomus:sshj", version.ref = "sshj" }
 swiperefreshlayout = { module = "androidx.swiperefreshlayout:swiperefreshlayout", version.ref = "swiperefreshlayout" }
+termux-shared = { module = "com.termux.termux-app:termux-shared", version.ref = "termuxShared" }
 utilcode = { module = "com.blankj:utilcodex", version = "1.31.1" }
 kotlinx-coroutines = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version = "1.10.1" }
 terminal-view = {group = "com.github.termux.termux-app", name = "terminal-view", version.ref = "terminalView" }
