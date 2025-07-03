@@ -80,6 +80,7 @@ import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
@@ -324,8 +325,10 @@ fun TerminalScreen(
                             )
 
                             Row {
+                                val keyboardController = LocalSoftwareKeyboardController.current
                                 IconButton(onClick = {
                                     navController.navigate(MainActivityRoutes.Settings.route)
+                                    keyboardController?.hide()
                                 }) {
                                     Icon(
                                         imageVector = Icons.Outlined.Settings,
