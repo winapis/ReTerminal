@@ -35,6 +35,8 @@ if [[ ! -f /linkerconfig/ld.config.txt ]];then
     touch /linkerconfig/ld.config.txt
 fi
 
+printf 'export PS1="\[\e[38;5;46m\]\u\[\033[39m\]@reterm \[\033[39m\]\w \[\033[0m\]\\$ "' >> /etc/profile
+
 if [ "$#" -eq 0 ]; then
     /bin/login -f root
 else
