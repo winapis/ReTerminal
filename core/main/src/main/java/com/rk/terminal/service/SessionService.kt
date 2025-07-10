@@ -12,6 +12,7 @@ import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.core.app.NotificationCompat
 import com.rk.resources.drawables
+import com.rk.resources.strings
 import com.rk.terminal.ui.activities.terminal.MainActivity
 import com.rk.terminal.ui.screens.settings.Settings
 import com.rk.terminal.ui.screens.terminal.MkSession
@@ -119,9 +120,9 @@ class SessionService : Service() {
         )
 
         return NotificationCompat.Builder(this, CHANNEL_ID)
-            .setContentTitle("Terminal")
+            .setContentTitle("ReTerminal")
             .setContentText(getNotificationContentText())
-            .setSmallIcon(drawables.baseline_android_24)
+            .setSmallIcon(drawables.terminal)
             .setContentIntent(pendingIntent)
             .addAction(
                 NotificationCompat.Action.Builder(
