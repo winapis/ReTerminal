@@ -77,17 +77,33 @@ android {
             resValue("string","app_name","ReTerminal-Debug")
         }
     }
+
     
     defaultConfig {
         applicationId = "com.rk.terminal"
         minSdk = 26
-        targetSdk = 35
+        //noinspection ExpiredTargetSdkVersion
+        targetSdk = 28
 
         //versioning
         versionCode = 7
         versionName = "1.2.0"
         vectorDrawables {
             useSupportLibrary = true
+        }
+    }
+
+    flavorDimensions += "store"
+
+    productFlavors {
+        create("Fdroid") {
+            dimension = "store"
+            targetSdk = 28
+        }
+
+        create("PlayStore") {
+            dimension = "store"
+            targetSdk = 35
         }
     }
     

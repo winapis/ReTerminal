@@ -2,6 +2,7 @@ package com.rk.terminal.ui.screens.terminal
 
 import android.os.Environment
 import com.rk.libcommons.alpineDir
+import com.rk.libcommons.alpineHomeDir
 import com.rk.libcommons.application
 import com.rk.libcommons.child
 import com.rk.libcommons.createFileIfNot
@@ -37,7 +38,7 @@ object MkSession {
                 "EXTERNAL_STORAGE" to System.getenv("EXTERNAL_STORAGE")
             )
 
-            val workingDir = pendingCommand?.workingDir ?: "/sdcard"
+            val workingDir = pendingCommand?.workingDir ?: alpineHomeDir().path
 
             val initFile: File = localBinDir().child("init-host")
 
@@ -72,12 +73,17 @@ object MkSession {
                 "RISH_APPLICATION_ID=${packageName}",
                 "PKG_PATH=${applicationInfo.sourceDir}",
                 "PROOT_TMP_DIR=${getTempDir().child(session_id).also { if (it.exists().not()){it.mkdirs()} }}",
-                "PROOT_LOADER=${applicationInfo.nativeLibraryDir}/libproot-loader.so",
             )
 
             if (File(applicationInfo.nativeLibraryDir).child("libproot-loader32.so").exists()){
                 env.add("PROOT_LOADER32=${applicationInfo.nativeLibraryDir}/libproot-loader32.so")
             }
+
+            if (File(applicationInfo.nativeLibraryDir).child("libproot-loader.so").exists()){
+                env.add("PROOT_LOADER=${applicationInfo.nativeLibraryDir}/libproot-loader.so")
+            }
+
+
 
 
             env.addAll(envVariables.map { "${it.key}=${it.value}" })
@@ -91,21 +97,6 @@ object MkSession {
             localDir().child("vmstat").apply {
                 if (exists().not()){
                     writeText(vmstat)
-                }
-            }
-
-            alpineDir().child("etc/motd").apply {
-                if (exists()){
-                    writeText("""Welcome to ReTerminal!
-
-The Alpine Wiki contains a large amount of how-to guides and general
-information about administrating Alpine systems.
-See <https://wiki.alpinelinux.org/>.
-
-Installing : apk add <pkg>
-Updating : apk update && apk upgrade
-
-                        """.trimIndent())
                 }
             }
 
