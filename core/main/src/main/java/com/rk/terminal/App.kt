@@ -26,14 +26,6 @@ class App : Application() {
             }
             return tmp
         }
-
-        init {
-            GlobalScope.launch(Dispatchers.IO) {
-                getTempDir().apply {
-                    if (exists() && listFiles().isNullOrEmpty().not()){ deleteRecursively() }
-                }
-            }
-        }
     }
 
     @OptIn(DelicateCoroutinesApi::class)
@@ -41,6 +33,12 @@ class App : Application() {
         super.onCreate()
         application = this
         Res.application = this
+
+        GlobalScope.launch(Dispatchers.IO) {
+            getTempDir().apply {
+                if (exists() && listFiles().isNullOrEmpty().not()){ deleteRecursively() }
+            }
+        }
 
         //Thread.setDefaultUncaughtExceptionHandler(CrashHandler)
         ANRWatchDog().start()
