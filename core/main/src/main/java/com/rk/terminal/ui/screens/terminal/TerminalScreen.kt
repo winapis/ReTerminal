@@ -103,6 +103,7 @@ import com.rk.components.compose.preferences.base.PreferenceGroup
 import com.rk.libcommons.application
 import com.rk.libcommons.child
 import com.rk.libcommons.dpToPx
+import com.rk.libcommons.localDir
 import com.rk.libcommons.pendingCommand
 import com.rk.resources.strings
 import com.rk.settings.Settings
@@ -116,6 +117,7 @@ import com.rk.terminal.ui.screens.terminal.virtualkeys.VirtualKeysInfo
 import com.rk.terminal.ui.screens.terminal.virtualkeys.VirtualKeysListener
 import com.rk.terminal.ui.screens.terminal.virtualkeys.VirtualKeysView
 import com.rk.terminal.ui.theme.KarbonTheme
+import com.termux.terminal.TerminalColors
 import com.termux.view.TerminalView
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -123,7 +125,9 @@ import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
+import java.io.FileInputStream
 import java.lang.ref.WeakReference
+import java.util.Properties
 
 var terminalView = WeakReference<TerminalView?>(null)
 var virtualKeysView = WeakReference<VirtualKeysView?>(null)
@@ -215,6 +219,7 @@ fun TerminalScreen(
 
             terminalView.get()?.apply {
                 onScreenUpdated()
+
 
                 mEmulator?.mColors?.mCurrentColors?.apply {
                     set(256, getViewColor())
@@ -505,6 +510,15 @@ fun TerminalScreen(
                                                 mEmulator?.mColors?.mCurrentColors?.apply {
                                                     set(256, color)
                                                     set(258, color)
+                                                }
+
+                                                val colorsFile = localDir().child("colors.properties")
+                                                if (colorsFile.exists() && colorsFile.isFile){
+                                                    val props = Properties()
+                                                    FileInputStream(colorsFile).use { input ->
+                                                        props.load(input)
+                                                    }
+                                                    TerminalColors.COLOR_SCHEME.updateWith(props)
                                                 }
                                             }
                                         }
