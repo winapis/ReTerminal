@@ -11,6 +11,7 @@ import com.rk.libcommons.localDir
 import com.rk.libcommons.localLibDir
 import com.rk.libcommons.pendingCommand
 import com.rk.settings.Settings
+import com.rk.terminal.App
 import com.rk.terminal.App.Companion.getTempDir
 import com.rk.terminal.BuildConfig
 import com.rk.terminal.ui.activities.terminal.MainActivity
@@ -73,6 +74,7 @@ object MkSession {
                 "RISH_APPLICATION_ID=${packageName}",
                 "PKG_PATH=${applicationInfo.sourceDir}",
                 "PROOT_TMP_DIR=${getTempDir().child(session_id).also { if (it.exists().not()){it.mkdirs()} }}",
+                "TMPDIR=${getTempDir().absolutePath}"
             )
 
             if (File(applicationInfo.nativeLibraryDir).child("libproot-loader32.so").exists()){

@@ -17,6 +17,7 @@ import java.util.concurrent.Executors
 
 class App : Application() {
 
+    @OptIn(DelicateCoroutinesApi::class)
     companion object {
         fun getTempDir(): File {
             val tmp = File(application!!.filesDir.parentFile, "tmp")
@@ -24,6 +25,14 @@ class App : Application() {
                 tmp.mkdir()
             }
             return tmp
+        }
+
+        init {
+            GlobalScope.launch(Dispatchers.IO) {
+                getTempDir().apply {
+                    if (exists() && listFiles().isNullOrEmpty().not()){ deleteRecursively() }
+                }
+            }
         }
     }
 
@@ -57,11 +66,7 @@ class App : Application() {
 
 
 
-        GlobalScope.launch(Dispatchers.IO) {
-            getTempDir().apply {
-                if (exists() && listFiles().isNullOrEmpty().not()){ deleteRecursively() }
-            }
-        }
+
 
     }
 
