@@ -109,6 +109,9 @@ public class ThemeManager {
         
         // Update legacy Settings for backward compatibility
         Settings.INSTANCE.setColor_scheme(convertToLegacyColorScheme(themeId));
+        
+        // Apply terminal colors immediately
+        applyTerminalColors();
     }
     
     /**
@@ -185,6 +188,24 @@ public class ThemeManager {
         return TerminalThemeColors.getColorsForTheme(currentThemeId);
     }
     
+    /**
+     * Apply terminal colors based on the current theme.
+     * This method should be called after setting a new theme to update terminal colors.
+     */
+    public void applyTerminalColors() {
+        TerminalThemeColors colors = getTerminalColors();
+        // Import TerminalColors class and update colors
+        try {
+            Class<?> terminalColorsClass = Class.forName("com.termux.terminal.TerminalColors");
+            java.lang.reflect.Method updateMethod = terminalColorsClass.getMethod(
+                "updateThemeColors", int.class, int.class, int.class, int[].class);
+            updateMethod.invoke(null, colors.foreground, colors.background, colors.cursor, colors.ansiColors);
+        } catch (Exception e) {
+            // Fallback: log error but don't crash
+            android.util.Log.w("ThemeManager", "Could not update terminal colors", e);
+        }
+    }
+    
     @StyleRes
     private int getThemeResourceId(int themeId) {
         switch (themeId) {
@@ -257,9 +278,40 @@ public class ThemeManager {
                     return getOneDarkColors();
                 case ThemeId.NORD:
                     return getNordColors();
+                case ThemeId.TOKYO_NIGHT:
+                    return getTokyoNightColors();
+                case ThemeId.SOLARIZED_DARK:
+                    return getSolarizedDarkColors();
+                case ThemeId.MONOKAI_PRO:
+                    return getMonokaiProColors();
+                case ThemeId.GITHUB_DARK:
+                    return getGitHubDarkColors();
+                case ThemeId.GRUVBOX_DARK:
+                    return getGruvboxDarkColors();
+                case ThemeId.CATPPUCCIN_MOCHA:
+                    return getCatppuccinMochaColors();
+                case ThemeId.COBALT2:
+                    return getCobalt2Colors();
+                case ThemeId.SOLARIZED_LIGHT:
+                    return getSolarizedLightColors();
                 case ThemeId.GITHUB_LIGHT:
                     return getGitHubLightColors();
-                // Add more cases as themes are implemented
+                case ThemeId.GRUVBOX_LIGHT:
+                    return getGruvboxLightColors();
+                case ThemeId.CATPPUCCIN_LATTE:
+                    return getCatppuccinLatteColors();
+                case ThemeId.TOKYO_LIGHT:
+                    return getTokyoLightColors();
+                case ThemeId.NORD_LIGHT:
+                    return getNordLightColors();
+                case ThemeId.MATERIAL_LIGHT:
+                    return getMaterialLightColors();
+                case ThemeId.ATOM_ONE_LIGHT:
+                    return getAtomOneLightColors();
+                case ThemeId.AYU_LIGHT:
+                    return getAyuLightColors();
+                case ThemeId.PAPERCOLOR_LIGHT:
+                    return getPaperColorLightColors();
                 default:
                     return getDraculaColors(); // Default to Dracula
             }
@@ -355,6 +407,375 @@ public class ThemeManager {
                 0xFF24292E  // bright white
             };
             return new TerminalThemeColors(0xFF24292E, 0xFFFFFFFF, 0xFF24292E, ansiColors);
+        }
+        
+        private static TerminalThemeColors getTokyoNightColors() {
+            int[] ansiColors = {
+                0xFF1A1B26, // black
+                0xFFF7768E, // red
+                0xFF9ECE6A, // green
+                0xFFE0AF68, // yellow
+                0xFF7AA2F7, // blue
+                0xFFBB9AF7, // magenta
+                0xFF7DCFFF, // cyan
+                0xFFC0CAF5, // white
+                // Bright variants
+                0xFF414868, // bright black
+                0xFFF7768E, // bright red
+                0xFF9ECE6A, // bright green
+                0xFFE0AF68, // bright yellow
+                0xFF7AA2F7, // bright blue
+                0xFFBB9AF7, // bright magenta
+                0xFF7DCFFF, // bright cyan
+                0xFFFFFFFF  // bright white
+            };
+            return new TerminalThemeColors(0xFFC0CAF5, 0xFF1A1B26, 0xFFC0CAF5, ansiColors);
+        }
+        
+        private static TerminalThemeColors getSolarizedDarkColors() {
+            int[] ansiColors = {
+                0xFF002B36, // black
+                0xFFDC322F, // red
+                0xFF859900, // green
+                0xFFB58900, // yellow
+                0xFF268BD2, // blue
+                0xFFD33682, // magenta
+                0xFF2AA198, // cyan
+                0xFF839496, // white
+                // Bright variants
+                0xFF073642, // bright black
+                0xFFCB4B16, // bright red
+                0xFF586E75, // bright green
+                0xFF657B83, // bright yellow
+                0xFF839496, // bright blue
+                0xFF6C71C4, // bright magenta
+                0xFF93A1A1, // bright cyan
+                0xFFFDF6E3  // bright white
+            };
+            return new TerminalThemeColors(0xFF839496, 0xFF002B36, 0xFF839496, ansiColors);
+        }
+        
+        private static TerminalThemeColors getMonokaiProColors() {
+            int[] ansiColors = {
+                0xFF2D2A2E, // black
+                0xFFFF6188, // red
+                0xFFA9DC76, // green
+                0xFFFFD866, // yellow
+                0xFF78DCE8, // blue
+                0xFFAB9DF2, // magenta
+                0xFF78DCE8, // cyan
+                0xFFFCFCFA, // white
+                // Bright variants
+                0xFF403E41, // bright black
+                0xFFFF6188, // bright red
+                0xFFA9DC76, // bright green
+                0xFFFFD866, // bright yellow
+                0xFF78DCE8, // bright blue
+                0xFFAB9DF2, // bright magenta
+                0xFF78DCE8, // bright cyan
+                0xFFFFFFFF  // bright white
+            };
+            return new TerminalThemeColors(0xFFFCFCFA, 0xFF2D2A2E, 0xFFFCFCFA, ansiColors);
+        }
+        
+        private static TerminalThemeColors getGitHubDarkColors() {
+            int[] ansiColors = {
+                0xFF0D1117, // black
+                0xFFFF7B72, // red
+                0xFF3FB950, // green
+                0xFFD29922, // yellow
+                0xFF58A6FF, // blue
+                0xFFBC8CFF, // magenta
+                0xFF39C5CF, // cyan
+                0xFFF0F6FC, // white
+                // Bright variants
+                0xFF161B22, // bright black
+                0xFFFF7B72, // bright red
+                0xFF3FB950, // bright green
+                0xFFD29922, // bright yellow
+                0xFF58A6FF, // bright blue
+                0xFFBC8CFF, // bright magenta
+                0xFF39C5CF, // bright cyan
+                0xFFFFFFFF  // bright white
+            };
+            return new TerminalThemeColors(0xFFF0F6FC, 0xFF0D1117, 0xFFF0F6FC, ansiColors);
+        }
+        
+        private static TerminalThemeColors getGruvboxDarkColors() {
+            int[] ansiColors = {
+                0xFF282828, // black
+                0xFFCC241D, // red
+                0xFF98971A, // green
+                0xFFD79921, // yellow
+                0xFF458588, // blue
+                0xFFB16286, // magenta
+                0xFF689D6A, // cyan
+                0xFFA89984, // white
+                // Bright variants
+                0xFF928374, // bright black
+                0xFFFB4934, // bright red
+                0xFFB8BB26, // bright green
+                0xFFFABD2F, // bright yellow
+                0xFF83A598, // bright blue
+                0xFFD3869B, // bright magenta
+                0xFF8EC07C, // bright cyan
+                0xFFEBDBB2  // bright white
+            };
+            return new TerminalThemeColors(0xFFEBDBB2, 0xFF282828, 0xFFEBDBB2, ansiColors);
+        }
+        
+        private static TerminalThemeColors getCatppuccinMochaColors() {
+            int[] ansiColors = {
+                0xFF1E1E2E, // black
+                0xFFF38BA8, // red
+                0xFFA6E3A1, // green
+                0xFFF9E2AF, // yellow
+                0xFF89B4FA, // blue
+                0xFFF5C2E7, // magenta
+                0xFF94E2D5, // cyan
+                0xFFCDD6F4, // white
+                // Bright variants
+                0xFF313244, // bright black
+                0xFFF38BA8, // bright red
+                0xFFA6E3A1, // bright green
+                0xFFF9E2AF, // bright yellow
+                0xFF89B4FA, // bright blue
+                0xFFF5C2E7, // bright magenta
+                0xFF94E2D5, // bright cyan
+                0xFFFFFFFF  // bright white
+            };
+            return new TerminalThemeColors(0xFFCDD6F4, 0xFF1E1E2E, 0xFFCDD6F4, ansiColors);
+        }
+        
+        private static TerminalThemeColors getCobalt2Colors() {
+            int[] ansiColors = {
+                0xFF193549, // black
+                0xFFFF0000, // red
+                0xFF3AD900, // green
+                0xFFFFFF00, // yellow
+                0xFF0088FF, // blue
+                0xFFFF0088, // magenta
+                0xFF00FFFF, // cyan
+                0xFFFFFFFF, // white
+                // Bright variants
+                0xFF1F4662, // bright black
+                0xFFFF4444, // bright red
+                0xFF66FF33, // bright green
+                0xFFFFFF88, // bright yellow
+                0xFF44AAFF, // bright blue
+                0xFFFF44AA, // bright magenta
+                0xFF88FFFF, // bright cyan
+                0xFFFFFFFF  // bright white
+            };
+            return new TerminalThemeColors(0xFFFFFFFF, 0xFF193549, 0xFFFFFFFF, ansiColors);
+        }
+        
+        // Light themes
+        private static TerminalThemeColors getSolarizedLightColors() {
+            int[] ansiColors = {
+                0xFF073642, // black
+                0xFFDC322F, // red
+                0xFF859900, // green
+                0xFFB58900, // yellow
+                0xFF268BD2, // blue
+                0xFFD33682, // magenta
+                0xFF2AA198, // cyan
+                0xFFEEE8D5, // white
+                // Bright variants
+                0xFF002B36, // bright black
+                0xFFCB4B16, // bright red
+                0xFF586E75, // bright green
+                0xFF657B83, // bright yellow
+                0xFF839496, // bright blue
+                0xFF6C71C4, // bright magenta
+                0xFF93A1A1, // bright cyan
+                0xFFFDF6E3  // bright white
+            };
+            return new TerminalThemeColors(0xFF586E75, 0xFFFDF6E3, 0xFF586E75, ansiColors);
+        }
+        
+        private static TerminalThemeColors getGruvboxLightColors() {
+            int[] ansiColors = {
+                0xFFFBF1C7, // black
+                0xFFCC241D, // red
+                0xFF98971A, // green
+                0xFFD79921, // yellow
+                0xFF458588, // blue
+                0xFFB16286, // magenta
+                0xFF689D6A, // cyan
+                0xFF7C6F64, // white
+                // Bright variants
+                0xFF928374, // bright black
+                0xFF9D0006, // bright red
+                0xFF79740E, // bright green
+                0xFFB57614, // bright yellow
+                0xFF076678, // bright blue
+                0xFF8F3F71, // bright magenta
+                0xFF427B58, // bright cyan
+                0xFF3C3836  // bright white
+            };
+            return new TerminalThemeColors(0xFF3C3836, 0xFFFBF1C7, 0xFF3C3836, ansiColors);
+        }
+        
+        private static TerminalThemeColors getCatppuccinLatteColors() {
+            int[] ansiColors = {
+                0xFF5C5F77, // black
+                0xFFD20F39, // red
+                0xFF40A02B, // green
+                0xFFDF8E1D, // yellow
+                0xFF1E66F5, // blue
+                0xFFEA76CB, // magenta
+                0xFF179299, // cyan
+                0xFF4C4F69, // white
+                // Bright variants
+                0xFF6C6F85, // bright black
+                0xFFD20F39, // bright red
+                0xFF40A02B, // bright green
+                0xFFDF8E1D, // bright yellow
+                0xFF1E66F5, // bright blue
+                0xFFEA76CB, // bright magenta
+                0xFF179299, // bright cyan
+                0xFF4C4F69  // bright white
+            };
+            return new TerminalThemeColors(0xFF4C4F69, 0xFFEFF1F5, 0xFF4C4F69, ansiColors);
+        }
+        
+        private static TerminalThemeColors getTokyoLightColors() {
+            int[] ansiColors = {
+                0xFFD5D6DB, // black
+                0xFF8C4351, // red
+                0xFF485E30, // green
+                0xFF8F5E15, // yellow
+                0xFF34548A, // blue
+                0xFF5A4A78, // magenta
+                0xFF0F4B6E, // cyan
+                0xFF343B58, // white
+                // Bright variants
+                0xFFCBCCD1, // bright black
+                0xFF8C4351, // bright red
+                0xFF485E30, // bright green
+                0xFF8F5E15, // bright yellow
+                0xFF34548A, // bright blue
+                0xFF5A4A78, // bright magenta
+                0xFF0F4B6E, // bright cyan
+                0xFF343B58  // bright white
+            };
+            return new TerminalThemeColors(0xFF343B58, 0xFFD5D6DB, 0xFF343B58, ansiColors);
+        }
+        
+        private static TerminalThemeColors getNordLightColors() {
+            int[] ansiColors = {
+                0xFF3B4252, // black
+                0xFFBF616A, // red
+                0xFFA3BE8C, // green
+                0xFFEBCB8B, // yellow
+                0xFF81A1C1, // blue
+                0xFFB48EAD, // magenta
+                0xFF88C0D0, // cyan
+                0xFFE5E9F0, // white
+                // Bright variants
+                0xFF4C566A, // bright black
+                0xFFBF616A, // bright red
+                0xFFA3BE8C, // bright green
+                0xFFEBCB8B, // bright yellow
+                0xFF5E81AC, // bright blue
+                0xFFB48EAD, // bright magenta
+                0xFF8FBCBB, // bright cyan
+                0xFF2E3440  // bright white
+            };
+            return new TerminalThemeColors(0xFF2E3440, 0xFFECEFF4, 0xFF2E3440, ansiColors);
+        }
+        
+        private static TerminalThemeColors getMaterialLightColors() {
+            int[] ansiColors = {
+                0xFF212121, // black
+                0xFFD32F2F, // red
+                0xFF388E3C, // green
+                0xFFFBC02D, // yellow
+                0xFF1976D2, // blue
+                0xFF7B1FA2, // magenta
+                0xFF00ACC1, // cyan
+                0xFF757575, // white
+                // Bright variants
+                0xFF424242, // bright black
+                0xFFD32F2F, // bright red
+                0xFF388E3C, // bright green
+                0xFFFBC02D, // bright yellow
+                0xFF1976D2, // bright blue
+                0xFF7B1FA2, // bright magenta
+                0xFF00ACC1, // bright cyan
+                0xFF212121  // bright white
+            };
+            return new TerminalThemeColors(0xFF212121, 0xFFFAFAFA, 0xFF212121, ansiColors);
+        }
+        
+        private static TerminalThemeColors getAtomOneLightColors() {
+            int[] ansiColors = {
+                0xFF000000, // black
+                0xFFE45649, // red
+                0xFF50A14F, // green
+                0xFFC18401, // yellow
+                0xFF4078F2, // blue
+                0xFFA626A4, // magenta
+                0xFF0184BC, // cyan
+                0xFF383A42, // white
+                // Bright variants
+                0xFF000000, // bright black
+                0xFFE45649, // bright red
+                0xFF50A14F, // bright green
+                0xFFC18401, // bright yellow
+                0xFF4078F2, // bright blue
+                0xFFA626A4, // bright magenta
+                0xFF0184BC, // bright cyan
+                0xFF383A42  // bright white
+            };
+            return new TerminalThemeColors(0xFF383A42, 0xFFFAFAFA, 0xFF383A42, ansiColors);
+        }
+        
+        private static TerminalThemeColors getAyuLightColors() {
+            int[] ansiColors = {
+                0xFF000000, // black
+                0xFFF07178, // red
+                0xFF86B300, // green
+                0xFFF2AE49, // yellow
+                0xFF36A3D9, // blue
+                0xFFA37ACC, // magenta
+                0xFF4CBF99, // cyan
+                0xFF5C6166, // white
+                // Bright variants
+                0xFF000000, // bright black
+                0xFFF07178, // bright red
+                0xFF86B300, // bright green
+                0xFFF2AE49, // bright yellow
+                0xFF36A3D9, // bright blue
+                0xFFA37ACC, // bright magenta
+                0xFF4CBF99, // bright cyan
+                0xFF5C6166  // bright white
+            };
+            return new TerminalThemeColors(0xFF5C6166, 0xFFFAFAFA, 0xFF5C6166, ansiColors);
+        }
+        
+        private static TerminalThemeColors getPaperColorLightColors() {
+            int[] ansiColors = {
+                0xFF000000, // black
+                0xFFAF0000, // red
+                0xFF008700, // green
+                0xFF5F8700, // yellow
+                0xFF005F87, // blue
+                0xFF5F5FAF, // magenta
+                0xFF0087AF, // cyan
+                0xFF444444, // white
+                // Bright variants
+                0xFF444444, // bright black
+                0xFFAF0000, // bright red
+                0xFF008700, // bright green
+                0xFF5F8700, // bright yellow
+                0xFF005F87, // bright blue
+                0xFF5F5FAF, // bright magenta
+                0xFF0087AF, // bright cyan
+                0xFF444444  // bright white
+            };
+            return new TerminalThemeColors(0xFF444444, 0xFFEEEEEE, 0xFF444444, ansiColors);
         }
     }
 }

@@ -30,6 +30,19 @@ public final class TerminalColors {
     }
 
     /**
+     * Update terminal colors with theme colors from the ThemeManager.
+     * This bridges the UI theme system with the terminal emulator.
+     *
+     * @param foreground The foreground color
+     * @param background The background color  
+     * @param cursor The cursor color
+     * @param ansiColors Array of 16 ANSI colors
+     */
+    public static void updateThemeColors(int foreground, int background, int cursor, int[] ansiColors) {
+        COLOR_SCHEME.updateWithThemeColors(foreground, background, cursor, ansiColors);
+    }
+
+    /**
      * Parse color according to http://manpages.ubuntu.com/manpages/intrepid/man3/XQueryColor.3.html
      * <p/>
      * Highest bit is set if successful, so return value is 0xFF${R}${G}${B}. Return 0 if failed.

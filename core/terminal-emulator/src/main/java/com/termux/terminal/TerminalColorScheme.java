@@ -106,6 +106,34 @@ public final class TerminalColorScheme {
     }
 
     /**
+     * Update the color scheme with theme colors from the ThemeManager.
+     * This method integrates UI themes with terminal emulator colors.
+     *
+     * @param foreground The foreground color
+     * @param background The background color
+     * @param cursor The cursor color
+     * @param ansiColors Array of 16 ANSI colors (0-15)
+     */
+    public void updateWithThemeColors(int foreground, int background, int cursor, int[] ansiColors) {
+        reset();
+        
+        // Set basic colors
+        mDefaultColors[TextStyle.COLOR_INDEX_FOREGROUND] = foreground;
+        mDefaultColors[TextStyle.COLOR_INDEX_BACKGROUND] = background;
+        mDefaultColors[TextStyle.COLOR_INDEX_CURSOR] = cursor;
+        
+        // Set ANSI colors (0-15)
+        if (ansiColors != null && ansiColors.length >= 16) {
+            for (int i = 0; i < 16; i++) {
+                mDefaultColors[i] = ansiColors[i];
+            }
+        }
+        
+        // Keep the 256-color palette unchanged (colors 16-255)
+        // Only update the basic 16 ANSI colors for theme consistency
+    }
+
+    /**
      * If the "cursor" color is not set by user, we need to decide on the appropriate color that will
      * be visible on the current terminal background. White will not be visible on light backgrounds
      * and black won't be visible on dark backgrounds. So we find the perceived brightness of the
