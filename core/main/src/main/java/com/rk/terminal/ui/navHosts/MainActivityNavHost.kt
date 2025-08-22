@@ -21,7 +21,7 @@ import com.rk.terminal.ui.animations.NavigationAnimationTransitions
 import com.rk.terminal.ui.routes.MainActivityRoutes
 import com.rk.terminal.ui.screens.customization.Customization
 import com.rk.terminal.ui.screens.downloader.Downloader
-import com.rk.terminal.ui.screens.settings.Settings
+import com.rk.terminal.ui.screens.settings.ModernSettings
 import com.rk.terminal.ui.screens.terminal.Rootfs
 import com.rk.terminal.ui.screens.terminal.TerminalScreen
 
@@ -91,7 +91,7 @@ fun MainActivityNavHost(modifier: Modifier = Modifier,navController: NavHostCont
         }
         composable(MainActivityRoutes.Settings.route) {
             UpdateStatusBar(mainActivity,show = true)
-            Settings(navController = navController, mainActivity = mainActivity)
+            ModernSettings(navController = navController, mainActivity = mainActivity)
         }
         composable(MainActivityRoutes.Customization.route){
             UpdateStatusBar(mainActivity,show = true)
