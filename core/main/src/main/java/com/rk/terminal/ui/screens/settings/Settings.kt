@@ -64,7 +64,7 @@ fun SettingsCard(
 
 
 object WorkingMode{
-    const val ALPINE = 0
+    const val UBUNTU = 0
     const val ANDROID = 1
 }
 
@@ -79,19 +79,19 @@ fun Settings(modifier: Modifier = Modifier,navController: NavController,mainActi
         PreferenceGroup(heading = "Default Working mode") {
 
             SettingsCard(
-                title = { Text("Alpine") },
-                description = {Text("Alpine Linux")},
+                title = { Text("Ubuntu") },
+                description = {Text("Ubuntu Linux")},
                 startWidget = {
                     RadioButton(
                         modifier = Modifier.padding(start = 8.dp),
-                        selected = selectedOption == WorkingMode.ALPINE,
+                        selected = selectedOption == WorkingMode.UBUNTU,
                         onClick = {
-                            selectedOption = WorkingMode.ALPINE
+                            selectedOption = WorkingMode.UBUNTU
                             Settings.working_Mode = selectedOption
                         })
                 },
                 onClick = {
-                    selectedOption = WorkingMode.ALPINE
+                    selectedOption = WorkingMode.UBUNTU
                     Settings.working_Mode = selectedOption
                 })
 

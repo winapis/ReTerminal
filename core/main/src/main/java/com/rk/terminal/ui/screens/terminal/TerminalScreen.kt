@@ -290,10 +290,10 @@ fun TerminalScreen(
 
                 PreferenceGroup {
                     SettingsCard(
-                        title = { Text("Alpine") },
-                        description = {Text("Alpine Linux")},
+                        title = { Text("Ubuntu") },
+                        description = {Text("Ubuntu Linux")},
                         onClick = {
-                           createSession(workingMode = WorkingMode.ALPINE)
+                           createSession(workingMode = WorkingMode.UBUNTU)
                             showAddDialog = false
                         })
 
@@ -418,7 +418,7 @@ fun TerminalScreen(
 
                             fun getNameOfWorkingMode(workingMode:Int?):String{
                                 return when(workingMode){
-                                    0 -> "ALPINE".lowercase()
+                                    0 -> "UBUNTU".lowercase()
                                     1 -> "ANDROID".lowercase()
                                     null -> "null"
                                     else -> "unknown"

@@ -1,8 +1,8 @@
 package com.rk.terminal.ui.screens.terminal
 
 import android.os.Environment
-import com.rk.libcommons.alpineDir
-import com.rk.libcommons.alpineHomeDir
+import com.rk.libcommons.ubuntuDir
+import com.rk.libcommons.ubuntuHomeDir
 import com.rk.libcommons.application
 import com.rk.libcommons.child
 import com.rk.libcommons.createFileIfNot
@@ -39,7 +39,7 @@ object MkSession {
                 "EXTERNAL_STORAGE" to System.getenv("EXTERNAL_STORAGE")
             )
 
-            val workingDir = pendingCommand?.workingDir ?: alpineHomeDir().path
+            val workingDir = pendingCommand?.workingDir ?: ubuntuHomeDir().path
 
             val initFile: File = localBinDir().child("init-host")
 
@@ -109,7 +109,7 @@ object MkSession {
             val args: Array<String>
 
             val shell = if (pendingCommand == null) {
-                args = if (workingMode == WorkingMode.ALPINE){
+                args = if (workingMode == WorkingMode.UBUNTU){
                     arrayOf("-c",initFile.absolutePath)
                 }else{
                     arrayOf()

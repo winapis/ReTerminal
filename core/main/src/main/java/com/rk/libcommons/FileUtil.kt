@@ -24,16 +24,16 @@ fun localDir(): File {
     }
 }
 
-fun alpineDir(): File{
-    return localDir().child("alpine").also {
+fun ubuntuDir(): File{
+    return localDir().child("ubuntu").also {
         if (!it.exists()) {
             it.mkdirs()
         }
     }
 }
 
-fun alpineHomeDir(): File{
-    return alpineDir().child("root").also {
+fun ubuntuHomeDir(): File{
+    return ubuntuDir().child("root").also {
         if (!it.exists()) {
             it.mkdirs()
         }
