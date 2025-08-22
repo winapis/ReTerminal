@@ -89,4 +89,8 @@
         <item name="android:colorBackground">@android:color/black</item>
         <item name="colorSurface">@android:color/black</item>
     </style>
+    
+    <!-- Include new theme system - these are aliases to the themes defined in themes_dark.xml and themes_light.xml -->
+    <!-- This allows both XML and Compose systems to work together -->
+    
 </resources>

@@ -211,6 +211,7 @@ fun KarbonTheme(
     dynamicColor: Boolean = Settings.monet,
     content: @Composable () -> Unit,
 ) {
+    val selectedTheme = Settings.selected_theme
     val colorScheme = when {
         // If dynamic color is enabled and supported, use it (overrides custom themes)
         dynamicColor && supportsDynamicTheming() -> {
@@ -224,13 +225,29 @@ fun KarbonTheme(
             }
         }
         
-        // Custom theme selection based on Settings.color_scheme
+        // Custom theme selection based on Settings.selected_theme (new ThemeManagerJava)
         else -> {
-            when (Settings.color_scheme) {
-                1 -> MonokaiDarkColorScheme // Monokai (always dark)
-                2 -> OneDarkColorScheme // OneDark (always dark) 
-                3 -> DraculaDarkColorScheme // Dracula (always dark)
-                4 -> GitHubLightColorScheme // GitHub Light (always light)
+            when (selectedTheme) {
+                1 -> DraculaDarkColorScheme // Dracula (always dark)
+                2 -> OneDarkColorScheme // OneDark (always dark)
+                3 -> MonokaiDarkColorScheme // Nord Dark (placeholder, using Monokai)
+                4 -> MonokaiDarkColorScheme // Tokyo Night (placeholder, using Monokai)
+                5 -> MonokaiDarkColorScheme // Solarized Dark (placeholder, using Monokai)
+                6 -> MonokaiDarkColorScheme // Monokai Pro
+                7 -> MonokaiDarkColorScheme // GitHub Dark (placeholder, using Monokai)
+                8 -> MonokaiDarkColorScheme // Gruvbox Dark (placeholder, using Monokai)
+                9 -> MonokaiDarkColorScheme // Catppuccin Mocha (placeholder, using Monokai)
+                10 -> MonokaiDarkColorScheme // Cobalt2 (placeholder, using Monokai)
+                11 -> LightColorScheme // Solarized Light (placeholder, using default light)
+                12 -> GitHubLightColorScheme // GitHub Light
+                13 -> LightColorScheme // Gruvbox Light (placeholder, using default light)
+                14 -> LightColorScheme // Catppuccin Latte (placeholder, using default light)
+                15 -> LightColorScheme // Tokyo Light (placeholder, using default light)
+                16 -> LightColorScheme // Nord Light (placeholder, using default light)
+                17 -> LightColorScheme // Material Light (placeholder, using default light)
+                18 -> LightColorScheme // Atom One Light (placeholder, using default light)
+                19 -> LightColorScheme // Ayu Light (placeholder, using default light)
+                20 -> LightColorScheme // PaperColor Light (placeholder, using default light)
                 else -> {
                     // Default themes based on dark/light mode
                     when {
@@ -250,16 +267,9 @@ fun KarbonTheme(
             (view.context as Activity).apply {
                 WindowCompat.getInsetsController(window, window.decorView).apply {
                     // Update status bar appearance based on theme
-                    isAppearanceLightStatusBars = when (Settings.color_scheme) {
-                        1, 2, 3 -> false // Dark themes
-                        4 -> true // Light theme
-                        else -> !darkTheme // Default behavior
-                    }
-                    isAppearanceLightNavigationBars = when (Settings.color_scheme) {
-                        1, 2, 3 -> false // Dark themes
-                        4 -> true // Light theme
-                        else -> !darkTheme // Default behavior
-                    }
+                    val isDarkTheme = selectedTheme in 1..10 // Dark themes are 1-10
+                    isAppearanceLightStatusBars = !isDarkTheme
+                    isAppearanceLightNavigationBars = !isDarkTheme
                 }
             }
         }

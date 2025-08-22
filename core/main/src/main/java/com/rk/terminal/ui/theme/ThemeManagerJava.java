@@ -3,6 +3,7 @@ package com.rk.terminal.ui.theme;
 import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.util.Log;
 import androidx.appcompat.app.AppCompatDelegate;
 import com.rk.terminal.R;
 import com.rk.settings.Settings;
@@ -14,8 +15,6 @@ import com.rk.settings.Settings;
  * @author Copilot
  */
 public class ThemeManagerJava {
-    
-    private static final int DEFAULT_THEME = THEME_DRACULA_DARK;
     
     // Dark themes (10)
     public static final int THEME_DRACULA_DARK = 1;
@@ -40,6 +39,8 @@ public class ThemeManagerJava {
     public static final int THEME_ATOM_ONE_LIGHT = 18;
     public static final int THEME_AYU_LIGHT = 19;
     public static final int THEME_PAPERCOLOR_LIGHT = 20;
+    
+    private static final int DEFAULT_THEME = THEME_DRACULA_DARK;
     
     private static ThemeManagerJava instance;
     
@@ -79,6 +80,9 @@ public class ThemeManagerJava {
     public void applyTheme(Activity activity) {
         int themeId = getSelectedTheme(activity);
         int resourceTheme = getThemeResource(themeId);
+        
+        Log.d("ThemeManagerJava", "Applying theme: " + getThemeName(themeId) + " (ID: " + themeId + ")");
+        
         activity.setTheme(resourceTheme);
         
         // Set night mode based on theme
@@ -187,5 +191,45 @@ public class ThemeManagerJava {
             
             default: return "Dracula";
         }
+    }
+    
+    /**
+     * Get all available themes
+     * @return Array of theme IDs
+     */
+    public int[] getAllThemes() {
+        return new int[] {
+            THEME_DRACULA_DARK, THEME_ONEDARK, THEME_NORD_DARK, THEME_TOKYO_NIGHT, 
+            THEME_SOLARIZED_DARK, THEME_MONOKAI_PRO, THEME_GITHUB_DARK, THEME_GRUVBOX_DARK,
+            THEME_CATPPUCCIN_MOCHA, THEME_COBALT2,
+            THEME_SOLARIZED_LIGHT, THEME_GITHUB_LIGHT, THEME_GRUVBOX_LIGHT, THEME_CATPPUCCIN_LATTE,
+            THEME_TOKYO_LIGHT, THEME_NORD_LIGHT, THEME_MATERIAL_LIGHT, THEME_ATOM_ONE_LIGHT,
+            THEME_AYU_LIGHT, THEME_PAPERCOLOR_LIGHT
+        };
+    }
+    
+    /**
+     * Test method to cycle through themes (for debugging/testing)
+     * @param context Application context
+     */
+    public void cycleToNextTheme(Context context) {
+        int currentTheme = getSelectedTheme(context);
+        int[] allThemes = getAllThemes();
+        
+        // Find current theme index
+        int currentIndex = 0;
+        for (int i = 0; i < allThemes.length; i++) {
+            if (allThemes[i] == currentTheme) {
+                currentIndex = i;
+                break;
+            }
+        }
+        
+        // Move to next theme (wrap around if at the end)
+        int nextIndex = (currentIndex + 1) % allThemes.length;
+        int nextTheme = allThemes[nextIndex];
+        
+        Log.d("ThemeManagerJava", "Cycling from " + getThemeName(currentTheme) + " to " + getThemeName(nextTheme));
+        setTheme(context, nextTheme);
     }
 }
