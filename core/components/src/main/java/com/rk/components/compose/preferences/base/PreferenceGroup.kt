@@ -49,9 +49,10 @@ fun PreferenceGroup(
     Column(modifier = modifier) {
         PreferenceGroupHeading(heading)
         Surface(
-            modifier = Modifier.padding(horizontal = 16.dp),
+            modifier = Modifier.padding(horizontal = 12.dp),
             shape = MaterialTheme.shapes.large,
-            tonalElevation = 1.dp,
+            tonalElevation = 2.dp,
+            shadowElevation = 1.dp,
         ) {
             if (showDividers) {
                 DividerColumn(
