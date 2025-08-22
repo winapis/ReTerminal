@@ -13,6 +13,19 @@ export DEBIAN_FRONTEND=noninteractive
 required_packages="bash nano curl"
 missing_packages=""
 
+# Check if apt-get is available
+if ! command -v apt-get >/dev/null 2>&1; then
+    echo "Error: apt-get not found. Debian environment may not be properly initialized."
+    echo "Available package managers:"
+    command -v apt 2>/dev/null && echo "  - apt found"
+    command -v dpkg 2>/dev/null && echo "  - dpkg found"
+    echo "PATH: $PATH"
+    echo "Current directory: $(pwd)"
+    echo "Root filesystem contents:"
+    ls -la / 2>/dev/null | head -10
+    exit 1
+fi
+
 # Update package lists
 apt-get update
 
