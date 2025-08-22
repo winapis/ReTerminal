@@ -30,7 +30,7 @@ fun ThemeSelectionScreen(
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
-    var selectedTheme by remember { mutableIntStateOf(ModernThemeManager.getCurrentTheme(context)) }
+    var selectedTheme by remember { mutableIntStateOf(Settings.color_scheme) }
     val allThemes = ModernThemeManager.getAllThemes()
     val darkThemes = allThemes.filter { it.isDark }
     val lightThemes = allThemes.filter { !it.isDark }

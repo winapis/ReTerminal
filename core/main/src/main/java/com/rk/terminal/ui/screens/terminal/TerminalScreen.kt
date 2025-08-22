@@ -326,6 +326,40 @@ fun TerminalScreen(
         val drawerWidth = (screenWidthDp * 0.84).dp
         var showAddDialog by remember { mutableStateOf(false) }
 
+        // Function to create a new terminal session
+        fun createSession(workingMode: Int = Settings.working_Mode) {
+            fun generateUniqueString(existingStrings: List<String>): String {
+                var index = 1
+                var newString: String
+
+                do {
+                    newString = "main$index"
+                    index++
+                } while (newString in existingStrings)
+
+                return newString
+            }
+
+            val sessionId = generateUniqueString(mainActivityActivity.sessionBinder!!.getService().sessionList.keys.toList())
+
+            terminalView.get()?.let {
+                val client = TerminalBackEnd(it, mainActivityActivity)
+                mainActivityActivity.sessionBinder!!.createSession(
+                    sessionId,
+                    client,
+                    mainActivityActivity, 
+                    workingMode = workingMode
+                )
+            }
+
+            changeSession(mainActivityActivity, session_id = sessionId)
+            
+            // Close drawer after creating session
+            scope.launch {
+                drawerState.close()
+            }
+        }
+
         BackHandler(enabled = drawerState.isOpen) {
             scope.launch {
                 drawerState.close()
@@ -361,34 +395,6 @@ fun TerminalScreen(
                             modifier = Modifier.padding(16.dp),
                             color = MaterialTheme.colorScheme.onSurface
                         )
-
-                        fun createSession(workingMode:Int){
-                            fun generateUniqueString(existingStrings: List<String>): String {
-                                var index = 1
-                                var newString: String
-
-                                do {
-                                    newString = "main$index"
-                                    index++
-                                } while (newString in existingStrings)
-
-                                return newString
-                            }
-
-                            val sessionId = generateUniqueString(mainActivityActivity.sessionBinder!!.getService().sessionList.keys.toList())
-
-                            terminalView.get()
-                                ?.let {
-                                    val client = TerminalBackEnd(it, mainActivityActivity)
-                                    mainActivityActivity.sessionBinder!!.createSession(
-                                        sessionId,
-                                        client,
-                                        mainActivityActivity, workingMode = workingMode
-                                    )
-                                }
-
-                            changeSession(mainActivityActivity, session_id = sessionId)
-                        }
 
                         SettingsCard(
                             title = { Text("Alpine", fontWeight = FontWeight.SemiBold) },
@@ -503,20 +509,22 @@ fun TerminalScreen(
                                         )
                                     }
 
-                                    IconButton(
-                                        onClick = {
-                                            showAddDialog = true
-                                        },
+                                    Box(
                                         modifier = Modifier
                                             .size(40.dp)
                                             .background(
                                                 MaterialTheme.colorScheme.primary.copy(alpha = 0.1f),
                                                 RoundedCornerShape(16.dp)
                                             )
+                                            .combinedClickable(
+                                                onClick = { createSession() },
+                                                onLongClick = { showAddDialog = true } // Long-press for distribution selection
+                                            ),
+                                        contentAlignment = Alignment.Center
                                     ) {
                                         Icon(
                                             imageVector = Icons.Default.Add,
-                                            contentDescription = "New session",
+                                            contentDescription = "New session (long-press for distribution selection)",
                                             tint = MaterialTheme.colorScheme.onPrimaryContainer
                                         )
                                     }
@@ -675,7 +683,7 @@ fun TerminalScreen(
                                     },
                                     actions = {
                                         IconButton(onClick = {
-                                            showAddDialog = true
+                                            createSession() // Create session with default/selected distribution
                                         }) {
                                             Icon(Icons.Default.Add,null, tint = color)
                                         }

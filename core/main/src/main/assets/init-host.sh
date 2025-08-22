@@ -70,8 +70,9 @@ extract_distribution() {
         # Try again with hard links converted to copies (more Android-compatible)
         if ! tar -xf "$PREFIX/files/$ROOTFS_FILE" -C "$DISTRIBUTION_DIR" $TAR_OPTS --hard-dereference 2>/dev/null; then
             log_message "Hard link conversion failed, trying without link preservation..."
-            # Final attempt: ignore link creation errors
-            if ! tar -xf "$PREFIX/files/$ROOTFS_FILE" -C "$DISTRIBUTION_DIR" $TAR_OPTS --warning=no-file-ignored 2>/tmp/tar_errors.log; then
+            # Final attempt: ignore link creation errors and use app-writable temp directory
+            TAR_LOG_FILE="${TMPDIR}/tar_errors.log"
+            if ! tar -xf "$PREFIX/files/$ROOTFS_FILE" -C "$DISTRIBUTION_DIR" $TAR_OPTS --warning=no-file-ignored 2>"$TAR_LOG_FILE"; then
                 echo "Error: Failed to extract rootfs from $PREFIX/files/$ROOTFS_FILE"
                 echo "File details:"
                 ls -la "$PREFIX/files/$ROOTFS_FILE" 2>/dev/null || echo "  - File not found"
@@ -79,17 +80,17 @@ extract_distribution() {
                 ls -la "$PREFIX/files/" 2>/dev/null | head -10
                 echo "Target directory status:"
                 ls -la "$DISTRIBUTION_DIR/" 2>/dev/null || echo "  - Directory not accessible"
-                if [ -f /tmp/tar_errors.log ]; then
+                if [ -f "$TAR_LOG_FILE" ]; then
                     echo "Tar extraction errors:"
-                    cat /tmp/tar_errors.log
-                    rm -f /tmp/tar_errors.log
+                    cat "$TAR_LOG_FILE"
+                    rm -f "$TAR_LOG_FILE"
                 fi
                 exit 1
             else
                 log_message "Warning: Extraction completed with some link creation errors (non-critical)"
-                if [ -f /tmp/tar_errors.log ]; then
+                if [ -f "$TAR_LOG_FILE" ]; then
                     log_message "Note: Some hard links were converted to file copies for Android compatibility"
-                    rm -f /tmp/tar_errors.log
+                    rm -f "$TAR_LOG_FILE"
                 fi
             fi
         else

@@ -24,8 +24,9 @@ object Rootfs {
         
         // Check if any distribution rootfs exists (both .tar.gz and .tar.xz formats)
         val distributionNames = listOf("alpine", "ubuntu", "debian", "arch", "kali")
+        val filesDir = reTerminal.child("files")
         return distributionNames.any { name ->
-            reTerminal.child("$name.tar.gz").exists() || reTerminal.child("$name.tar.xz").exists()
+            filesDir.child("$name.tar.gz").exists() || filesDir.child("$name.tar.xz").exists()
         }
     }
 }
