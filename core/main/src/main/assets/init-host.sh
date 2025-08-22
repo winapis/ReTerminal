@@ -43,7 +43,8 @@ if [ -z "$DISTRIBUTION_NAME" ]; then
     fi
 fi
 
-if [ -z "$(ls -A "$DISTRIBUTION_DIR" | grep -vE '^(root|tmp)$')" ]; then
+# Function to extract and verify distribution
+extract_distribution() {
     echo "Extracting $DISTRIBUTION_NAME rootfs from $ROOTFS_FILE..."
     if ! tar -xf "$PREFIX/files/$ROOTFS_FILE" -C "$DISTRIBUTION_DIR" 2>/dev/null; then
         echo "Error: Failed to extract rootfs from $PREFIX/files/$ROOTFS_FILE"
@@ -70,8 +71,61 @@ if [ -z "$(ls -A "$DISTRIBUTION_DIR" | grep -vE '^(root|tmp)$')" ]; then
             ls "$DISTRIBUTION_DIR/usr/bin/" 2>/dev/null | grep -E "(apt|dpkg)" || echo "  - No apt/dpkg binaries found"
         fi
     fi
+}
+
+# Function to verify existing distribution matches selected one
+verify_existing_distribution() {
+    if [ -f "$DISTRIBUTION_DIR/etc/os-release" ]; then
+        # Check if the existing distribution matches the selected one
+        if [ "$DISTRIBUTION_NAME" = "ubuntu" ]; then
+            if grep -q "ID=ubuntu" "$DISTRIBUTION_DIR/etc/os-release" 2>/dev/null; then
+                return 0  # Match found
+            fi
+        elif [ "$DISTRIBUTION_NAME" = "debian" ]; then
+            if grep -q "ID=debian" "$DISTRIBUTION_DIR/etc/os-release" 2>/dev/null; then
+                return 0  # Match found
+            fi
+        elif [ "$DISTRIBUTION_NAME" = "alpine" ]; then
+            if grep -q "ID=alpine" "$DISTRIBUTION_DIR/etc/os-release" 2>/dev/null; then
+                return 0  # Match found
+            fi
+        elif [ "$DISTRIBUTION_NAME" = "arch" ]; then
+            if grep -q "ID=arch" "$DISTRIBUTION_DIR/etc/os-release" 2>/dev/null; then
+                return 0  # Match found
+            fi
+        elif [ "$DISTRIBUTION_NAME" = "kali" ]; then
+            if grep -q "ID=kali" "$DISTRIBUTION_DIR/etc/os-release" 2>/dev/null; then
+                return 0  # Match found
+            fi
+        fi
+    fi
+    return 1  # No match or no os-release file
+}
+
+if [ -z "$(ls -A "$DISTRIBUTION_DIR" | grep -vE '^(root|tmp)$')" ]; then
+    # Directory is empty, extract the distribution
+    extract_distribution
 else
-    echo "Using existing $DISTRIBUTION_NAME installation"
+    # Directory exists, verify it contains the correct distribution
+    if verify_existing_distribution; then
+        echo "Using existing $DISTRIBUTION_NAME installation"
+    else
+        echo "Existing installation does not match selected distribution ($DISTRIBUTION_NAME)"
+        if [ -f "$DISTRIBUTION_DIR/etc/os-release" ]; then
+            existing_id=$(grep "^ID=" "$DISTRIBUTION_DIR/etc/os-release" 2>/dev/null | cut -d'=' -f2 | tr -d '"' 2>/dev/null || echo "unknown")
+            if [ -n "$existing_id" ] && [ "$existing_id" != "unknown" ]; then
+                echo "Found existing distribution: $existing_id (expected: $DISTRIBUTION_NAME)"
+            else
+                echo "Existing distribution could not be determined from /etc/os-release"
+            fi
+        else
+            echo "No /etc/os-release found in existing installation"
+        fi
+        echo "Clearing existing installation and extracting correct distribution..."
+        # Clear existing installation (but preserve tmp directory)
+        find "$DISTRIBUTION_DIR" -mindepth 1 -maxdepth 1 ! -name 'tmp' -exec rm -rf {} + 2>/dev/null || true
+        extract_distribution
+    fi
 fi
 
 [ ! -e "$PREFIX/local/bin/proot" ] && cp "$PREFIX/files/proot" "$PREFIX/local/bin"
