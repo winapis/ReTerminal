@@ -13,6 +13,11 @@ import android.view.Window
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
@@ -29,11 +34,14 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Settings
@@ -171,6 +179,85 @@ var showToolbar = mutableStateOf(Settings.toolbar)
 var showVirtualKeys = mutableStateOf(Settings.virtualKeys)
 var showHorizontalToolbar = mutableStateOf(Settings.toolbar)
 
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+fun SessionTabBar(
+    sessions: List<String>,
+    currentSession: String?,
+    onSessionSelect: (String) -> Unit,
+    onSessionClose: (String) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    if (sessions.size > 1) {
+        LazyRow(
+            modifier = modifier
+                .fillMaxWidth()
+                .background(MaterialTheme.colorScheme.surfaceContainer)
+                .padding(horizontal = 8.dp, vertical = 4.dp),
+            horizontalArrangement = Arrangement.spacedBy(4.dp)
+        ) {
+            items(sessions) { sessionId ->
+                val isActive = sessionId == currentSession
+                
+                Card(
+                    modifier = Modifier
+                        .wrapContentWidth()
+                        .combinedClickable(
+                            onClick = { onSessionSelect(sessionId) }
+                        ),
+                    colors = CardDefaults.cardColors(
+                        containerColor = if (isActive) {
+                            MaterialTheme.colorScheme.primaryContainer
+                        } else {
+                            MaterialTheme.colorScheme.surface
+                        }
+                    ),
+                    elevation = CardDefaults.cardElevation(
+                        defaultElevation = if (isActive) 4.dp else 1.dp
+                    ),
+                    border = if (isActive) {
+                        BorderStroke(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.5f))
+                    } else null
+                ) {
+                    Row(
+                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Text(
+                            text = sessionId.take(8) + if (sessionId.length > 8) "..." else "",
+                            style = MaterialTheme.typography.bodySmall,
+                            fontWeight = if (isActive) FontWeight.SemiBold else FontWeight.Normal,
+                            color = if (isActive) {
+                                MaterialTheme.colorScheme.onPrimaryContainer
+                            } else {
+                                MaterialTheme.colorScheme.onSurface
+                            }
+                        )
+                        
+                        if (sessions.size > 1) {
+                            Icon(
+                                imageVector = Icons.Filled.Close,
+                                contentDescription = "Close tab",
+                                modifier = Modifier
+                                    .size(16.dp)
+                                    .combinedClickable(
+                                        onClick = { onSessionClose(sessionId) }
+                                    ),
+                                tint = if (isActive) {
+                                    MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.7f)
+                                } else {
+                                    MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
+                                }
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -257,85 +344,100 @@ fun TerminalScreen(
                     showAddDialog = false
                 }
             ) {
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+                ) {
+                    Column(
+                        modifier = Modifier.padding(8.dp),
+                        verticalArrangement = Arrangement.spacedBy(4.dp)
+                    ) {
+                        // Dialog Header
+                        Text(
+                            text = "Create New Session",
+                            style = MaterialTheme.typography.titleLarge,
+                            fontWeight = FontWeight.Bold,
+                            modifier = Modifier.padding(16.dp),
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
 
-                fun createSession(workingMode:Int){
-                    fun generateUniqueString(existingStrings: List<String>): String {
-                        var index = 1
-                        var newString: String
+                        fun createSession(workingMode:Int){
+                            fun generateUniqueString(existingStrings: List<String>): String {
+                                var index = 1
+                                var newString: String
 
-                        do {
-                            newString = "main$index"
-                            index++
-                        } while (newString in existingStrings)
+                                do {
+                                    newString = "main$index"
+                                    index++
+                                } while (newString in existingStrings)
 
-                        return newString
-                    }
+                                return newString
+                            }
 
-                    val sessionId = generateUniqueString(mainActivityActivity.sessionBinder!!.getService().sessionList.keys.toList())
+                            val sessionId = generateUniqueString(mainActivityActivity.sessionBinder!!.getService().sessionList.keys.toList())
 
-                    terminalView.get()
-                        ?.let {
-                            val client = TerminalBackEnd(it, mainActivityActivity)
-                            mainActivityActivity.sessionBinder!!.createSession(
-                                sessionId,
-                                client,
-                                mainActivityActivity, workingMode = workingMode
-                            )
+                            terminalView.get()
+                                ?.let {
+                                    val client = TerminalBackEnd(it, mainActivityActivity)
+                                    mainActivityActivity.sessionBinder!!.createSession(
+                                        sessionId,
+                                        client,
+                                        mainActivityActivity, workingMode = workingMode
+                                    )
+                                }
+
+                            changeSession(mainActivityActivity, session_id = sessionId)
                         }
 
+                        SettingsCard(
+                            title = { Text("Alpine", fontWeight = FontWeight.SemiBold) },
+                            description = {Text("Alpine Linux - Lightweight and secure")},
+                            onClick = {
+                               createSession(workingMode = WorkingMode.ALPINE)
+                                showAddDialog = false
+                            })
 
-                    changeSession(mainActivityActivity, session_id = sessionId)
-                }
+                        SettingsCard(
+                            title = { Text("Ubuntu", fontWeight = FontWeight.SemiBold) },
+                            description = {Text("Ubuntu Linux ARM64 - Popular and user-friendly")},
+                            onClick = {
+                               createSession(workingMode = WorkingMode.UBUNTU)
+                                showAddDialog = false
+                            })
 
+                        SettingsCard(
+                            title = { Text("Debian", fontWeight = FontWeight.SemiBold) },
+                            description = {Text("Debian Linux ARM64 - Stable and reliable")},
+                            onClick = {
+                               createSession(workingMode = WorkingMode.DEBIAN)
+                                showAddDialog = false
+                            })
 
-                PreferenceGroup {
-                    SettingsCard(
-                        title = { Text("Alpine") },
-                        description = {Text("Alpine Linux")},
-                        onClick = {
-                           createSession(workingMode = WorkingMode.ALPINE)
-                            showAddDialog = false
-                        })
+                        SettingsCard(
+                            title = { Text("Arch Linux", fontWeight = FontWeight.SemiBold) },
+                            description = {Text("Arch Linux ARM64 - Bleeding edge and minimal")},
+                            onClick = {
+                               createSession(workingMode = WorkingMode.ARCH)
+                                showAddDialog = false
+                            })
 
-                    SettingsCard(
-                        title = { Text("Ubuntu") },
-                        description = {Text("Ubuntu Linux ARM64")},
-                        onClick = {
-                           createSession(workingMode = WorkingMode.UBUNTU)
-                            showAddDialog = false
-                        })
+                        SettingsCard(
+                            title = { Text("Kali Linux", fontWeight = FontWeight.SemiBold) },
+                            description = {Text("Kali Linux ARM64 - Security and penetration testing")},
+                            onClick = {
+                               createSession(workingMode = WorkingMode.KALI)
+                                showAddDialog = false
+                            })
 
-                    SettingsCard(
-                        title = { Text("Debian") },
-                        description = {Text("Debian Linux ARM64")},
-                        onClick = {
-                           createSession(workingMode = WorkingMode.DEBIAN)
-                            showAddDialog = false
-                        })
-
-                    SettingsCard(
-                        title = { Text("Arch Linux") },
-                        description = {Text("Arch Linux ARM64")},
-                        onClick = {
-                           createSession(workingMode = WorkingMode.ARCH)
-                            showAddDialog = false
-                        })
-
-                    SettingsCard(
-                        title = { Text("Kali Linux") },
-                        description = {Text("Kali Linux ARM64")},
-                        onClick = {
-                           createSession(workingMode = WorkingMode.KALI)
-                            showAddDialog = false
-                        })
-
-                    SettingsCard(
-                        title = { Text("Android") },
-                        description = {Text("ReTerminal Android shell")},
-                        onClick = {
-                            createSession(workingMode = WorkingMode.ANDROID)
-                            showAddDialog = false
-                        })
+                        SettingsCard(
+                            title = { Text("Android", fontWeight = FontWeight.SemiBold) },
+                            description = {Text("Android Shell - Native Android environment")},
+                            onClick = {
+                                createSession(workingMode = WorkingMode.ANDROID)
+                                showAddDialog = false
+                            })
+                    }
                 }
             }
         }
@@ -344,94 +446,184 @@ fun TerminalScreen(
             drawerState = drawerState,
             gesturesEnabled = drawerState.isOpen || !(showToolbar.value && (LocalConfiguration.current.orientation != Configuration.ORIENTATION_LANDSCAPE || showHorizontalToolbar.value)),
             drawerContent = {
-                ModalDrawerSheet(modifier = Modifier.width(drawerWidth)) {
+                ModalDrawerSheet(
+                    modifier = Modifier.width(drawerWidth),
+                    drawerContainerColor = MaterialTheme.colorScheme.surfaceContainer,
+                    drawerContentColor = MaterialTheme.colorScheme.onSurface
+                ) {
                     Column(
                         modifier = Modifier.fillMaxSize(),
                         verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(16.dp),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
+                        // Enhanced Header
+                        Surface(
+                            modifier = Modifier.fillMaxWidth(),
+                            color = MaterialTheme.colorScheme.primaryContainer,
+                            shadowElevation = 4.dp
                         ) {
-                            Text(
-                                text = "Session",
-                                style = MaterialTheme.typography.titleLarge
-                            )
-
-                            Row {
-                                val keyboardController = LocalSoftwareKeyboardController.current
-                                IconButton(onClick = {
-                                    navController.navigate(MainActivityRoutes.Settings.route)
-                                    keyboardController?.hide()
-                                }) {
-                                    Icon(
-                                        imageVector = Icons.Outlined.Settings,
-                                        contentDescription = null
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(16.dp),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Column {
+                                    Text(
+                                        text = "Terminal Sessions",
+                                        style = MaterialTheme.typography.titleLarge,
+                                        fontWeight = FontWeight.Bold,
+                                        color = MaterialTheme.colorScheme.onPrimaryContainer
+                                    )
+                                    Text(
+                                        text = "${mainActivityActivity.sessionBinder?.getService()?.sessionList?.size ?: 0} sessions active",
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.7f)
                                     )
                                 }
 
-                                IconButton(onClick = {
-                                    showAddDialog = true
-                                }) {
-                                    Icon(
-                                        imageVector = Icons.Default.Add,
-                                        contentDescription = null
-                                    )
-                                }
-
-                            }
-
-
-                        }
-
-                        mainActivityActivity.sessionBinder?.getService()?.sessionList?.keys?.toList()?.let {
-                            LazyColumn {
-                                items(it) { session_id ->
-                                    SelectableCard(
-                                        selected = session_id == mainActivityActivity.sessionBinder?.getService()?.currentSession?.value?.first,
-                                        onSelect = {
-                                            changeSession(
-                                                mainActivityActivity,
-                                                session_id
-                                            )
+                                Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                                    val keyboardController = LocalSoftwareKeyboardController.current
+                                    IconButton(
+                                        onClick = {
+                                            navController.navigate(MainActivityRoutes.Settings.route)
+                                            keyboardController?.hide()
                                         },
                                         modifier = Modifier
+                                            .size(40.dp)
+                                            .background(
+                                                MaterialTheme.colorScheme.primary.copy(alpha = 0.1f),
+                                                RoundedCornerShape(8.dp)
+                                            )
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Outlined.Settings,
+                                            contentDescription = "Settings",
+                                            tint = MaterialTheme.colorScheme.onPrimaryContainer
+                                        )
+                                    }
+
+                                    IconButton(
+                                        onClick = {
+                                            showAddDialog = true
+                                        },
+                                        modifier = Modifier
+                                            .size(40.dp)
+                                            .background(
+                                                MaterialTheme.colorScheme.primary.copy(alpha = 0.1f),
+                                                RoundedCornerShape(8.dp)
+                                            )
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Default.Add,
+                                            contentDescription = "New session",
+                                            tint = MaterialTheme.colorScheme.onPrimaryContainer
+                                        )
+                                    }
+                                }
+                            }
+                        }
+
+                        mainActivityActivity.sessionBinder?.getService()?.sessionList?.keys?.toList()?.let { sessions ->
+                            LazyColumn(
+                                verticalArrangement = Arrangement.spacedBy(4.dp)
+                            ) {
+                                items(sessions) { session_id ->
+                                    val isActive = session_id == mainActivityActivity.sessionBinder?.getService()?.currentSession?.value?.first
+                                    val sessionWorkingMode = mainActivityActivity.sessionBinder?.getService()?.sessionList?.get(session_id)
+                                    
+                                    Card(
+                                        modifier = Modifier
                                             .fillMaxWidth()
-                                            .padding(8.dp)
+                                            .padding(horizontal = 8.dp),
+                                        colors = CardDefaults.cardColors(
+                                            containerColor = if (isActive) {
+                                                MaterialTheme.colorScheme.primaryContainer
+                                            } else {
+                                                MaterialTheme.colorScheme.surfaceContainer
+                                            }
+                                        ),
+                                        elevation = CardDefaults.cardElevation(
+                                            defaultElevation = if (isActive) 6.dp else 2.dp
+                                        ),
+                                        onClick = {
+                                            if (!isActive) {
+                                                changeSession(mainActivityActivity, session_id)
+                                                scope.launch { drawerState.close() }
+                                            }
+                                        }
                                     ) {
                                         Row(
-                                            modifier = Modifier.fillMaxWidth(),
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .padding(16.dp),
                                             verticalAlignment = Alignment.CenterVertically
                                         ) {
-                                            Text(
-                                                text = session_id,
-                                                style = MaterialTheme.typography.bodyLarge
-                                            )
+                                            Column(modifier = Modifier.weight(1f)) {
+                                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                                    Text(
+                                                        text = session_id,
+                                                        style = MaterialTheme.typography.bodyLarge,
+                                                        fontWeight = if (isActive) FontWeight.SemiBold else FontWeight.Normal,
+                                                        color = if (isActive) {
+                                                            MaterialTheme.colorScheme.onPrimaryContainer
+                                                        } else {
+                                                            MaterialTheme.colorScheme.onSurface
+                                                        }
+                                                    )
+                                                    if (isActive) {
+                                                        Text(
+                                                            text = " ●",
+                                                            style = MaterialTheme.typography.bodyLarge,
+                                                            color = MaterialTheme.colorScheme.primary
+                                                        )
+                                                    }
+                                                }
+                                                
+                                                Text(
+                                                    text = when(sessionWorkingMode) {
+                                                        0 -> "Alpine Linux"
+                                                        1 -> "Android Shell"
+                                                        2 -> "Ubuntu ARM64"
+                                                        3 -> "Debian ARM64"
+                                                        4 -> "Arch Linux ARM64"
+                                                        5 -> "Kali Linux ARM64"
+                                                        else -> "Unknown"
+                                                    },
+                                                    style = MaterialTheme.typography.bodySmall,
+                                                    color = if (isActive) {
+                                                        MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.7f)
+                                                    } else {
+                                                        MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
+                                                    }
+                                                )
+                                            }
 
-                                            if (session_id != mainActivityActivity.sessionBinder?.getService()?.currentSession?.value?.first) {
-                                                Spacer(modifier = Modifier.weight(1f))
-
+                                            // Always show close button for enhanced UX
+                                            if (sessions.size > 1) { // Only allow closing if there's more than one session
                                                 IconButton(
                                                     onClick = {
-                                                        println(session_id)
-                                                        mainActivityActivity.sessionBinder?.terminateSession(
-                                                            session_id
-                                                        )
+                                                        if (isActive && sessions.size > 1) {
+                                                            // Switch to another session before closing
+                                                            val otherSession = sessions.firstOrNull { it != session_id }
+                                                            otherSession?.let { changeSession(mainActivityActivity, it) }
+                                                        }
+                                                        mainActivityActivity.sessionBinder?.terminateSession(session_id)
                                                     },
-                                                    modifier = Modifier.size(24.dp)
+                                                    modifier = Modifier.size(32.dp)
                                                 ) {
-                                                    
                                                     Icon(
                                                         imageVector = Icons.Outlined.Delete,
-                                                        contentDescription = null,
-                                                        modifier = Modifier.size(20.dp)
+                                                        contentDescription = "Close session",
+                                                        modifier = Modifier.size(18.dp),
+                                                        tint = if (isActive) {
+                                                            MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.8f)
+                                                        } else {
+                                                            MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f)
+                                                        }
                                                     )
                                                 }
                                             }
-
                                         }
                                     }
                                 }
@@ -487,6 +679,26 @@ fun TerminalScreen(
                                         }) {
                                             Icon(Icons.Default.Add,null, tint = color)
                                         }
+                                    }
+                                )
+                            }
+
+                            // Add horizontal tab bar for session switching
+                            mainActivityActivity.sessionBinder?.getService()?.sessionList?.keys?.toList()?.let { sessions ->
+                                SessionTabBar(
+                                    sessions = sessions,
+                                    currentSession = mainActivityActivity.sessionBinder?.getService()?.currentSession?.value?.first,
+                                    onSessionSelect = { sessionId ->
+                                        changeSession(mainActivityActivity, sessionId)
+                                    },
+                                    onSessionClose = { sessionId ->
+                                        val isActive = sessionId == mainActivityActivity.sessionBinder?.getService()?.currentSession?.value?.first
+                                        if (isActive && sessions.size > 1) {
+                                            // Switch to another session before closing the active one
+                                            val otherSession = sessions.firstOrNull { it != sessionId }
+                                            otherSession?.let { changeSession(mainActivityActivity, it) }
+                                        }
+                                        mainActivityActivity.sessionBinder?.terminateSession(sessionId)
                                     }
                                 )
                             }

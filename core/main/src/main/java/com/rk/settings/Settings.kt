@@ -91,6 +91,18 @@ object Settings {
         get() = Preference.getBoolean(key = "graphics_acceleration", default = false)
         set(value) = Preference.setBoolean(key = "graphics_acceleration",value)
 
+    var terminal_opacity
+        get() = Preference.getFloat(key = "terminal_opacity", default = 1.0f)
+        set(value) = Preference.setFloat(key = "terminal_opacity", value)
+
+    var cursor_style
+        get() = Preference.getInt(key = "cursor_style", default = 0) // 0=block, 1=underline, 2=bar
+        set(value) = Preference.setInt(key = "cursor_style", value)
+
+    var color_scheme
+        get() = Preference.getInt(key = "color_scheme", default = 0) // 0=dark, 1=light, 2=high_contrast, 3=matrix
+        set(value) = Preference.setInt(key = "color_scheme", value)
+
 
 
 }
