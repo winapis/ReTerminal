@@ -2,28 +2,42 @@ DISTRIBUTION_DIR=$PREFIX/local/distribution
 
 mkdir -p $DISTRIBUTION_DIR
 
-# Determine which distribution to use based on available rootfs files
+# Determine which distribution to use based on user selection or available rootfs files
 ROOTFS_FILE=""
 DISTRIBUTION_NAME=""
 
-if [ -f "$PREFIX/files/alpine.tar.gz" ]; then
-    ROOTFS_FILE="alpine.tar.gz"
-    DISTRIBUTION_NAME="alpine"
-elif [ -f "$PREFIX/files/ubuntu.tar.gz" ]; then
-    ROOTFS_FILE="ubuntu.tar.gz"
-    DISTRIBUTION_NAME="ubuntu"
-elif [ -f "$PREFIX/files/debian.tar.gz" ]; then
-    ROOTFS_FILE="debian.tar.gz"
-    DISTRIBUTION_NAME="debian"
-elif [ -f "$PREFIX/files/arch.tar.gz" ]; then
-    ROOTFS_FILE="arch.tar.gz"
-    DISTRIBUTION_NAME="arch"
-elif [ -f "$PREFIX/files/kali.tar.gz" ]; then
-    ROOTFS_FILE="kali.tar.gz"
-    DISTRIBUTION_NAME="kali"
-else
-    echo "No distribution rootfs found!"
-    exit 1
+# Check if user has selected a specific distribution
+if [ -n "$SELECTED_DISTRIBUTION" ]; then
+    # Use the user's selected distribution if the rootfs file exists
+    if [ -f "$PREFIX/files/${SELECTED_DISTRIBUTION}.tar.gz" ]; then
+        ROOTFS_FILE="${SELECTED_DISTRIBUTION}.tar.gz"
+        DISTRIBUTION_NAME="$SELECTED_DISTRIBUTION"
+    else
+        echo "Warning: Selected distribution '$SELECTED_DISTRIBUTION' not found, falling back to available distributions"
+    fi
+fi
+
+# If no valid selection found, fall back to checking available files
+if [ -z "$DISTRIBUTION_NAME" ]; then
+    if [ -f "$PREFIX/files/alpine.tar.gz" ]; then
+        ROOTFS_FILE="alpine.tar.gz"
+        DISTRIBUTION_NAME="alpine"
+    elif [ -f "$PREFIX/files/ubuntu.tar.gz" ]; then
+        ROOTFS_FILE="ubuntu.tar.gz"
+        DISTRIBUTION_NAME="ubuntu"
+    elif [ -f "$PREFIX/files/debian.tar.gz" ]; then
+        ROOTFS_FILE="debian.tar.gz"
+        DISTRIBUTION_NAME="debian"
+    elif [ -f "$PREFIX/files/arch.tar.gz" ]; then
+        ROOTFS_FILE="arch.tar.gz"
+        DISTRIBUTION_NAME="arch"
+    elif [ -f "$PREFIX/files/kali.tar.gz" ]; then
+        ROOTFS_FILE="kali.tar.gz"
+        DISTRIBUTION_NAME="kali"
+    else
+        echo "No distribution rootfs found!"
+        exit 1
+    fi
 fi
 
 if [ -z "$(ls -A "$DISTRIBUTION_DIR" | grep -vE '^(root|tmp)$')" ]; then
