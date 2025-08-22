@@ -23,6 +23,9 @@ import androidx.navigation.NavController
 import com.rk.terminal.ui.theme.ModernThemeManager
 import com.rk.terminal.ui.routes.MainActivityRoutes
 import com.rk.settings.Settings
+import com.rk.terminal.utils.RootUtils
+import com.rk.terminal.utils.RootProvider
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -53,7 +56,7 @@ fun OnboardingScreen(
     ) {
         // Progress indicator
         LinearProgressIndicator(
-            progress = { (currentStep + 1) / 3f },
+            progress = { (currentStep + 1) / 4f },
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(vertical = 16.dp),
@@ -90,7 +93,11 @@ fun OnboardingScreen(
                 },
                 onSkip = { currentStep = 2 }
             )
-            2 -> InitialSetupStep(
+            2 -> RootConfigurationStep(
+                onNext = { currentStep = 3 },
+                onSkip = { currentStep = 3 }
+            )
+            3 -> InitialSetupStep(
                 onComplete = {
                     // Mark onboarding as completed and navigate to main screen
                     ModernThemeManager.setOnboardingCompleted(context, true)
@@ -332,7 +339,7 @@ private fun InitialSetupStep(
         Spacer(modifier = Modifier.height(24.dp))
 
         Text(
-            text = "Step 3: Initial Setup",
+            text = "Step 4: Initial Setup",
             style = MaterialTheme.typography.headlineSmall,
             fontWeight = FontWeight.Bold,
             textAlign = TextAlign.Center
@@ -440,5 +447,347 @@ private fun InitialSetupStep(
                 fontWeight = FontWeight.SemiBold
             )
         }
+    }
+}
+
+@Composable
+private fun RootConfigurationStep(
+    onNext: () -> Unit,
+    onSkip: () -> Unit
+) {
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
+    
+    var rootCheckState by remember { mutableStateOf("idle") } // idle, checking, found, not_found, error
+    var rootInfo by remember { mutableStateOf<com.rk.terminal.utils.RootInfo?>(null) }
+    var showBusyBoxDialog by remember { mutableStateOf(false) }
+    var userWantsRoot by remember { mutableStateOf(false) }
+    
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Icon(
+            imageVector = Icons.Default.Security,
+            contentDescription = null,
+            modifier = Modifier.size(100.dp),
+            tint = MaterialTheme.colorScheme.primary
+        )
+
+        Spacer(modifier = Modifier.height(24.dp))
+
+        Text(
+            text = "Step 3: Root Configuration (Optional)",
+            style = MaterialTheme.typography.headlineSmall,
+            fontWeight = FontWeight.Bold,
+            textAlign = TextAlign.Center
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Text(
+            text = "ReTerminal can optionally use root access for enhanced functionality. Root is NOT required.",
+            style = MaterialTheme.typography.bodyLarge,
+            textAlign = TextAlign.Center,
+            color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.8f)
+        )
+
+        Spacer(modifier = Modifier.height(32.dp))
+
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            colors = CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.6f)
+            )
+        ) {
+            Column(
+                modifier = Modifier.padding(20.dp)
+            ) {
+                Text(
+                    text = if (userWantsRoot) "Root Configuration" else "Do you want to use root access?",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.SemiBold
+                )
+                
+                Spacer(modifier = Modifier.height(12.dp))
+                
+                if (!userWantsRoot) {
+                    val rootFeatures = listOf(
+                        "Enhanced filesystem access",
+                        "Better network and device permissions", 
+                        "Support for advanced Linux features",
+                        "BusyBox utilities integration"
+                    )
+                    
+                    rootFeatures.forEach { feature ->
+                        Row(
+                            modifier = Modifier.padding(vertical = 4.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Add,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.primary,
+                                modifier = Modifier
+                                    .size(20.dp)
+                                    .padding(end = 8.dp)
+                            )
+                            Text(
+                                text = feature,
+                                style = MaterialTheme.typography.bodyMedium
+                            )
+                        }
+                    }
+                } else {
+                    // Root verification status
+                    when (rootCheckState) {
+                        "idle" -> {
+                            Text(
+                                text = "Click 'Verify Root' to check root access",
+                                style = MaterialTheme.typography.bodyMedium
+                            )
+                        }
+                        "checking" -> {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                CircularProgressIndicator(
+                                    modifier = Modifier.size(20.dp),
+                                    strokeWidth = 2.dp
+                                )
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text(
+                                    text = "Checking root access...",
+                                    style = MaterialTheme.typography.bodyMedium
+                                )
+                            }
+                        }
+                        "found" -> {
+                            rootInfo?.let { info ->
+                                Column {
+                                    Row(
+                                        verticalAlignment = Alignment.CenterVertically
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Default.Check,
+                                            contentDescription = null,
+                                            tint = MaterialTheme.colorScheme.primary,
+                                            modifier = Modifier.size(20.dp)
+                                        )
+                                        Spacer(modifier = Modifier.width(8.dp))
+                                        Text(
+                                            text = "Root access verified!",
+                                            style = MaterialTheme.typography.bodyMedium,
+                                            fontWeight = FontWeight.SemiBold
+                                        )
+                                    }
+                                    
+                                    Spacer(modifier = Modifier.height(8.dp))
+                                    
+                                    Text(
+                                        text = "Root Provider: ${info.rootProvider.name}",
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
+                                    )
+                                    
+                                    Text(
+                                        text = "BusyBox: ${if (info.isBusyBoxInstalled) "Installed" else "Not installed"}",
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
+                                    )
+                                    
+                                    if (!info.isBusyBoxInstalled) {
+                                        Spacer(modifier = Modifier.height(8.dp))
+                                        Text(
+                                            text = "Note: BusyBox is recommended for full functionality",
+                                            style = MaterialTheme.typography.bodySmall,
+                                            color = MaterialTheme.colorScheme.error
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                        "not_found" -> {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Warning,
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.error,
+                                    modifier = Modifier.size(20.dp)
+                                )
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text(
+                                    text = "Root access not available",
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = MaterialTheme.colorScheme.error
+                                )
+                            }
+                        }
+                        "error" -> {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Warning,
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.error,
+                                    modifier = Modifier.size(20.dp)
+                                )
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text(
+                                    text = "Error checking root access",
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = MaterialTheme.colorScheme.error
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        Spacer(modifier = Modifier.height(24.dp))
+
+        if (!userWantsRoot) {
+            // Initial choice buttons
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceEvenly
+            ) {
+                Button(
+                    onClick = {
+                        userWantsRoot = true
+                        rootCheckState = "idle"
+                    },
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Text("Yes, use root")
+                }
+                
+                Spacer(modifier = Modifier.width(16.dp))
+                
+                OutlinedButton(
+                    onClick = {
+                        // Continue without root
+                        Settings.root_enabled = false
+                        onNext()
+                    },
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Text("No, continue without root")
+                }
+            }
+        } else {
+            // Root verification buttons
+            Column(
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                if (rootCheckState == "idle" || rootCheckState == "error") {
+                    Button(
+                        onClick = {
+                            rootCheckState = "checking"
+                            scope.launch {
+                                try {
+                                    val info = RootUtils.checkRootAccess()
+                                    rootInfo = info
+                                    rootCheckState = if (info.isRootAvailable) "found" else "not_found"
+                                    
+                                    if (info.isRootAvailable) {
+                                        // Save root configuration
+                                        Settings.root_enabled = true
+                                        Settings.root_verified = true
+                                        Settings.root_provider = info.rootProvider.name.lowercase()
+                                        Settings.busybox_installed = info.isBusyBoxInstalled
+                                        Settings.use_root_mounts = true
+                                        
+                                        // Save BusyBox path if available
+                                        val busyboxPath = RootUtils.getBusyBoxPath()
+                                        if (busyboxPath != null) {
+                                            Settings.busybox_path = busyboxPath
+                                        }
+                                    }
+                                } catch (e: Exception) {
+                                    rootCheckState = "error"
+                                }
+                            }
+                        },
+                        modifier = Modifier.fillMaxWidth(),
+                        enabled = rootCheckState != "checking"
+                    ) {
+                        Text("Verify Root Access")
+                    }
+                }
+                
+                Spacer(modifier = Modifier.height(12.dp))
+                
+                if (rootCheckState == "found" && rootInfo?.isBusyBoxInstalled == false) {
+                    OutlinedButton(
+                        onClick = { showBusyBoxDialog = true },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text("Install BusyBox")
+                    }
+                    
+                    Spacer(modifier = Modifier.height(12.dp))
+                }
+                
+                Button(
+                    onClick = {
+                        if (rootCheckState == "found") {
+                            onNext()
+                        } else if (rootCheckState == "not_found") {
+                            // Ask if user wants to continue without root
+                            Settings.root_enabled = false
+                            onNext()
+                        } else {
+                            onNext()
+                        }
+                    },
+                    modifier = Modifier.fillMaxWidth(),
+                    enabled = rootCheckState != "checking"
+                ) {
+                    Text(
+                        when (rootCheckState) {
+                            "found" -> "Continue with Root"
+                            "not_found" -> "Continue without Root"
+                            else -> "Continue"
+                        }
+                    )
+                }
+                
+                Spacer(modifier = Modifier.height(12.dp))
+                
+                TextButton(
+                    onClick = {
+                        userWantsRoot = false
+                        rootCheckState = "idle"
+                    },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text("Back")
+                }
+            }
+        }
+    }
+    
+    // BusyBox installation dialog
+    if (showBusyBoxDialog) {
+        AlertDialog(
+            onDismissRequest = { showBusyBoxDialog = false },
+            title = { Text("BusyBox Installation") },
+            text = { 
+                Text(
+                    "BusyBox provides additional Unix utilities for enhanced functionality. " +
+                    "Please install BusyBox through your root manager (Magisk or KernelSU) and restart your device.\n\n" +
+                    "Recommended BusyBox module: BusyBox for Android NDK"
+                )
+            },
+            confirmButton = {
+                TextButton(onClick = { showBusyBoxDialog = false }) {
+                    Text("OK")
+                }
+            }
+        )
     }
 }

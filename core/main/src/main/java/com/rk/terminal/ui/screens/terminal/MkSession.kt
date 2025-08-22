@@ -48,6 +48,13 @@ object MkSession {
                 initFile.writeText(assets.open("init-host.sh").bufferedReader().use { it.readText() })
             }
 
+            // Create enhanced root version if root is enabled
+            val initRootFile: File = localBinDir().child("init-host-root")
+            if (initRootFile.exists().not()){
+                initRootFile.createFileIfNot()
+                initRootFile.writeText(assets.open("init-host-root.sh").bufferedReader().use { it.readText() })
+            }
+
 
             localBinDir().child("init").apply {
                 if (exists().not()){
@@ -120,7 +127,14 @@ object MkSession {
                 "PKG_PATH=${applicationInfo.sourceDir}",
                 "PROOT_TMP_DIR=${getTempDir().child(session_id).also { if (it.exists().not()){it.mkdirs()} }}",
                 "TMPDIR=${getTempDir().absolutePath}",
-                "SELECTED_DISTRIBUTION=$selectedDistribution"
+                "SELECTED_DISTRIBUTION=$selectedDistribution",
+                // Root-related environment variables
+                "ROOT_ENABLED=${Settings.root_enabled}",
+                "ROOT_VERIFIED=${Settings.root_verified}",
+                "ROOT_PROVIDER=${Settings.root_provider}",
+                "BUSYBOX_INSTALLED=${Settings.busybox_installed}",
+                "BUSYBOX_PATH=${Settings.busybox_path}",
+                "USE_ROOT_MOUNTS=${Settings.use_root_mounts}"
             )
 
             if (File(applicationInfo.nativeLibraryDir).child("libproot-loader32.so").exists()){
@@ -156,7 +170,13 @@ object MkSession {
 
             val shell = if (pendingCommand == null) {
                 args = if (workingMode != WorkingMode.ANDROID){
-                    arrayOf("-c",initFile.absolutePath)
+                    // Choose the appropriate init script based on root configuration
+                    val initScriptFile = if (Settings.root_enabled && Settings.root_verified) {
+                        localBinDir().child("init-host-root")
+                    } else {
+                        initFile
+                    }
+                    arrayOf("-c", initScriptFile.absolutePath)
                 }else{
                     arrayOf()
                 }
