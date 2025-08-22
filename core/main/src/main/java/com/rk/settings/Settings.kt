@@ -100,7 +100,7 @@ object Settings {
         set(value) = Preference.setInt(key = "cursor_style", value)
 
     var color_scheme
-        get() = Preference.getInt(key = "color_scheme", default = 0) // 0=default, 1=monokai, 2=onedark, 3=dracula, 4=github_light
+        get() = Preference.getInt(key = "color_scheme", default = 0) // 0=default, 1-10=dark themes, 11-20=light themes, 21=legacy monokai
         set(value) = Preference.setInt(key = "color_scheme", value)
 
     var theme_variant
