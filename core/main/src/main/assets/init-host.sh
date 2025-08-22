@@ -36,12 +36,42 @@ if [ -z "$DISTRIBUTION_NAME" ]; then
         DISTRIBUTION_NAME="kali"
     else
         echo "No distribution rootfs found!"
+        echo "Expected one of: alpine.tar.gz, ubuntu.tar.gz, debian.tar.gz, arch.tar.gz, kali.tar.gz"
+        echo "Available files in $PREFIX/files/:"
+        ls -la "$PREFIX/files/" 2>/dev/null || echo "  - Directory not found"
         exit 1
     fi
 fi
 
 if [ -z "$(ls -A "$DISTRIBUTION_DIR" | grep -vE '^(root|tmp)$')" ]; then
-    tar -xf "$PREFIX/files/$ROOTFS_FILE" -C "$DISTRIBUTION_DIR"
+    echo "Extracting $DISTRIBUTION_NAME rootfs from $ROOTFS_FILE..."
+    if ! tar -xf "$PREFIX/files/$ROOTFS_FILE" -C "$DISTRIBUTION_DIR" 2>/dev/null; then
+        echo "Error: Failed to extract rootfs from $PREFIX/files/$ROOTFS_FILE"
+        echo "File details:"
+        ls -la "$PREFIX/files/$ROOTFS_FILE" 2>/dev/null || echo "  - File not found"
+        echo "Available files in $PREFIX/files/:"
+        ls -la "$PREFIX/files/" 2>/dev/null | head -10
+        exit 1
+    fi
+    echo "Successfully extracted $DISTRIBUTION_NAME rootfs"
+    
+    # Verify critical directories exist
+    for dir in bin usr/bin sbin usr/sbin; do
+        if [ ! -d "$DISTRIBUTION_DIR/$dir" ]; then
+            echo "Warning: Expected directory $dir not found in extracted rootfs"
+        fi
+    done
+    
+    # For Ubuntu/Debian, verify apt is available
+    if [ "$DISTRIBUTION_NAME" = "ubuntu" ] || [ "$DISTRIBUTION_NAME" = "debian" ]; then
+        if [ ! -f "$DISTRIBUTION_DIR/usr/bin/apt" ] && [ ! -f "$DISTRIBUTION_DIR/usr/bin/apt-get" ]; then
+            echo "Warning: Neither apt nor apt-get found in extracted $DISTRIBUTION_NAME rootfs"
+            echo "Available binaries in usr/bin:"
+            ls "$DISTRIBUTION_DIR/usr/bin/" 2>/dev/null | grep -E "(apt|dpkg)" || echo "  - No apt/dpkg binaries found"
+        fi
+    fi
+else
+    echo "Using existing $DISTRIBUTION_NAME installation"
 fi
 
 [ ! -e "$PREFIX/local/bin/proot" ] && cp "$PREFIX/files/proot" "$PREFIX/local/bin"
@@ -129,4 +159,25 @@ case "$DISTRIBUTION_NAME" in
         ;;
 esac
 
+echo "Starting $DISTRIBUTION_NAME environment with proot..."
+echo "Distribution directory: $PREFIX/local/distribution"
+echo "Init script: $INIT_SCRIPT"
+
+if [ ! -f "$PREFIX/local/bin/proot" ]; then
+    echo "Error: proot binary not found at $PREFIX/local/bin/proot"
+    exit 1
+fi
+
+if [ ! -f "$PREFIX/local/bin/$INIT_SCRIPT" ]; then
+    echo "Error: Init script not found at $PREFIX/local/bin/$INIT_SCRIPT"
+    exit 1
+fi
+
+# Make proot executable
+chmod +x "$PREFIX/local/bin/proot"
+
+# Debug: Show the proot command that will be executed
+echo "Executing: $LINKER $PREFIX/local/bin/proot $ARGS sh $PREFIX/local/bin/$INIT_SCRIPT"
+
+# Execute proot with the appropriate init script
 $LINKER $PREFIX/local/bin/proot $ARGS sh $PREFIX/local/bin/$INIT_SCRIPT "$@"
