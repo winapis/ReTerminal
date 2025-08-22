@@ -467,7 +467,7 @@ private fun RootConfigurationStep(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Icon(
-            imageVector = Icons.Default.Security,
+            imageVector = Icons.Default.Lock,
             contentDescription = null,
             modifier = Modifier.size(100.dp),
             tint = MaterialTheme.colorScheme.primary

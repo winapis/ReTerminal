@@ -191,14 +191,14 @@ fun Settings(modifier: Modifier = Modifier,navController: NavController,mainActi
 
         PreferenceGroup(heading = "Root Configuration") {
             PreferenceSwitch(
-                title = "Enable Root Access",
-                summary = if (Settings.root_enabled) {
+                label = "Enable Root Access",
+                description = if (Settings.root_enabled) {
                     "Root access is enabled (${Settings.root_provider.uppercase()})"
                 } else {
                     "Root access is disabled - using rootless mode"
                 },
                 enabled = Settings.root_verified || !Settings.root_enabled,
-                isChecked = Settings.root_enabled,
+                checked = Settings.root_enabled,
                 onCheckedChange = { enabled ->
                     if (!enabled) {
                         // Disabling root - show warning
@@ -257,9 +257,9 @@ fun Settings(modifier: Modifier = Modifier,navController: NavController,mainActi
                 )
                 
                 PreferenceSwitch(
-                    title = "Use Root Mounts",
-                    summary = "Enable enhanced filesystem mounts and bindings",
-                    isChecked = Settings.use_root_mounts,
+                    label = "Use Root Mounts",
+                    description = "Enable enhanced filesystem mounts and bindings",
+                    checked = Settings.use_root_mounts,
                     enabled = Settings.root_enabled,
                     onCheckedChange = { enabled ->
                         Settings.use_root_mounts = enabled
