@@ -2,6 +2,19 @@
 
 # Graphics acceleration setup script for ReTerminal
 # Detects available graphics capabilities and installs appropriate packages
+#
+# IMPORTANT DISCLAIMER:
+# This script only installs graphics libraries within the Linux distribution.
+# It does NOT provide full hardware acceleration integration with the Android
+# graphics stack. For true hardware acceleration, additional app-level
+# integration would be required to:
+# - Bridge Android EGL context with Linux applications
+# - Set up X11/Wayland display forwarding
+# - Configure graphics surface/buffer sharing
+# - Handle Android graphics driver integration
+#
+# The current implementation provides software rendering capabilities and
+# basic graphics libraries for Linux applications.
 
 # Check for graphics acceleration setting
 GRAPHICS_ENABLED_FILE="/.reterminal_graphics_enabled"
@@ -12,6 +25,8 @@ if [ ! -f "$GRAPHICS_ENABLED_FILE" ]; then
 fi
 
 echo "Setting up graphics acceleration..."
+echo "Note: This installs graphics libraries for software rendering."
+echo "Hardware acceleration requires additional Android-Linux graphics bridging."
 
 # Detect GPU vendor from Android system
 GPU_VENDOR="unknown"
@@ -164,13 +179,21 @@ if install_graphics_packages "$CURRENT_DISTRO"; then
     
     # Display helpful information
     echo ""
-    echo "Graphics acceleration has been set up. You can now:"
+    echo "Graphics libraries have been installed. You can now:"
     echo "- Test OpenGL: glxinfo (if available)"
     echo "- Test OpenGL ES: es2_info (if available)" 
     echo "- Test Vulkan: vulkaninfo (if available)"
     echo ""
-    echo "Note: Actual hardware acceleration depends on your device's"
-    echo "Android graphics drivers and may still use software rendering."
+    echo "IMPORTANT LIMITATIONS:"
+    echo "- This setup provides software rendering with graphics libraries"
+    echo "- True hardware acceleration requires app-level Android graphics integration"
+    echo "- Performance will depend on CPU-based software rendering"
+    echo "- GUI applications may work but with limited performance"
+    echo ""
+    echo "For full hardware acceleration, the ReTerminal app would need:"
+    echo "- Android EGL context bridging to Linux"
+    echo "- X11/Wayland display server with Android graphics driver integration"
+    echo "- Graphics surface sharing between Android and Linux environments"
 else
     echo "Graphics acceleration setup failed for $CURRENT_DISTRO"
     exit 1
