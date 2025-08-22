@@ -57,6 +57,16 @@ object MkSession {
             }
 
 
+            // Convert working mode to distribution name
+            val selectedDistribution = when(workingMode) {
+                WorkingMode.ALPINE -> "alpine"
+                WorkingMode.UBUNTU -> "ubuntu"
+                WorkingMode.DEBIAN -> "debian"
+                WorkingMode.ARCH -> "arch"
+                WorkingMode.KALI -> "kali"
+                else -> "alpine" // Default fallback
+            }
+
             val env = mutableListOf(
                 "PATH=${System.getenv("PATH")}:/sbin:${localBinDir().absolutePath}",
                 "HOME=/sdcard",
@@ -74,7 +84,8 @@ object MkSession {
                 "RISH_APPLICATION_ID=${packageName}",
                 "PKG_PATH=${applicationInfo.sourceDir}",
                 "PROOT_TMP_DIR=${getTempDir().child(session_id).also { if (it.exists().not()){it.mkdirs()} }}",
-                "TMPDIR=${getTempDir().absolutePath}"
+                "TMPDIR=${getTempDir().absolutePath}",
+                "SELECTED_DISTRIBUTION=$selectedDistribution"
             )
 
             if (File(applicationInfo.nativeLibraryDir).child("libproot-loader32.so").exists()){
