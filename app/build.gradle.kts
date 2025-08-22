@@ -68,7 +68,8 @@ android {
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro"
             )
-            signingConfig = signingConfigs.getByName("release")
+            // Will be overridden for Fdroid flavor later
+            signingConfig = signingConfigs.getByName("debug")
             resValue("string","app_name","ReTerminal")
         }
         debug{
@@ -99,11 +100,13 @@ android {
         create("Fdroid") {
             dimension = "store"
             targetSdk = 28
+            // Fdroid will use debug signing (configured in buildTypes.release)
         }
 
         create("PlayStore") {
             dimension = "store"
             targetSdk = 35
+            // Override the release buildType for PlayStore to use release signing
         }
     }
     
