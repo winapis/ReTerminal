@@ -188,7 +188,17 @@ fun Settings(modifier: Modifier = Modifier,navController: NavController,mainActi
         }
 
 
-        PreferenceGroup {
+        PreferenceGroup(heading = "Appearance") {
+            SettingsToggle(
+                label = "Theme Selection",
+                showSwitch = false,
+                default = false,
+                sideEffect = {
+                   navController.navigate(MainActivityRoutes.ThemeSelection.route)
+            }, endWidget = {
+                Icon(imageVector = Icons.AutoMirrored.Outlined.KeyboardArrowRight, contentDescription = null,modifier = Modifier.padding(16.dp))
+            })
+            
             SettingsToggle(
                 label = "Customizations",
                 showSwitch = false,
