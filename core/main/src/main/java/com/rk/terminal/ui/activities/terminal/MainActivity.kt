@@ -35,6 +35,7 @@ import com.rk.terminal.ui.navHosts.MainActivityNavHost
 import com.rk.terminal.ui.screens.terminal.TerminalScreen
 import com.rk.terminal.ui.screens.terminal.terminalView
 import com.rk.terminal.ui.theme.KarbonTheme
+import com.rk.terminal.ui.theme.ThemeManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.io.File
@@ -170,6 +171,11 @@ class MainActivity : ComponentActivity() {
     var isKeyboardVisible = false
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        
+        // Apply theme before setting content
+        val themeManager = ThemeManager.getInstance(this)
+        themeManager.applyTheme(this)
+        
         enableEdgeToEdge()
         requestPermission()
         requestStoragePermissions()
@@ -188,6 +194,10 @@ class MainActivity : ComponentActivity() {
 
     override fun onResume() {
         super.onResume()
+        
+        // Ensure terminal colors are synced with current theme
+        val themeManager = ThemeManager.getInstance(this)
+        themeManager.applyTerminalColors()
 
         val rootView = findViewById<View>(android.R.id.content)
         rootView.viewTreeObserver.addOnGlobalLayoutListener {

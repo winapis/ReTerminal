@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Theme Descriptions -->
+    <string name="theme_dracula_desc">Dark theme with purple accents, inspired by the Dracula color scheme</string>
+    <string name="theme_one_dark_desc">Popular dark theme from VS Code with balanced colors</string>
+    <string name="theme_nord_desc">Arctic-inspired dark theme with cool blue tones</string>
+    <string name="theme_tokyo_night_desc">Modern dark theme with vibrant highlights</string>
+    <string name="theme_solarized_dark_desc">Classic low-contrast dark theme by Ethan Schoonover</string>
+    <string name="theme_monokai_pro_desc">Enhanced version of the popular Monokai theme</string>
+    <string name="theme_github_dark_desc">GitHub\'s dark theme for comfortable coding</string>
+    <string name="theme_gruvbox_dark_desc">Retro groove dark theme with warm colors</string>
+    <string name="theme_catppuccin_mocha_desc">Warm dark theme with pastel colors</string>
+    <string name="theme_cobalt2_desc">Electric blue dark theme for high contrast</string>
+    
+    <string name="theme_solarized_light_desc">Classic low-contrast light theme by Ethan Schoonover</string>
+    <string name="theme_github_light_desc">Clean light theme matching GitHub\'s interface</string>
+    <string name="theme_gruvbox_light_desc">Retro groove light theme with warm colors</string>
+    <string name="theme_catppuccin_latte_desc">Warm light theme with soft pastel colors</string>
+    <string name="theme_tokyo_light_desc">Clean minimal light theme</string>
+    <string name="theme_nord_light_desc">Arctic-inspired light theme with cool tones</string>
+    <string name="theme_material_light_desc">Google Material Design light theme</string>
+    <string name="theme_atom_one_light_desc">Atom editor\'s popular light theme</string>
+    <string name="theme_ayu_light_desc">Minimal light theme with excellent readability</string>
+    <string name="theme_papercolor_light_desc">High contrast light theme for clear visibility</string>
+    
+    <!-- Theme Settings -->
+    <string name="theme_settings_title">Theme</string>
+    <string name="theme_current">Current: %s</string>
+    <string name="theme_dark_themes">Dark Themes</string>
+    <string name="theme_light_themes">Light Themes</string>
+    <string name="theme_apply">Apply Theme</string>
+    <string name="theme_preview">Preview</string>
+    <string name="theme_reset_to_default">Reset to Default</string>
+</resources>
