@@ -67,9 +67,8 @@ fun ThemeSelectionScreen(
                     onClick = {
                         selectedTheme = 0
                         ModernThemeManager.applyTheme(context, 0)
-                        
-                        // Show confirmation that theme was applied
-                        // Note: Activity restart may be needed for full theme application
+                        // Apply theme immediately for real-time preview
+                        Settings.color_scheme = 0
                     }
                 )
             }
@@ -89,6 +88,8 @@ fun ThemeSelectionScreen(
                     onClick = {
                         selectedTheme = theme.id
                         ModernThemeManager.applyTheme(context, theme.id)
+                        // Apply theme immediately for real-time preview
+                        Settings.color_scheme = theme.id
                     }
                 )
             }
@@ -108,6 +109,8 @@ fun ThemeSelectionScreen(
                     onClick = {
                         selectedTheme = theme.id
                         ModernThemeManager.applyTheme(context, theme.id)
+                        // Apply theme immediately for real-time preview
+                        Settings.color_scheme = theme.id
                     }
                 )
             }
