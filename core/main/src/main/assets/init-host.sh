@@ -57,12 +57,14 @@ fi
 # Function to extract and verify distribution
 extract_distribution() {
     echo "Extracting $DISTRIBUTION_NAME rootfs from $ROOTFS_FILE..."
-    if ! tar -xf "$PREFIX/files/$ROOTFS_FILE" -C "$DISTRIBUTION_DIR" 2>/dev/null; then
+    if ! tar -xf "$PREFIX/files/$ROOTFS_FILE" -C "$DISTRIBUTION_DIR"; then
         echo "Error: Failed to extract rootfs from $PREFIX/files/$ROOTFS_FILE"
         echo "File details:"
         ls -la "$PREFIX/files/$ROOTFS_FILE" 2>/dev/null || echo "  - File not found"
         echo "Available files in $PREFIX/files/:"
         ls -la "$PREFIX/files/" 2>/dev/null | head -10
+        echo "Target directory status:"
+        ls -la "$DISTRIBUTION_DIR/" 2>/dev/null || echo "  - Directory not accessible"
         exit 1
     fi
     echo "Successfully extracted $DISTRIBUTION_NAME rootfs"
@@ -133,8 +135,30 @@ else
             echo "No /etc/os-release found in existing installation"
         fi
         echo "Clearing existing installation and extracting correct distribution..."
-        # Clear existing installation (but preserve tmp directory)
-        find "$DISTRIBUTION_DIR" -mindepth 1 -maxdepth 1 ! -name 'tmp' -exec rm -rf {} + 2>/dev/null || true
+        # Clear existing installation more thoroughly
+        # First, try to remove everything except tmp directory
+        if ! find "$DISTRIBUTION_DIR" -mindepth 1 -maxdepth 1 ! -name 'tmp' -exec rm -rf {} + 2>/dev/null; then
+            echo "Warning: Some files could not be removed during cleanup"
+        fi
+        
+        # Verify the directory is mostly empty (only tmp should remain)
+        remaining_files=$(ls -1A "$DISTRIBUTION_DIR" 2>/dev/null | grep -v '^tmp$' | wc -l)
+        if [ "$remaining_files" -gt 0 ]; then
+            echo "Warning: Directory not fully cleared. Remaining files:"
+            ls -la "$DISTRIBUTION_DIR/" 2>/dev/null | grep -v '^tmp$' || true
+            # Force remove any remaining files/directories except tmp
+            for item in "$DISTRIBUTION_DIR"/*; do
+                if [ -e "$item" ] && [ "$(basename "$item")" != "tmp" ]; then
+                    echo "Force removing: $(basename "$item")"
+                    rm -rf "$item" 2>/dev/null || true
+                fi
+            done
+        fi
+        
+        # Ensure directory exists and has proper permissions
+        mkdir -p "$DISTRIBUTION_DIR"
+        chmod 755 "$DISTRIBUTION_DIR"
+        
         extract_distribution
     fi
 fi
