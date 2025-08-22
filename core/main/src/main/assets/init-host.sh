@@ -111,6 +111,16 @@ else
         echo "Using existing $DISTRIBUTION_NAME installation"
     else
         echo "Existing installation does not match selected distribution ($DISTRIBUTION_NAME)"
+        if [ -f "$DISTRIBUTION_DIR/etc/os-release" ]; then
+            existing_id=$(grep "^ID=" "$DISTRIBUTION_DIR/etc/os-release" 2>/dev/null | cut -d'=' -f2 | tr -d '"' 2>/dev/null || echo "unknown")
+            if [ -n "$existing_id" ] && [ "$existing_id" != "unknown" ]; then
+                echo "Found existing distribution: $existing_id (expected: $DISTRIBUTION_NAME)"
+            else
+                echo "Existing distribution could not be determined from /etc/os-release"
+            fi
+        else
+            echo "No /etc/os-release found in existing installation"
+        fi
         echo "Clearing existing installation and extracting correct distribution..."
         # Clear existing installation (but preserve tmp directory)
         find "$DISTRIBUTION_DIR" -mindepth 1 -maxdepth 1 ! -name 'tmp' -exec rm -rf {} + 2>/dev/null || true
