@@ -2,12 +2,42 @@ name: VerifyDiff
 
 on:
   workflow_dispatch:
-    
+    inputs:
+      apk_path:
+        description: 'Path to the APK file to compare (optional - will build if not provided)'
+        required: false
+        default: ''
 
 jobs:
   verifyDiff:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
+    
+    - name: Set up JDK 17 (if building APK)
+      if: ${{ github.event.inputs.apk_path == '' }}
+      uses: actions/setup-java@v4
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+        cache: gradle
+    
+    - name: Grant execute permission for gradlew (if building APK)
+      if: ${{ github.event.inputs.apk_path == '' }}
+      run: chmod +x gradlew
+    
+    - name: Build APK for comparison (if not provided)
+      if: ${{ github.event.inputs.apk_path == '' }}
+      run: ./gradlew assembleFdroidRelease
+    
+    - name: Set APK path
+      id: set_apk_path
+      run: |
+        if [ -n "${{ github.event.inputs.apk_path }}" ]; then
+          echo "APK_PATH=${{ github.event.inputs.apk_path }}" >> $GITHUB_ENV
+        else
+          echo "APK_PATH=$(find app/build/outputs/apk -name "*.apk" | head -n 1)" >> $GITHUB_ENV
+        fi
+    
     - name: Verify Release apkDiff
-      run: bash .github/workflows/verifyDiff.sh
+      run: bash .github/workflows/verifyDiff.sh "${{ env.APK_PATH }}"

@@ -1,5 +1,18 @@
 set -e
 BUILT_APK=$1
+
+if [[ -z "$BUILT_APK" ]]; then
+    echo "Error: No APK file provided as parameter"
+    echo "Usage: $0 <path_to_apk_file>"
+    exit 1
+fi
+
+if [[ ! -f "$BUILT_APK" ]]; then
+    echo "Error: APK file not found: $BUILT_APK"
+    exit 1
+fi
+
+echo "Comparing APK: $BUILT_APK"
 curl -LO https://raw.githubusercontent.com/iBotPeaches/Apktool/master/scripts/linux/apktool
 chmod +x apktool
 export PATH=$PATH:$PWD
