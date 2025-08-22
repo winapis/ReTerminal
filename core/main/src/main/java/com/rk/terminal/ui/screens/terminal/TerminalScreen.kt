@@ -958,6 +958,28 @@ fun changeSession(mainActivityActivity: MainActivity, session_id: String) {
 
 }
 
+/**
+ * Refresh terminal colors to match the current theme.
+ * This should be called when the theme is changed.
+ */
+fun refreshTerminalColors() {
+    terminalView.get()?.apply {
+        // Apply theme colors to terminal
+        com.rk.terminal.ui.theme.TerminalThemeIntegration.refreshTerminalColors()
+        
+        // Update screen
+        onScreenUpdated()
+        
+        // Refresh the UI color
+        post {
+            val color = getViewColor()
+            mEmulator?.mColors?.mCurrentColors?.apply {
+                set(256, color)
+                set(258, color)
+            }
+        }
+    }
+}
 
 const val VIRTUAL_KEYS =
     ("[" + "\n  [" + "\n    \"ESC\"," + "\n    {" + "\n      \"key\": \"/\"," + "\n      \"popup\": \"\\\\\"" + "\n    }," + "\n    {" + "\n      \"key\": \"-\"," + "\n      \"popup\": \"|\"" + "\n    }," + "\n    \"HOME\"," + "\n    \"UP\"," + "\n    \"END\"," + "\n    \"PGUP\"" + "\n  ]," + "\n  [" + "\n    \"TAB\"," + "\n    \"CTRL\"," + "\n    \"ALT\"," + "\n    \"LEFT\"," + "\n    \"DOWN\"," + "\n    \"RIGHT\"," + "\n    \"PGDN\"" + "\n  ]" + "\n]")

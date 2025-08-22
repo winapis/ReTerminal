@@ -95,15 +95,17 @@ object ThemeManager {
      * @param themeId The theme ID to get colors for.
      */
     private fun updateTerminalColors(themeId: Int) {
-        val terminalColors = ThemeHelper.getTerminalColors(themeId)
-        
-        // Update the terminal color scheme
-        // This will be called by the terminal when it needs to refresh colors
         try {
-            val colorScheme = com.termux.terminal.TerminalColors.COLOR_SCHEME
-            // Update the default colors array
-            System.arraycopy(terminalColors, 0, colorScheme.mDefaultColors, 0, 
-                            minOf(terminalColors.size, colorScheme.mDefaultColors.size))
+            TerminalThemeIntegration.applyThemeToTerminal(themeId)
+            
+            // Also refresh the UI terminal colors 
+            try {
+                val refreshMethod = Class.forName("com.rk.terminal.ui.screens.terminal.TerminalScreenKt")
+                    .getDeclaredMethod("refreshTerminalColors")
+                refreshMethod.invoke(null)
+            } catch (e: Exception) {
+                // Method may not be available yet, that's okay
+            }
         } catch (e: Exception) {
             // Silently handle if terminal classes aren't available during theme setting
         }
