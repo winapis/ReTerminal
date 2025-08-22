@@ -10,35 +10,23 @@ import com.rk.settings.Settings
 import com.rk.terminal.R
 
 /**
- * A basic helper for applying the correct theme in the app. it manage XML Theme.
+ * Legacy Kotlin ThemeManager - Now delegates to the new Java ThemeManager.
+ * Kept for backward compatibility.
  *
  * @author Aquiles Trindade (trindadedev).
  */
-object ThemeManager {
+object LegacyThemeManager {
 
     /**
      * Applies the theme based on user settings.
+     * Now delegates to the new Java ThemeManager for unified theme management.
      *
      * @param activity An instance of an Activity.
      */
     fun apply(activity: Activity) {
-        val nightMode = Settings.default_night_mode
-
-        // set theme mode
-        if (nightMode != AppCompatDelegate.getDefaultNightMode()) {
-            AppCompatDelegate.setDefaultNightMode(nightMode)
-        }
-
-        // apply OLED theme if dark mode and OLED setting is enable
-        if (isDarkMode(activity) && Settings.amoled) {
-            if (Settings.monet) {
-                activity.setTheme(R.style.Theme_Karbon_Oled_Monet)
-                return
-            }
-            activity.setTheme(R.style.Theme_Karbon_Oled)
-            return
-        }
-        if (Settings.monet) DynamicColors.applyToActivityIfAvailable(activity)
+        // Delegate to the new Java ThemeManager
+        val javaThemeManager = ThemeManager.getInstance(activity)
+        javaThemeManager.applyTheme(activity)
     }
 
     /**

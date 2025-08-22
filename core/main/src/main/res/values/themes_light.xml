@@ -1,0 +1,298 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Light Theme Base -->
+    <style name="Base.Theme.Terminal.Light" parent="Theme.Material3.Light.NoActionBar">
+        <!-- System bars -->
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+        <item name="android:windowLightStatusBar">true</item>
+        <item name="android:windowLightNavigationBar">true</item>
+        <item name="windowNoTitle">true</item>
+        <item name="windowActionBar">false</item>
+        
+        <!-- Typography -->
+        <item name="fontFamily">@font/outfit_regular</item>
+        <item name="android:fontFamily">@font/outfit_regular</item>
+        <item name="android:forceDarkAllowed">false</item>
+    </style>
+
+    <!-- 11. Solarized Light Theme -->
+    <style name="Theme.Terminal.SolarizedLight" parent="Base.Theme.Terminal.Light">
+        <item name="colorPrimary">#268BD2</item>
+        <item name="colorOnPrimary">#FFFFFF</item>
+        <item name="colorPrimaryContainer">#EEE8D5</item>
+        <item name="colorOnPrimaryContainer">#657B83</item>
+        <item name="colorSecondary">#859900</item>
+        <item name="colorOnSecondary">#FFFFFF</item>
+        <item name="colorSecondaryContainer">#EEE8D5</item>
+        <item name="colorOnSecondaryContainer">#657B83</item>
+        <item name="colorTertiary">#D33682</item>
+        <item name="colorOnTertiary">#FFFFFF</item>
+        <item name="colorTertiaryContainer">#EEE8D5</item>
+        <item name="colorOnTertiaryContainer">#657B83</item>
+        <item name="colorError">#DC322F</item>
+        <item name="colorOnError">#FFFFFF</item>
+        <item name="colorErrorContainer">#EEE8D5</item>
+        <item name="colorOnErrorContainer">#657B83</item>
+        <item name="android:colorBackground">#FDF6E3</item>
+        <item name="colorOnBackground">#657B83</item>
+        <item name="colorSurface">#EEE8D5</item>
+        <item name="colorOnSurface">#657B83</item>
+        <item name="colorSurfaceVariant">#EEE8D5</item>
+        <item name="colorOnSurfaceVariant">#657B83</item>
+        <item name="colorOutline">#DC322F</item>
+        <item name="colorOutlineVariant">#EEE8D5</item>
+    </style>
+
+    <!-- 12. GitHub Light Theme -->
+    <style name="Theme.Terminal.GitHubLight" parent="Base.Theme.Terminal.Light">
+        <item name="colorPrimary">#0366D6</item>
+        <item name="colorOnPrimary">#FFFFFF</item>
+        <item name="colorPrimaryContainer">#F6F8FA</item>
+        <item name="colorOnPrimaryContainer">#24292E</item>
+        <item name="colorSecondary">#28A745</item>
+        <item name="colorOnSecondary">#FFFFFF</item>
+        <item name="colorSecondaryContainer">#F6F8FA</item>
+        <item name="colorOnSecondaryContainer">#24292E</item>
+        <item name="colorTertiary">#6F42C1</item>
+        <item name="colorOnTertiary">#FFFFFF</item>
+        <item name="colorTertiaryContainer">#F6F8FA</item>
+        <item name="colorOnTertiaryContainer">#24292E</item>
+        <item name="colorError">#D73A49</item>
+        <item name="colorOnError">#FFFFFF</item>
+        <item name="colorErrorContainer">#F6F8FA</item>
+        <item name="colorOnErrorContainer">#24292E</item>
+        <item name="android:colorBackground">#FFFFFF</item>
+        <item name="colorOnBackground">#24292E</item>
+        <item name="colorSurface">#F6F8FA</item>
+        <item name="colorOnSurface">#24292E</item>
+        <item name="colorSurfaceVariant">#F6F8FA</item>
+        <item name="colorOnSurfaceVariant">#24292E</item>
+        <item name="colorOutline">#D73A49</item>
+        <item name="colorOutlineVariant">#F6F8FA</item>
+    </style>
+
+    <!-- 13. Gruvbox Light Theme -->
+    <style name="Theme.Terminal.GruvboxLight" parent="Base.Theme.Terminal.Light">
+        <item name="colorPrimary">#076678</item>
+        <item name="colorOnPrimary">#FFFFFF</item>
+        <item name="colorPrimaryContainer">#F2E5BC</item>
+        <item name="colorOnPrimaryContainer">#3C3836</item>
+        <item name="colorSecondary">#79740E</item>
+        <item name="colorOnSecondary">#FFFFFF</item>
+        <item name="colorSecondaryContainer">#F2E5BC</item>
+        <item name="colorOnSecondaryContainer">#3C3836</item>
+        <item name="colorTertiary">#8F3F71</item>
+        <item name="colorOnTertiary">#FFFFFF</item>
+        <item name="colorTertiaryContainer">#F2E5BC</item>
+        <item name="colorOnTertiaryContainer">#3C3836</item>
+        <item name="colorError">#9D0006</item>
+        <item name="colorOnError">#FFFFFF</item>
+        <item name="colorErrorContainer">#F2E5BC</item>
+        <item name="colorOnErrorContainer">#3C3836</item>
+        <item name="android:colorBackground">#FBF1C7</item>
+        <item name="colorOnBackground">#3C3836</item>
+        <item name="colorSurface">#F2E5BC</item>
+        <item name="colorOnSurface">#3C3836</item>
+        <item name="colorSurfaceVariant">#F2E5BC</item>
+        <item name="colorOnSurfaceVariant">#3C3836</item>
+        <item name="colorOutline">#9D0006</item>
+        <item name="colorOutlineVariant">#F2E5BC</item>
+    </style>
+
+    <!-- 14. Catppuccin Latte Theme -->
+    <style name="Theme.Terminal.CatppuccinLatte" parent="Base.Theme.Terminal.Light">
+        <item name="colorPrimary">#1E66F5</item>
+        <item name="colorOnPrimary">#FFFFFF</item>
+        <item name="colorPrimaryContainer">#E6E9EF</item>
+        <item name="colorOnPrimaryContainer">#4C4F69</item>
+        <item name="colorSecondary">#40A02B</item>
+        <item name="colorOnSecondary">#FFFFFF</item>
+        <item name="colorSecondaryContainer">#E6E9EF</item>
+        <item name="colorOnSecondaryContainer">#4C4F69</item>
+        <item name="colorTertiary">#EA76CB</item>
+        <item name="colorOnTertiary">#FFFFFF</item>
+        <item name="colorTertiaryContainer">#E6E9EF</item>
+        <item name="colorOnTertiaryContainer">#4C4F69</item>
+        <item name="colorError">#D20F39</item>
+        <item name="colorOnError">#FFFFFF</item>
+        <item name="colorErrorContainer">#E6E9EF</item>
+        <item name="colorOnErrorContainer">#4C4F69</item>
+        <item name="android:colorBackground">#EFF1F5</item>
+        <item name="colorOnBackground">#4C4F69</item>
+        <item name="colorSurface">#E6E9EF</item>
+        <item name="colorOnSurface">#4C4F69</item>
+        <item name="colorSurfaceVariant">#E6E9EF</item>
+        <item name="colorOnSurfaceVariant">#4C4F69</item>
+        <item name="colorOutline">#D20F39</item>
+        <item name="colorOutlineVariant">#E6E9EF</item>
+    </style>
+
+    <!-- 15. Tokyo Light Theme -->
+    <style name="Theme.Terminal.TokyoLight" parent="Base.Theme.Terminal.Light">
+        <item name="colorPrimary">#34548A</item>
+        <item name="colorOnPrimary">#FFFFFF</item>
+        <item name="colorPrimaryContainer">#CBCCD1</item>
+        <item name="colorOnPrimaryContainer">#343B58</item>
+        <item name="colorSecondary">#485E30</item>
+        <item name="colorOnSecondary">#FFFFFF</item>
+        <item name="colorSecondaryContainer">#CBCCD1</item>
+        <item name="colorOnSecondaryContainer">#343B58</item>
+        <item name="colorTertiary">#5A4A78</item>
+        <item name="colorOnTertiary">#FFFFFF</item>
+        <item name="colorTertiaryContainer">#CBCCD1</item>
+        <item name="colorOnTertiaryContainer">#343B58</item>
+        <item name="colorError">#8C4351</item>
+        <item name="colorOnError">#FFFFFF</item>
+        <item name="colorErrorContainer">#CBCCD1</item>
+        <item name="colorOnErrorContainer">#343B58</item>
+        <item name="android:colorBackground">#D5D6DB</item>
+        <item name="colorOnBackground">#343B58</item>
+        <item name="colorSurface">#CBCCD1</item>
+        <item name="colorOnSurface">#343B58</item>
+        <item name="colorSurfaceVariant">#CBCCD1</item>
+        <item name="colorOnSurfaceVariant">#343B58</item>
+        <item name="colorOutline">#8C4351</item>
+        <item name="colorOutlineVariant">#CBCCD1</item>
+    </style>
+
+    <!-- 16. Nord Light Theme -->
+    <style name="Theme.Terminal.NordLight" parent="Base.Theme.Terminal.Light">
+        <item name="colorPrimary">#5E81AC</item>
+        <item name="colorOnPrimary">#FFFFFF</item>
+        <item name="colorPrimaryContainer">#E5E9F0</item>
+        <item name="colorOnPrimaryContainer">#2E3440</item>
+        <item name="colorSecondary">#8FBCBB</item>
+        <item name="colorOnSecondary">#FFFFFF</item>
+        <item name="colorSecondaryContainer">#E5E9F0</item>
+        <item name="colorOnSecondaryContainer">#2E3440</item>
+        <item name="colorTertiary">#B48EAD</item>
+        <item name="colorOnTertiary">#FFFFFF</item>
+        <item name="colorTertiaryContainer">#E5E9F0</item>
+        <item name="colorOnTertiaryContainer">#2E3440</item>
+        <item name="colorError">#BF616A</item>
+        <item name="colorOnError">#FFFFFF</item>
+        <item name="colorErrorContainer">#E5E9F0</item>
+        <item name="colorOnErrorContainer">#2E3440</item>
+        <item name="android:colorBackground">#ECEFF4</item>
+        <item name="colorOnBackground">#2E3440</item>
+        <item name="colorSurface">#E5E9F0</item>
+        <item name="colorOnSurface">#2E3440</item>
+        <item name="colorSurfaceVariant">#E5E9F0</item>
+        <item name="colorOnSurfaceVariant">#2E3440</item>
+        <item name="colorOutline">#BF616A</item>
+        <item name="colorOutlineVariant">#E5E9F0</item>
+    </style>
+
+    <!-- 17. Material Light Theme -->
+    <style name="Theme.Terminal.MaterialLight" parent="Base.Theme.Terminal.Light">
+        <item name="colorPrimary">#1976D2</item>
+        <item name="colorOnPrimary">#FFFFFF</item>
+        <item name="colorPrimaryContainer">#FFFFFF</item>
+        <item name="colorOnPrimaryContainer">#212121</item>
+        <item name="colorSecondary">#388E3C</item>
+        <item name="colorOnSecondary">#FFFFFF</item>
+        <item name="colorSecondaryContainer">#FFFFFF</item>
+        <item name="colorOnSecondaryContainer">#212121</item>
+        <item name="colorTertiary">#7B1FA2</item>
+        <item name="colorOnTertiary">#FFFFFF</item>
+        <item name="colorTertiaryContainer">#FFFFFF</item>
+        <item name="colorOnTertiaryContainer">#212121</item>
+        <item name="colorError">#D32F2F</item>
+        <item name="colorOnError">#FFFFFF</item>
+        <item name="colorErrorContainer">#FFFFFF</item>
+        <item name="colorOnErrorContainer">#212121</item>
+        <item name="android:colorBackground">#FAFAFA</item>
+        <item name="colorOnBackground">#212121</item>
+        <item name="colorSurface">#FFFFFF</item>
+        <item name="colorOnSurface">#212121</item>
+        <item name="colorSurfaceVariant">#FFFFFF</item>
+        <item name="colorOnSurfaceVariant">#212121</item>
+        <item name="colorOutline">#D32F2F</item>
+        <item name="colorOutlineVariant">#FFFFFF</item>
+    </style>
+
+    <!-- 18. Atom One Light Theme -->
+    <style name="Theme.Terminal.AtomOneLight" parent="Base.Theme.Terminal.Light">
+        <item name="colorPrimary">#4078F2</item>
+        <item name="colorOnPrimary">#FFFFFF</item>
+        <item name="colorPrimaryContainer">#F0F0F0</item>
+        <item name="colorOnPrimaryContainer">#383A42</item>
+        <item name="colorSecondary">#50A14F</item>
+        <item name="colorOnSecondary">#FFFFFF</item>
+        <item name="colorSecondaryContainer">#F0F0F0</item>
+        <item name="colorOnSecondaryContainer">#383A42</item>
+        <item name="colorTertiary">#A626A4</item>
+        <item name="colorOnTertiary">#FFFFFF</item>
+        <item name="colorTertiaryContainer">#F0F0F0</item>
+        <item name="colorOnTertiaryContainer">#383A42</item>
+        <item name="colorError">#E45649</item>
+        <item name="colorOnError">#FFFFFF</item>
+        <item name="colorErrorContainer">#F0F0F0</item>
+        <item name="colorOnErrorContainer">#383A42</item>
+        <item name="android:colorBackground">#FAFAFA</item>
+        <item name="colorOnBackground">#383A42</item>
+        <item name="colorSurface">#F0F0F0</item>
+        <item name="colorOnSurface">#383A42</item>
+        <item name="colorSurfaceVariant">#F0F0F0</item>
+        <item name="colorOnSurfaceVariant">#383A42</item>
+        <item name="colorOutline">#E45649</item>
+        <item name="colorOutlineVariant">#F0F0F0</item>
+    </style>
+
+    <!-- 19. Ayu Light Theme -->
+    <style name="Theme.Terminal.AyuLight" parent="Base.Theme.Terminal.Light">
+        <item name="colorPrimary">#36A3D9</item>
+        <item name="colorOnPrimary">#FFFFFF</item>
+        <item name="colorPrimaryContainer">#F3F4F5</item>
+        <item name="colorOnPrimaryContainer">#5C6166</item>
+        <item name="colorSecondary">#86B300</item>
+        <item name="colorOnSecondary">#FFFFFF</item>
+        <item name="colorSecondaryContainer">#F3F4F5</item>
+        <item name="colorOnSecondaryContainer">#5C6166</item>
+        <item name="colorTertiary">#A37ACC</item>
+        <item name="colorOnTertiary">#FFFFFF</item>
+        <item name="colorTertiaryContainer">#F3F4F5</item>
+        <item name="colorOnTertiaryContainer">#5C6166</item>
+        <item name="colorError">#F07178</item>
+        <item name="colorOnError">#FFFFFF</item>
+        <item name="colorErrorContainer">#F3F4F5</item>
+        <item name="colorOnErrorContainer">#5C6166</item>
+        <item name="android:colorBackground">#FAFAFA</item>
+        <item name="colorOnBackground">#5C6166</item>
+        <item name="colorSurface">#F3F4F5</item>
+        <item name="colorOnSurface">#5C6166</item>
+        <item name="colorSurfaceVariant">#F3F4F5</item>
+        <item name="colorOnSurfaceVariant">#5C6166</item>
+        <item name="colorOutline">#F07178</item>
+        <item name="colorOutlineVariant">#F3F4F5</item>
+    </style>
+
+    <!-- 20. PaperColor Light Theme -->
+    <style name="Theme.Terminal.PaperColorLight" parent="Base.Theme.Terminal.Light">
+        <item name="colorPrimary">#005F87</item>
+        <item name="colorOnPrimary">#FFFFFF</item>
+        <item name="colorPrimaryContainer">#E4E4E4</item>
+        <item name="colorOnPrimaryContainer">#444444</item>
+        <item name="colorSecondary">#008700</item>
+        <item name="colorOnSecondary">#FFFFFF</item>
+        <item name="colorSecondaryContainer">#E4E4E4</item>
+        <item name="colorOnSecondaryContainer">#444444</item>
+        <item name="colorTertiary">#5F5FAF</item>
+        <item name="colorOnTertiary">#FFFFFF</item>
+        <item name="colorTertiaryContainer">#E4E4E4</item>
+        <item name="colorOnTertiaryContainer">#444444</item>
+        <item name="colorError">#AF0000</item>
+        <item name="colorOnError">#FFFFFF</item>
+        <item name="colorErrorContainer">#E4E4E4</item>
+        <item name="colorOnErrorContainer">#444444</item>
+        <item name="android:colorBackground">#EEEEEE</item>
+        <item name="colorOnBackground">#444444</item>
+        <item name="colorSurface">#E4E4E4</item>
+        <item name="colorOnSurface">#444444</item>
+        <item name="colorSurfaceVariant">#E4E4E4</item>
+        <item name="colorOnSurfaceVariant">#444444</item>
+        <item name="colorOutline">#AF0000</item>
+        <item name="colorOutlineVariant">#E4E4E4</item>
+    </style>
+</resources>
