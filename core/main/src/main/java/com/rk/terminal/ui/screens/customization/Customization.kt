@@ -295,6 +295,10 @@ fun Customization(modifier: Modifier = Modifier) {
             SettingsToggle(label = "Vibrate", description = "Virtual keypad vibration", showSwitch = true, default = Settings.vibrate, sideEffect = {
                 Settings.vibrate = it
             })
+            
+            SettingsToggle(label = "Graphics Acceleration", description = "Enable OpenGL/Vulkan acceleration in Linux distributions", showSwitch = true, default = Settings.graphics_acceleration, sideEffect = {
+                Settings.graphics_acceleration = it
+            })
         }
 
         PreferenceGroup {

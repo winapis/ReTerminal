@@ -115,13 +115,22 @@ verify_existing_distribution() {
     return 1  # No match or no os-release file
 }
 
+# Check for silent mode flag
+SILENT_MODE_FILE="$DISTRIBUTION_DIR/.reterminal_installed"
+
 if [ -z "$(ls -A "$DISTRIBUTION_DIR" | grep -vE '^(root|tmp)$')" ]; then
     # Directory is empty, extract the distribution
     extract_distribution
+    # Mark installation as complete for silent mode
+    touch "$SILENT_MODE_FILE"
 else
     # Directory exists, verify it contains the correct distribution
     if verify_existing_distribution; then
-        echo "Using existing $DISTRIBUTION_NAME installation"
+        if [ ! -f "$SILENT_MODE_FILE" ]; then
+            echo "Using existing $DISTRIBUTION_NAME installation"
+            # Mark installation as complete for future silent mode
+            touch "$SILENT_MODE_FILE"
+        fi
     else
         echo "Existing installation does not match selected distribution ($DISTRIBUTION_NAME)"
         if [ -f "$DISTRIBUTION_DIR/etc/os-release" ]; then
