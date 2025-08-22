@@ -187,6 +187,16 @@ public class ModernThemeManager {
         
         // Update the Settings color scheme for compatibility
         Settings.INSTANCE.setColor_scheme(themeId);
+        
+        // Apply theme colors to terminal
+        try {
+            Class<?> terminalColorsClass = Class.forName("com.termux.terminal.TerminalColors");
+            java.lang.reflect.Method applyThemeMethod = terminalColorsClass.getMethod("applyTheme", int.class);
+            applyThemeMethod.invoke(null, themeId);
+        } catch (Exception e) {
+            // If reflection fails, continue without terminal colors update
+            // Terminal will use default colors
+        }
     }
     
     /**

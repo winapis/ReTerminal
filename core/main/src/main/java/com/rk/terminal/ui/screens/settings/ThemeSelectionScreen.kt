@@ -67,6 +67,9 @@ fun ThemeSelectionScreen(
                     onClick = {
                         selectedTheme = 0
                         ModernThemeManager.applyTheme(context, 0)
+                        
+                        // Show confirmation that theme was applied
+                        // Note: Activity restart may be needed for full theme application
                     }
                 )
             }

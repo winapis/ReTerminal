@@ -123,4 +123,37 @@ public final class TerminalColorScheme {
         }
     }
 
+    /**
+     * Apply theme colors from ModernThemeManager to terminal
+     * This synchronizes the theme palette with ANSI colors
+     * 
+     * @param themeId The theme ID from ModernThemeManager
+     */
+    public void applyThemeColors(int themeId) {
+        // Get theme colors using reflection to avoid direct dependency
+        try {
+            Class<?> themeManagerClass = Class.forName("com.rk.terminal.ui.theme.ModernThemeManager");
+            java.lang.reflect.Method getTerminalColorsMethod = themeManagerClass.getMethod("getTerminalColors", int.class);
+            int[] themeColors = (int[]) getTerminalColorsMethod.invoke(null, themeId);
+            
+            if (themeColors != null && themeColors.length >= 16) {
+                // Apply the 16 ANSI colors from the theme
+                System.arraycopy(themeColors, 0, mDefaultColors, 0, 16);
+                
+                // Set foreground and background based on theme
+                if (themeColors.length > 16) {
+                    // Use theme's foreground color
+                    mDefaultColors[TextStyle.COLOR_INDEX_FOREGROUND] = themeColors[7]; // Use white color as foreground
+                    // Use theme's background color  
+                    mDefaultColors[TextStyle.COLOR_INDEX_BACKGROUND] = themeColors[0]; // Use black color as background
+                    // Use theme's accent color for cursor
+                    mDefaultColors[TextStyle.COLOR_INDEX_CURSOR] = themeColors[4]; // Use blue color for cursor
+                }
+            }
+        } catch (Exception e) {
+            // If reflection fails, fall back to default colors
+            reset();
+        }
+    }
+
 }
