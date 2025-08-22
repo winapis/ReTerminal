@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Base Dark Theme -->
+    <style name="Base.Theme.Karbon.Dark" parent="Theme.MaterialComponents.DayNight.DarkActionBar">
+        <!-- Bars -->
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+        <item name="android:windowLightStatusBar">false</item>
+        <item name="android:windowLightNavigationBar">false</item>
+        <item name="windowNoTitle">true</item>
+        <item name="windowActionBar">false</item>
+        
+        <item name="fontFamily">@font/outfit_regular</item>
+        <item name="android:fontFamily">@font/outfit_regular</item>
+        <item name="android:forceDarkAllowed">false</item>
+    </style>
+
+    <!-- Dracula Dark Theme (Default) -->
+    <style name="Theme.Dracula.Dark" parent="Base.Theme.Karbon.Dark">
+        <item name="colorPrimary">#BD93F9</item>
+        <item name="colorPrimaryVariant">#6272A4</item>
+        <item name="colorSecondary">#50FA7B</item>
+        <item name="android:colorBackground">#282A36</item>
+        <item name="android:textColor">#F8F8F2</item>
+        <item name="colorOnPrimary">#FFFFFF</item>
+        <item name="colorSurface">#44475A</item>
+        <item name="colorOnSurface">#F8F8F2</item>
+    </style>
+
+    <!-- OneDark Theme -->
+    <style name="Theme.OneDark" parent="Base.Theme.Karbon.Dark">
+        <item name="colorPrimary">#61AFEF</item>
+        <item name="colorPrimaryVariant">#528BCC</item>
+        <item name="colorSecondary">#98C379</item>
+        <item name="android:colorBackground">#282C34</item>
+        <item name="android:textColor">#ABB2BF</item>
+        <item name="colorOnPrimary">#FFFFFF</item>
+        <item name="colorSurface">#3E4451</item>
+        <item name="colorOnSurface">#ABB2BF</item>
+    </style>
+
+    <!-- Nord Dark Theme -->
+    <style name="Theme.Nord.Dark" parent="Base.Theme.Karbon.Dark">
+        <item name="colorPrimary">#5E81AC</item>
+        <item name="colorPrimaryVariant">#4C566A</item>
+        <item name="colorSecondary">#8FBCBB</item>
+        <item name="android:colorBackground">#2E3440</item>
+        <item name="android:textColor">#ECEFF4</item>
+        <item name="colorOnPrimary">#FFFFFF</item>
+        <item name="colorSurface">#3B4252</item>
+        <item name="colorOnSurface">#ECEFF4</item>
+    </style>
+
+    <!-- Tokyo Night Theme -->
+    <style name="Theme.Tokyo.Night" parent="Base.Theme.Karbon.Dark">
+        <item name="colorPrimary">#7AA2F7</item>
+        <item name="colorPrimaryVariant">#565F89</item>
+        <item name="colorSecondary">#9ECE6A</item>
+        <item name="android:colorBackground">#1A1B26</item>
+        <item name="android:textColor">#C0CAF5</item>
+        <item name="colorOnPrimary">#FFFFFF</item>
+        <item name="colorSurface">#24283B</item>
+        <item name="colorOnSurface">#C0CAF5</item>
+    </style>
+
+    <!-- Solarized Dark Theme -->
+    <style name="Theme.Solarized.Dark" parent="Base.Theme.Karbon.Dark">
+        <item name="colorPrimary">#268BD2</item>
+        <item name="colorPrimaryVariant">#586E75</item>
+        <item name="colorSecondary">#859900</item>
+        <item name="android:colorBackground">#002B36</item>
+        <item name="android:textColor">#839496</item>
+        <item name="colorOnPrimary">#FFFFFF</item>
+        <item name="colorSurface">#073642</item>
+        <item name="colorOnSurface">#839496</item>
+    </style>
+
+    <!-- Monokai Pro Theme -->
+    <style name="Theme.Monokai.Pro" parent="Base.Theme.Karbon.Dark">
+        <item name="colorPrimary">#FF6188</item>
+        <item name="colorPrimaryVariant">#727072</item>
+        <item name="colorSecondary">#A9DC76</item>
+        <item name="android:colorBackground">#2D2A2E</item>
+        <item name="android:textColor">#FCFCFA</item>
+        <item name="colorOnPrimary">#FFFFFF</item>
+        <item name="colorSurface">#403E41</item>
+        <item name="colorOnSurface">#FCFCFA</item>
+    </style>
+
+    <!-- GitHub Dark Theme -->
+    <style name="Theme.GitHub.Dark" parent="Base.Theme.Karbon.Dark">
+        <item name="colorPrimary">#58A6FF</item>
+        <item name="colorPrimaryVariant">#30363D</item>
+        <item name="colorSecondary">#56D364</item>
+        <item name="android:colorBackground">#0D1117</item>
+        <item name="android:textColor">#F0F6FC</item>
+        <item name="colorOnPrimary">#FFFFFF</item>
+        <item name="colorSurface">#21262D</item>
+        <item name="colorOnSurface">#F0F6FC</item>
+    </style>
+
+    <!-- Gruvbox Dark Theme -->
+    <style name="Theme.Gruvbox.Dark" parent="Base.Theme.Karbon.Dark">
+        <item name="colorPrimary">#FB4934</item>
+        <item name="colorPrimaryVariant">#504945</item>
+        <item name="colorSecondary">#B8BB26</item>
+        <item name="android:colorBackground">#282828</item>
+        <item name="android:textColor">#EBDBB2</item>
+        <item name="colorOnPrimary">#FFFFFF</item>
+        <item name="colorSurface">#3C3836</item>
+        <item name="colorOnSurface">#EBDBB2</item>
+    </style>
+
+    <!-- Catppuccin Mocha Theme -->
+    <style name="Theme.Catppuccin.Mocha" parent="Base.Theme.Karbon.Dark">
+        <item name="colorPrimary">#CBA6F7</item>
+        <item name="colorPrimaryVariant">#585B70</item>
+        <item name="colorSecondary">#A6E3A1</item>
+        <item name="android:colorBackground">#1E1E2E</item>
+        <item name="android:textColor">#CDD6F4</item>
+        <item name="colorOnPrimary">#FFFFFF</item>
+        <item name="colorSurface">#313244</item>
+        <item name="colorOnSurface">#CDD6F4</item>
+    </style>
+
+    <!-- Cobalt2 Theme -->
+    <style name="Theme.Cobalt2" parent="Base.Theme.Karbon.Dark">
+        <item name="colorPrimary">#0D47A1</item>
+        <item name="colorPrimaryVariant">#193549</item>
+        <item name="colorSecondary">#38DE21</item>
+        <item name="android:colorBackground">#122738</item>
+        <item name="android:textColor">#FFFFFF</item>
+        <item name="colorOnPrimary">#FFFFFF</item>
+        <item name="colorSurface">#193549</item>
+        <item name="colorOnSurface">#FFFFFF</item>
+    </style>
+</resources>

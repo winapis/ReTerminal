@@ -3,7 +3,8 @@
     android:id="@+id/parent_popup"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:background="?attr/android:colorBackground">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -25,7 +26,9 @@
                 android:layout_height="match_parent"
                 android:paddingStart="8dp"
                 android:paddingEnd="5dp"
-                android:singleLine="true" />
+                android:singleLine="true"
+                android:textColor="?attr/android:textColor"
+                android:background="?attr/colorSurface" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <LinearLayout
@@ -51,7 +54,9 @@
                     android:paddingStart="8dp"
                     android:paddingEnd="5dp"
                     android:singleLine="true"
-                    android:text="text/plain" />
+                    android:text="text/plain"
+                    android:textColor="?attr/android:textColor"
+                    android:background="?attr/colorSurface" />
             </com.google.android.material.textfield.TextInputLayout>
 
 

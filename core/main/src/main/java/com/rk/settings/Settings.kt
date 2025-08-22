@@ -107,6 +107,10 @@ object Settings {
         get() = Preference.getInt(key = "theme_variant", default = 0) // 0=auto, 1=light, 2=dark
         set(value) = Preference.setInt(key = "theme_variant", value)
 
+    var selected_theme
+        get() = Preference.getInt(key = "selected_theme", default = 1) // Default to Dracula Dark
+        set(value) = Preference.setInt(key = "selected_theme", value)
+
 
 
 }
