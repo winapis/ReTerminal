@@ -11,6 +11,7 @@ import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
@@ -603,6 +604,9 @@ fun KarbonTheme(
     dynamicColor: Boolean = Settings.monet,
     content: @Composable () -> Unit,
 ) {
+    // Use global theme state for reactive changes
+    val currentTheme by ThemeState.currentTheme
+    
     val colorScheme = when {
         // If dynamic color is enabled and supported, use it (overrides custom themes)
         dynamicColor && supportsDynamicTheming() -> {
@@ -616,9 +620,9 @@ fun KarbonTheme(
             }
         }
         
-        // Custom theme selection based on Settings.color_scheme
+        // Custom theme selection based on current theme state
         else -> {
-            when (Settings.color_scheme) {
+            when (currentTheme) {
                 // Dark Themes (1-10)
                 1 -> DraculaDarkColorScheme
                 2 -> OneDarkColorScheme
@@ -662,14 +666,14 @@ fun KarbonTheme(
             (view.context as Activity).apply {
                 WindowCompat.getInsetsController(window, window.decorView).apply {
                     // Update status bar appearance based on theme
-                    isAppearanceLightStatusBars = when (Settings.color_scheme) {
+                    isAppearanceLightStatusBars = when (currentTheme) {
                         // Dark themes (1-10) should have light content on status bar
                         1, 2, 3, 4, 5, 6, 7, 8, 9, 10 -> false
                         // Light themes (11-20) should have dark content on status bar
                         11, 12, 13, 14, 15, 16, 17, 18, 19, 20 -> true
                         else -> !darkTheme // Default behavior
                     }
-                    isAppearanceLightNavigationBars = when (Settings.color_scheme) {
+                    isAppearanceLightNavigationBars = when (currentTheme) {
                         // Dark themes (1-10) should have light content on navigation bar
                         1, 2, 3, 4, 5, 6, 7, 8, 9, 10 -> false
                         // Light themes (11-20) should have dark content on navigation bar

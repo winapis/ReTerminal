@@ -69,13 +69,24 @@ fun OnboardingScreen(
                 onNext = { 
                     // Request permissions
                     val permissions = mutableListOf<String>()
+                    
+                    // Add notification permission for Android 13+
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                         permissions.add(Manifest.permission.POST_NOTIFICATIONS)
                     }
-                    permissions.add(Manifest.permission.READ_EXTERNAL_STORAGE)
-                    permissions.add(Manifest.permission.WRITE_EXTERNAL_STORAGE)
                     
-                    permissionLauncher.launch(permissions.toTypedArray())
+                    // Add storage permissions for all versions
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                        permissions.add(Manifest.permission.READ_EXTERNAL_STORAGE)
+                        permissions.add(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                    }
+                    
+                    if (permissions.isNotEmpty()) {
+                        permissionLauncher.launch(permissions.toTypedArray())
+                    } else {
+                        // If no permissions needed, just move to next step
+                        currentStep = 2
+                    }
                 },
                 onSkip = { currentStep = 2 }
             )
@@ -242,11 +253,13 @@ private fun PermissionsStep(
                 
                 Spacer(modifier = Modifier.height(12.dp))
                 
-                val permissions = listOf(
-                    "Storage access - To read and write files",
-                    "Notifications - For terminal session alerts",
-                    "Internet access - For package downloads"
-                )
+                val permissions = buildList {
+                    add("Storage access - To read and write files")
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                        add("Notifications - For terminal session alerts")
+                    }
+                    add("Internet access - For package downloads")
+                }
                 
                 permissions.forEach { permission ->
                     Row(

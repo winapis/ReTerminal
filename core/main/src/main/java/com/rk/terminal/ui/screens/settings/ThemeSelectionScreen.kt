@@ -21,6 +21,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.rk.terminal.ui.theme.ModernThemeManager
+import com.rk.terminal.ui.theme.ThemeState
 import com.rk.settings.Settings
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -30,7 +31,7 @@ fun ThemeSelectionScreen(
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
-    var selectedTheme by remember { mutableIntStateOf(Settings.color_scheme) }
+    var selectedTheme by remember { mutableIntStateOf(ThemeState.getCurrentTheme()) }
     val allThemes = ModernThemeManager.getAllThemes()
     val darkThemes = allThemes.filter { it.isDark }
     val lightThemes = allThemes.filter { !it.isDark }
@@ -66,9 +67,8 @@ fun ThemeSelectionScreen(
                     isSelected = selectedTheme == 0,
                     onClick = {
                         selectedTheme = 0
+                        ThemeState.updateTheme(0)
                         ModernThemeManager.applyTheme(context, 0)
-                        // Apply theme immediately for real-time preview
-                        Settings.color_scheme = 0
                     }
                 )
             }
@@ -87,9 +87,8 @@ fun ThemeSelectionScreen(
                     isSelected = selectedTheme == theme.id,
                     onClick = {
                         selectedTheme = theme.id
+                        ThemeState.updateTheme(theme.id)
                         ModernThemeManager.applyTheme(context, theme.id)
-                        // Apply theme immediately for real-time preview
-                        Settings.color_scheme = theme.id
                     }
                 )
             }
@@ -108,9 +107,8 @@ fun ThemeSelectionScreen(
                     isSelected = selectedTheme == theme.id,
                     onClick = {
                         selectedTheme = theme.id
+                        ThemeState.updateTheme(theme.id)
                         ModernThemeManager.applyTheme(context, theme.id)
-                        // Apply theme immediately for real-time preview
-                        Settings.color_scheme = theme.id
                     }
                 )
             }

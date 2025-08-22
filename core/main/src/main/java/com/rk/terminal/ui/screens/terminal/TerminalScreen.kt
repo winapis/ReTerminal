@@ -260,7 +260,7 @@ fun SessionTabBar(
 
 
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 fun TerminalScreen(
     modifier: Modifier = Modifier,
