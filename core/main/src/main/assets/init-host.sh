@@ -1,9 +1,33 @@
-ALPINE_DIR=$PREFIX/local/alpine
+DISTRIBUTION_DIR=$PREFIX/local/distribution
 
-mkdir -p $ALPINE_DIR
+mkdir -p $DISTRIBUTION_DIR
 
-if [ -z "$(ls -A "$ALPINE_DIR" | grep -vE '^(root|tmp)$')" ]; then
-    tar -xf "$PREFIX/files/alpine.tar.gz" -C "$ALPINE_DIR"
+# Determine which distribution to use based on available rootfs files
+ROOTFS_FILE=""
+DISTRIBUTION_NAME=""
+
+if [ -f "$PREFIX/files/alpine.tar.gz" ]; then
+    ROOTFS_FILE="alpine.tar.gz"
+    DISTRIBUTION_NAME="alpine"
+elif [ -f "$PREFIX/files/ubuntu.tar.gz" ]; then
+    ROOTFS_FILE="ubuntu.tar.gz"
+    DISTRIBUTION_NAME="ubuntu"
+elif [ -f "$PREFIX/files/debian.tar.gz" ]; then
+    ROOTFS_FILE="debian.tar.gz"
+    DISTRIBUTION_NAME="debian"
+elif [ -f "$PREFIX/files/arch.tar.gz" ]; then
+    ROOTFS_FILE="arch.tar.gz"
+    DISTRIBUTION_NAME="arch"
+elif [ -f "$PREFIX/files/kali.tar.gz" ]; then
+    ROOTFS_FILE="kali.tar.gz"
+    DISTRIBUTION_NAME="kali"
+else
+    echo "No distribution rootfs found!"
+    exit 1
+fi
+
+if [ -z "$(ls -A "$DISTRIBUTION_DIR" | grep -vE '^(root|tmp)$')" ]; then
+    tar -xf "$PREFIX/files/$ROOTFS_FILE" -C "$DISTRIBUTION_DIR"
 fi
 
 [ ! -e "$PREFIX/local/bin/proot" ] && cp "$PREFIX/files/proot" "$PREFIX/local/bin"
@@ -59,16 +83,36 @@ fi
 ARGS="$ARGS -b $PREFIX"
 ARGS="$ARGS -b /sys"
 
-if [ ! -d "$PREFIX/local/alpine/tmp" ]; then
- mkdir -p "$PREFIX/local/alpine/tmp"
- chmod 1777 "$PREFIX/local/alpine/tmp"
+if [ ! -d "$PREFIX/local/distribution/tmp" ]; then
+ mkdir -p "$PREFIX/local/distribution/tmp"
+ chmod 1777 "$PREFIX/local/distribution/tmp"
 fi
-ARGS="$ARGS -b $PREFIX/local/alpine/tmp:/dev/shm"
+ARGS="$ARGS -b $PREFIX/local/distribution/tmp:/dev/shm"
 
-ARGS="$ARGS -r $PREFIX/local/alpine"
+ARGS="$ARGS -r $PREFIX/local/distribution"
 ARGS="$ARGS -0"
 ARGS="$ARGS --link2symlink"
 ARGS="$ARGS --sysvipc"
 ARGS="$ARGS -L"
 
-$LINKER $PREFIX/local/bin/proot $ARGS sh $PREFIX/local/bin/init "$@"
+# Determine which init script to use
+INIT_SCRIPT="init"
+case "$DISTRIBUTION_NAME" in
+    "alpine")
+        INIT_SCRIPT="init-alpine"
+        ;;
+    "ubuntu")
+        INIT_SCRIPT="init-ubuntu"
+        ;;
+    "debian")
+        INIT_SCRIPT="init-debian"
+        ;;
+    "arch")
+        INIT_SCRIPT="init-arch"
+        ;;
+    "kali")
+        INIT_SCRIPT="init-kali"
+        ;;
+esac
+
+$LINKER $PREFIX/local/bin/proot $ARGS sh $PREFIX/local/bin/$INIT_SCRIPT "$@"

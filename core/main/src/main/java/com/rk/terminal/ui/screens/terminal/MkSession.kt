@@ -109,7 +109,7 @@ object MkSession {
             val args: Array<String>
 
             val shell = if (pendingCommand == null) {
-                args = if (workingMode == WorkingMode.ALPINE){
+                args = if (workingMode != WorkingMode.ANDROID){
                     arrayOf("-c",initFile.absolutePath)
                 }else{
                     arrayOf()

@@ -18,14 +18,20 @@ class UpdateManager {
             initFile.writeText(application!!.assets.open("init-host.sh").bufferedReader().use { it.readText() })
         }
 
-        val initFilex: File = localBinDir().child("init")
-        if(initFilex.exists()){
-            initFilex.delete()
-        }
+        // Update all distribution-specific init scripts
+        val initScripts = listOf("init", "init-alpine", "init-ubuntu", "init-debian", "init-arch", "init-kali")
+        val assetFiles = listOf("init.sh", "init-alpine.sh", "init-ubuntu.sh", "init-debian.sh", "init-arch.sh", "init-kali.sh")
+        
+        for (i in initScripts.indices) {
+            val initFilex: File = localBinDir().child(initScripts[i])
+            if(initFilex.exists()){
+                initFilex.delete()
+            }
 
-        if (initFilex.exists().not()){
-            initFilex.createFileIfNot()
-            initFilex.writeText(application!!.assets.open("init.sh").bufferedReader().use { it.readText() })
+            if (initFilex.exists().not()){
+                initFilex.createFileIfNot()
+                initFilex.writeText(application!!.assets.open(assetFiles[i]).bufferedReader().use { it.readText() })
+            }
         }
     }
 }
