@@ -298,6 +298,38 @@ fun TerminalScreen(
                         })
 
                     SettingsCard(
+                        title = { Text("Ubuntu") },
+                        description = {Text("Ubuntu Linux ARM64")},
+                        onClick = {
+                           createSession(workingMode = WorkingMode.UBUNTU)
+                            showAddDialog = false
+                        })
+
+                    SettingsCard(
+                        title = { Text("Debian") },
+                        description = {Text("Debian Linux ARM64")},
+                        onClick = {
+                           createSession(workingMode = WorkingMode.DEBIAN)
+                            showAddDialog = false
+                        })
+
+                    SettingsCard(
+                        title = { Text("Arch Linux") },
+                        description = {Text("Arch Linux ARM64")},
+                        onClick = {
+                           createSession(workingMode = WorkingMode.ARCH)
+                            showAddDialog = false
+                        })
+
+                    SettingsCard(
+                        title = { Text("Kali Linux") },
+                        description = {Text("Kali Linux ARM64")},
+                        onClick = {
+                           createSession(workingMode = WorkingMode.KALI)
+                            showAddDialog = false
+                        })
+
+                    SettingsCard(
                         title = { Text("Android") },
                         description = {Text("ReTerminal Android shell")},
                         onClick = {
