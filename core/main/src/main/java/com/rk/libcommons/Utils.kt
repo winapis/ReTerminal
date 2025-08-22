@@ -57,11 +57,11 @@ inline fun CoroutineScope.safeToastLaunch(
 
 
 @OptIn(DelicateCoroutinesApi::class)
-inline fun runOnUiThread(runnable: Runnable) {
+fun runOnUiThread(runnable: Runnable) {
     GlobalScope.launch(Dispatchers.Main) { runnable.run() }
 }
 
-inline fun toast(@StringRes resId: Int) {
+fun toast(@StringRes resId: Int) {
     toast(resId.getString())
 }
 
@@ -77,19 +77,19 @@ fun toast(message: String?) {
     runOnUiThread { Toast.makeText(application!!, message.toString(), Toast.LENGTH_SHORT).show() }
 }
 
-inline fun toast(e: Exception? = null) {
+fun toast(e: Exception? = null) {
     e?.printStackTrace()
     if (e != null) {
         toast(e.message)
     }
 }
 
-inline fun toast(t: Throwable? = null) {
+fun toast(t: Throwable? = null) {
     t?.printStackTrace()
     toast(t?.message)
 }
 
-inline fun String?.toastIt() {
+fun String?.toastIt() {
     toast(this)
 }
 
@@ -111,11 +111,11 @@ fun isDarkMode(ctx: Context): Boolean {
     return ((ctx.resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES)
 }
 
-inline fun dpToPx(dp: Float, ctx: Context): Int {
+fun dpToPx(dp: Float, ctx: Context): Int {
     val density = ctx.resources.displayMetrics.density
     return Math.round(dp * density)
 }
 
-inline fun isMainThread(): Boolean {
+fun isMainThread(): Boolean {
     return Thread.currentThread().name == "main"
 }

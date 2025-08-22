@@ -24,6 +24,110 @@ import com.rk.settings.Settings
  */
 
 /*
+ * Monokai Dark Theme
+ */
+private val MonokaiDarkColorScheme = darkColorScheme(
+    primary = monokai_primary,
+    onPrimary = Color.White,
+    primaryContainer = monokai_surface,
+    onPrimaryContainer = monokai_onSurface,
+    secondary = monokai_secondary,
+    onSecondary = Color.Black,
+    secondaryContainer = monokai_surface,
+    onSecondaryContainer = monokai_onSurface,
+    tertiary = monokai_tertiary,
+    onTertiary = Color.White,
+    tertiaryContainer = monokai_surface,
+    onTertiaryContainer = monokai_onSurface,
+    background = monokai_background,
+    onBackground = monokai_onBackground,
+    surface = monokai_surface,
+    onSurface = monokai_onSurface,
+    surfaceVariant = monokai_surface,
+    onSurfaceVariant = monokai_onSurface,
+    outline = monokai_accent,
+    outlineVariant = monokai_surface
+)
+
+/*
+ * OneDark Theme
+ */
+private val OneDarkColorScheme = darkColorScheme(
+    primary = onedark_primary,
+    onPrimary = Color.White,
+    primaryContainer = onedark_surface,
+    onPrimaryContainer = onedark_onSurface,
+    secondary = onedark_secondary,
+    onSecondary = Color.Black,
+    secondaryContainer = onedark_surface,
+    onSecondaryContainer = onedark_onSurface,
+    tertiary = onedark_tertiary,
+    onTertiary = Color.White,
+    tertiaryContainer = onedark_surface,
+    onTertiaryContainer = onedark_onSurface,
+    background = onedark_background,
+    onBackground = onedark_onBackground,
+    surface = onedark_surface,
+    onSurface = onedark_onSurface,
+    surfaceVariant = onedark_surface,
+    onSurfaceVariant = onedark_onSurface,
+    outline = onedark_accent,
+    outlineVariant = onedark_surface
+)
+
+/*
+ * Dracula Theme
+ */
+private val DraculaDarkColorScheme = darkColorScheme(
+    primary = dracula_primary,
+    onPrimary = Color.White,
+    primaryContainer = dracula_surface,
+    onPrimaryContainer = dracula_onSurface,
+    secondary = dracula_secondary,
+    onSecondary = Color.Black,
+    secondaryContainer = dracula_surface,
+    onSecondaryContainer = dracula_onSurface,
+    tertiary = dracula_tertiary,
+    onTertiary = Color.White,
+    tertiaryContainer = dracula_surface,
+    onTertiaryContainer = dracula_onSurface,
+    background = dracula_background,
+    onBackground = dracula_onBackground,
+    surface = dracula_surface,
+    onSurface = dracula_onSurface,
+    surfaceVariant = dracula_surface,
+    onSurfaceVariant = dracula_onSurface,
+    outline = dracula_accent,
+    outlineVariant = dracula_surface
+)
+
+/*
+ * GitHub Light Theme
+ */
+private val GitHubLightColorScheme = lightColorScheme(
+    primary = github_light_primary,
+    onPrimary = Color.White,
+    primaryContainer = github_light_surface,
+    onPrimaryContainer = github_light_onSurface,
+    secondary = github_light_secondary,
+    onSecondary = Color.White,
+    secondaryContainer = github_light_surface,
+    onSecondaryContainer = github_light_onSurface,
+    tertiary = github_light_tertiary,
+    onTertiary = Color.White,
+    tertiaryContainer = github_light_surface,
+    onTertiaryContainer = github_light_onSurface,
+    background = github_light_background,
+    onBackground = github_light_onBackground,
+    surface = github_light_surface,
+    onSurface = github_light_onSurface,
+    surfaceVariant = github_light_surface,
+    onSurfaceVariant = github_light_onSurface,
+    outline = github_light_accent,
+    outlineVariant = github_light_surface
+)
+
+/*
  * Light blue color scheme definition.
  */
 private val LightColorScheme =
@@ -107,31 +211,55 @@ fun KarbonTheme(
     dynamicColor: Boolean = Settings.monet,
     content: @Composable () -> Unit,
 ) {
-    val colorScheme =
-        when {
-            dynamicColor && supportsDynamicTheming() -> {
-                val context = LocalContext.current
-                when {
-                    darkTheme && highContrastDarkTheme ->
-                        dynamicDarkColorScheme(context)
-                            .copy(background = Color.Black, surface = Color.Black)
-                    darkTheme -> dynamicDarkColorScheme(context)
-                    else -> dynamicLightColorScheme(context)
+    val colorScheme = when {
+        // If dynamic color is enabled and supported, use it (overrides custom themes)
+        dynamicColor && supportsDynamicTheming() -> {
+            val context = LocalContext.current
+            when {
+                darkTheme && highContrastDarkTheme ->
+                    dynamicDarkColorScheme(context)
+                        .copy(background = Color.Black, surface = Color.Black)
+                darkTheme -> dynamicDarkColorScheme(context)
+                else -> dynamicLightColorScheme(context)
+            }
+        }
+        
+        // Custom theme selection based on Settings.color_scheme
+        else -> {
+            when (Settings.color_scheme) {
+                1 -> MonokaiDarkColorScheme // Monokai (always dark)
+                2 -> OneDarkColorScheme // OneDark (always dark) 
+                3 -> DraculaDarkColorScheme // Dracula (always dark)
+                4 -> GitHubLightColorScheme // GitHub Light (always light)
+                else -> {
+                    // Default themes based on dark/light mode
+                    when {
+                        darkTheme && highContrastDarkTheme ->
+                            DarkColorScheme.copy(background = Color.Black, surface = Color.Black)
+                        darkTheme -> DarkColorScheme
+                        else -> LightColorScheme
+                    }
                 }
             }
-
-            darkTheme && highContrastDarkTheme ->
-                DarkColorScheme.copy(background = Color.Black, surface = Color.Black)
-            darkTheme -> DarkColorScheme
-            else -> LightColorScheme
         }
+    }
+    
     val view = LocalView.current
     if (!view.isInEditMode) {
         SideEffect {
             (view.context as Activity).apply {
                 WindowCompat.getInsetsController(window, window.decorView).apply {
-                    isAppearanceLightStatusBars = !darkTheme
-                    isAppearanceLightNavigationBars = !darkTheme
+                    // Update status bar appearance based on theme
+                    isAppearanceLightStatusBars = when (Settings.color_scheme) {
+                        1, 2, 3 -> false // Dark themes
+                        4 -> true // Light theme
+                        else -> !darkTheme // Default behavior
+                    }
+                    isAppearanceLightNavigationBars = when (Settings.color_scheme) {
+                        1, 2, 3 -> false // Dark themes
+                        4 -> true // Light theme
+                        else -> !darkTheme // Default behavior
+                    }
                 }
             }
         }

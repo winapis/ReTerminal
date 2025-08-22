@@ -1,4 +1,4 @@
-name: Debug Build CI
+name: Build CI
 
 on:
  workflow_dispatch:
@@ -39,5 +39,5 @@ jobs:
      - name: Upload Debug APK
        uses: actions/upload-artifact@v4
        with:
-         name: ReTerminal-Debug
+         name: ReTerminal-Release
          path: app/build/outputs/apk/release-artifacts/reterminal-release.apk

@@ -11,6 +11,54 @@ import androidx.compose.ui.graphics.Color
  */
 
 /*
+ * Monokai Theme Colors - Popular dark theme for developers
+ */
+val monokai_background = Color(0xFF272822)
+val monokai_surface = Color(0xFF3E3D32)
+val monokai_primary = Color(0xFFF92672) // Magenta
+val monokai_secondary = Color(0xFFA6E22E) // Green
+val monokai_tertiary = Color(0xFFAE81FF) // Purple
+val monokai_onBackground = Color(0xFFF8F8F2) // White
+val monokai_onSurface = Color(0xFFF8F8F2)
+val monokai_accent = Color(0xFFE6DB74) // Yellow
+
+/*
+ * OneDark Theme Colors - VS Code's popular dark theme
+ */
+val onedark_background = Color(0xFF282C34)
+val onedark_surface = Color(0xFF353B45)
+val onedark_primary = Color(0xFF61AFEF) // Blue
+val onedark_secondary = Color(0xFF98C379) // Green
+val onedark_tertiary = Color(0xFFC678DD) // Purple
+val onedark_onBackground = Color(0xFFABB2BF) // Light gray
+val onedark_onSurface = Color(0xFFABB2BF)
+val onedark_accent = Color(0xFFE06C75) // Red
+
+/*
+ * Dracula Theme Colors - Popular dark theme
+ */
+val dracula_background = Color(0xFF282A36)
+val dracula_surface = Color(0xFF44475A)
+val dracula_primary = Color(0xFFBD93F9) // Purple
+val dracula_secondary = Color(0xFF50FA7B) // Green
+val dracula_tertiary = Color(0xFFFF79C6) // Pink
+val dracula_onBackground = Color(0xFFF8F8F2) // White
+val dracula_onSurface = Color(0xFFF8F8F2)
+val dracula_accent = Color(0xFFFFB86C) // Orange
+
+/*
+ * GitHub Light Theme Colors
+ */
+val github_light_background = Color(0xFFFFFFFF)
+val github_light_surface = Color(0xFFF6F8FA)
+val github_light_primary = Color(0xFF0366D6) // Blue
+val github_light_secondary = Color(0xFF28A745) // Green
+val github_light_tertiary = Color(0xFF6F42C1) // Purple
+val github_light_onBackground = Color(0xFF24292E) // Dark gray
+val github_light_onSurface = Color(0xFF24292E)
+val github_light_accent = Color(0xFFD73A49) // Red
+
+/*
  * Light colors
  */
 val md_theme_light_primary = Color(0xFF445E91)

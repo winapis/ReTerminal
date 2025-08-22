@@ -13,10 +13,10 @@ object Res{
     var application:Application? = null
 }
 
-inline fun Int.getString():String{
+fun Int.getString():String{
     return ContextCompat.getString(Res.application!!, this)
 }
 
-inline fun Int.getDrawable():Drawable?{
+fun Int.getDrawable():Drawable?{
     return ContextCompat.getDrawable(Res.application!!,this)
 }
