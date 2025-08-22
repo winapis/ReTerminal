@@ -448,7 +448,7 @@ fun TerminalScreen(
             drawerContent = {
                 ModalDrawerSheet(
                     modifier = Modifier.width(drawerWidth),
-                    drawerContainerColor = MaterialTheme.colorScheme.surfaceContainer,
+                    drawerContainerColor = MaterialTheme.colorScheme.surface,
                     drawerContentColor = MaterialTheme.colorScheme.onSurface
                 ) {
                     Column(
@@ -493,7 +493,7 @@ fun TerminalScreen(
                                             .size(40.dp)
                                             .background(
                                                 MaterialTheme.colorScheme.primary.copy(alpha = 0.1f),
-                                                RoundedCornerShape(8.dp)
+                                                RoundedCornerShape(16.dp)
                                             )
                                     ) {
                                         Icon(
@@ -511,7 +511,7 @@ fun TerminalScreen(
                                             .size(40.dp)
                                             .background(
                                                 MaterialTheme.colorScheme.primary.copy(alpha = 0.1f),
-                                                RoundedCornerShape(8.dp)
+                                                RoundedCornerShape(16.dp)
                                             )
                                     ) {
                                         Icon(

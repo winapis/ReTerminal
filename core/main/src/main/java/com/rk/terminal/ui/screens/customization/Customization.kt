@@ -350,8 +350,10 @@ fun Customization(modifier: Modifier = Modifier) {
                     onValueChange = {
                         terminalOpacity = it
                         Settings.terminal_opacity = it
-                        // Apply opacity to terminal background
-                        terminalView.get()?.alpha = it
+                    },
+                    onValueChangeFinished = {
+                        // Apply opacity only when user finishes dragging for better performance
+                        terminalView.get()?.alpha = terminalOpacity
                     },
                     steps = 9,
                     valueRange = 0.1f..1.0f,
