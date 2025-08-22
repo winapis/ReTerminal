@@ -9,9 +9,12 @@ import android.content.ServiceConnection
 import android.content.pm.PackageManager
 import android.graphics.Rect
 import android.graphics.drawable.Drawable
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.os.Environment
 import android.os.IBinder
+import android.provider.Settings
 import android.view.View
 import android.view.inputmethod.InputMethodManager
 import androidx.activity.ComponentActivity
@@ -97,6 +100,27 @@ class MainActivity : ComponentActivity() {
             }
         }
 
+    private var storageDenied = 1
+    private val requestStoragePermissions =
+        registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
+            val allGranted = permissions.values.all { it }
+            if (!allGranted && storageDenied <= 2) {
+                storageDenied++
+                requestStoragePermissions()
+            }
+        }
+
+    private val requestManageExternalStorage =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { _ ->
+            // Check if permission was granted after returning from Settings
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                if (!Environment.isExternalStorageManager() && storageDenied <= 2) {
+                    storageDenied++
+                    requestStoragePermissions()
+                }
+            }
+        }
+
     fun requestPermission(){
         // Only request on Android 13+ (API 33+)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
@@ -106,11 +130,49 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    fun requestStoragePermissions(){
+        when {
+            // Android 11+ (API 30+) - Request MANAGE_EXTERNAL_STORAGE through Settings
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.R -> {
+                if (!Environment.isExternalStorageManager()) {
+                    try {
+                        val intent = Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION).apply {
+                            data = Uri.parse("package:$packageName")
+                        }
+                        requestManageExternalStorage.launch(intent)
+                    } catch (e: Exception) {
+                        // Fallback to general settings if specific intent fails
+                        val intent = Intent(Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION)
+                        requestManageExternalStorage.launch(intent)
+                    }
+                }
+            }
+            // Android 6-10 (API 23-29) - Request runtime permissions
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.M -> {
+                val permissions = arrayOf(
+                    android.Manifest.permission.READ_EXTERNAL_STORAGE,
+                    android.Manifest.permission.WRITE_EXTERNAL_STORAGE
+                )
+                val permissionsToRequest = permissions.filter {
+                    ContextCompat.checkSelfPermission(this, it) != PackageManager.PERMISSION_GRANTED
+                }
+                if (permissionsToRequest.isNotEmpty()) {
+                    requestStoragePermissions.launch(permissionsToRequest.toTypedArray())
+                }
+            }
+            // Android 5.1 and below (API 22-) - Permissions granted at install time
+            else -> {
+                // No runtime permission request needed for older versions
+            }
+        }
+    }
+
     var isKeyboardVisible = false
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         requestPermission()
+        requestStoragePermissions()
 
         if (intent.hasExtra("awake_intent")){
             moveTaskToBack(true)
