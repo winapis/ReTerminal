@@ -24,6 +24,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredWidth
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
@@ -53,48 +56,61 @@ fun PreferenceTemplate(
     startWidget: (@Composable () -> Unit)? = null,
     endWidget: (@Composable () -> Unit)? = null,
 ) {
-    Column {
-        Row(
-            verticalAlignment = verticalAlignment,
-            modifier =
-                modifier
+    Card(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(horizontal = 8.dp, vertical = 4.dp),
+        shape = RoundedCornerShape(12.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surface,
+        ),
+        elevation = CardDefaults.cardElevation(
+            defaultElevation = 2.dp,
+            pressedElevation = 4.dp,
+        )
+    ) {
+        Column {
+            Row(
+                verticalAlignment = verticalAlignment,
+                modifier = Modifier
                     .height(IntrinsicSize.Min)
                     .semantics(mergeDescendants = true) {}
                     .fillMaxWidth()
                     .addIf(applyPaddings) {
                         padding(horizontal = horizontalPadding, vertical = verticalPadding)
                     },
-        ) {
-            startWidget?.let {
-                startWidget()
-                if (applyPaddings) {
-                    Spacer(modifier = Modifier.requiredWidth(16.dp))
-                }
-            }
-            Row(
-                modifier = contentModifier.weight(1f).addIf(!enabled) { alpha(0.38f) },
-                verticalAlignment = verticalAlignment,
             ) {
-                Column(Modifier.weight(1f)) {
-                    CompositionLocalProvider(
-                        LocalContentColor provides MaterialTheme.colorScheme.onBackground,
-                        LocalTextStyle provides MaterialTheme.typography.bodyLarge,
-                    ) {
-                        title()
-                    }
-                    CompositionLocalProvider(
-                        LocalContentColor provides MaterialTheme.colorScheme.onSurfaceVariant,
-                        LocalTextStyle provides MaterialTheme.typography.bodyMedium,
-                    ) {
-                        description()
+                startWidget?.let {
+                    startWidget()
+                    if (applyPaddings) {
+                        Spacer(modifier = Modifier.requiredWidth(16.dp))
                     }
                 }
-            }
-            endWidget?.let {
-                if (applyPaddings) {
-                    Spacer(modifier = Modifier.requiredWidth(16.dp))
+                Row(
+                    modifier = contentModifier.weight(1f).addIf(!enabled) { alpha(0.38f) },
+                    verticalAlignment = verticalAlignment,
+                ) {
+                    Column(Modifier.weight(1f)) {
+                        CompositionLocalProvider(
+                            LocalContentColor provides MaterialTheme.colorScheme.onSurface,
+                            LocalTextStyle provides MaterialTheme.typography.bodyLarge,
+                        ) {
+                            title()
+                        }
+                        CompositionLocalProvider(
+                            LocalContentColor provides MaterialTheme.colorScheme.onSurfaceVariant,
+                            LocalTextStyle provides MaterialTheme.typography.bodyMedium,
+                        ) {
+                            description()
+                        }
+                    }
                 }
-                endWidget()
+                endWidget?.let {
+                    if (applyPaddings) {
+                        Spacer(modifier = Modifier.requiredWidth(16.dp))
+                    }
+                    endWidget()
+                }
             }
         }
     }

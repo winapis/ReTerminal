@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
@@ -18,6 +19,7 @@ import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -72,6 +74,7 @@ fun PreferenceSwitch(
                         Modifier.height(32.dp)
                             .width(1.dp)
                             .fillMaxHeight()
+                            .clip(RoundedCornerShape(50))
                             .background(MaterialTheme.colorScheme.outlineVariant)
                 )
             }
@@ -82,13 +85,17 @@ fun PreferenceSwitch(
                 enabled = enabled,
                 interactionSource = interactionSource,
                 colors =
-                    SwitchDefaults.colors()
-                        .copy(
-                            uncheckedThumbColor = MaterialTheme.colorScheme.background,
-                            uncheckedTrackColor =
-                                MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f),
-                            uncheckedBorderColor = Color.Transparent,
-                        ),
+                    SwitchDefaults.colors(
+                        checkedThumbColor = MaterialTheme.colorScheme.primary,
+                        checkedTrackColor = MaterialTheme.colorScheme.primaryContainer,
+                        uncheckedThumbColor = MaterialTheme.colorScheme.outline,
+                        uncheckedTrackColor = MaterialTheme.colorScheme.surfaceVariant,
+                        uncheckedBorderColor = MaterialTheme.colorScheme.outline,
+                        disabledCheckedThumbColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f),
+                        disabledCheckedTrackColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.12f),
+                        disabledUncheckedThumbColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f),
+                        disabledUncheckedTrackColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.12f),
+                    ),
             )
         },
         enabled = enabled,
