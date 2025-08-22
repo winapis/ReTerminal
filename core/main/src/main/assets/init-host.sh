@@ -6,11 +6,25 @@ mkdir -p $DISTRIBUTION_DIR
 ROOTFS_FILE=""
 DISTRIBUTION_NAME=""
 
+# Helper function to find distribution file with multiple extensions
+find_distribution_file() {
+    local dist_name="$1"
+    if [ -f "$PREFIX/files/${dist_name}.tar.gz" ]; then
+        echo "${dist_name}.tar.gz"
+        return 0
+    elif [ -f "$PREFIX/files/${dist_name}.tar.xz" ]; then
+        echo "${dist_name}.tar.xz"
+        return 0
+    fi
+    return 1
+}
+
 # Check if user has selected a specific distribution
 if [ -n "$SELECTED_DISTRIBUTION" ]; then
     # Use the user's selected distribution if the rootfs file exists
-    if [ -f "$PREFIX/files/${SELECTED_DISTRIBUTION}.tar.gz" ]; then
-        ROOTFS_FILE="${SELECTED_DISTRIBUTION}.tar.gz"
+    FOUND_FILE=$(find_distribution_file "$SELECTED_DISTRIBUTION")
+    if [ -n "$FOUND_FILE" ]; then
+        ROOTFS_FILE="$FOUND_FILE"
         DISTRIBUTION_NAME="$SELECTED_DISTRIBUTION"
     else
         echo "Warning: Selected distribution '$SELECTED_DISTRIBUTION' not found, falling back to available distributions"
@@ -19,24 +33,21 @@ fi
 
 # If no valid selection found, fall back to checking available files
 if [ -z "$DISTRIBUTION_NAME" ]; then
-    if [ -f "$PREFIX/files/alpine.tar.gz" ]; then
-        ROOTFS_FILE="alpine.tar.gz"
-        DISTRIBUTION_NAME="alpine"
-    elif [ -f "$PREFIX/files/ubuntu.tar.gz" ]; then
-        ROOTFS_FILE="ubuntu.tar.gz"
-        DISTRIBUTION_NAME="ubuntu"
-    elif [ -f "$PREFIX/files/debian.tar.gz" ]; then
-        ROOTFS_FILE="debian.tar.gz"
-        DISTRIBUTION_NAME="debian"
-    elif [ -f "$PREFIX/files/arch.tar.gz" ]; then
-        ROOTFS_FILE="arch.tar.gz"
-        DISTRIBUTION_NAME="arch"
-    elif [ -f "$PREFIX/files/kali.tar.gz" ]; then
-        ROOTFS_FILE="kali.tar.gz"
-        DISTRIBUTION_NAME="kali"
-    else
+    # Try to find any available distribution in priority order
+    for dist in alpine ubuntu debian arch kali; do
+        FOUND_FILE=$(find_distribution_file "$dist")
+        if [ -n "$FOUND_FILE" ]; then
+            ROOTFS_FILE="$FOUND_FILE"
+            DISTRIBUTION_NAME="$dist"
+            break
+        fi
+    done
+    
+    # If still no distribution found, exit with error
+    if [ -z "$DISTRIBUTION_NAME" ]; then
         echo "No distribution rootfs found!"
         echo "Expected one of: alpine.tar.gz, ubuntu.tar.gz, debian.tar.gz, arch.tar.gz, kali.tar.gz"
+        echo "             or: alpine.tar.xz, ubuntu.tar.xz, debian.tar.xz, arch.tar.xz, kali.tar.xz"
         echo "Available files in $PREFIX/files/:"
         ls -la "$PREFIX/files/" 2>/dev/null || echo "  - Directory not found"
         exit 1

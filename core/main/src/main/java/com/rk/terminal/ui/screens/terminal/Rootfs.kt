@@ -22,8 +22,10 @@ object Rootfs {
         if (!reTerminal.child("proot").exists()) return false
         if (!reTerminal.child("libtalloc.so.2").exists()) return false
         
-        // Check if any distribution rootfs exists
-        val distributions = listOf("alpine.tar.gz", "ubuntu.tar.gz", "debian.tar.gz", "arch.tar.gz", "kali.tar.gz")
-        return distributions.any { reTerminal.child(it).exists() }
+        // Check if any distribution rootfs exists (both .tar.gz and .tar.xz formats)
+        val distributionNames = listOf("alpine", "ubuntu", "debian", "arch", "kali")
+        return distributionNames.any { name ->
+            reTerminal.child("$name.tar.gz").exists() || reTerminal.child("$name.tar.xz").exists()
+        }
     }
 }
