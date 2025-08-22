@@ -18,17 +18,20 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.outlined.KeyboardArrowRight
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material3.Card
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -52,6 +55,7 @@ import com.rk.terminal.ui.components.InfoBlock
 import com.rk.terminal.ui.components.SettingsToggle
 import com.rk.terminal.ui.navHosts.horizontal_statusBar
 import com.rk.terminal.ui.navHosts.showStatusBar
+import com.rk.terminal.ui.screens.settings.SettingsCard
 import com.rk.terminal.ui.screens.terminal.bitmap
 import com.rk.terminal.ui.screens.terminal.darkText
 import com.rk.terminal.ui.screens.terminal.setFont
@@ -287,7 +291,7 @@ fun Customization(modifier: Modifier = Modifier) {
 
         }
 
-        PreferenceGroup {
+        PreferenceGroup(heading = "Visual Appearance") {
             SettingsToggle(label = "Bell", description = "Play bell sound", showSwitch = true, default = Settings.bell, sideEffect = {
                 Settings.bell = it
             })
@@ -299,9 +303,134 @@ fun Customization(modifier: Modifier = Modifier) {
             SettingsToggle(label = "Graphics Acceleration", description = "Enable OpenGL/Vulkan acceleration in Linux distributions", showSwitch = true, default = Settings.graphics_acceleration, sideEffect = {
                 Settings.graphics_acceleration = it
             })
+
+            // Add terminal transparency option
+            var terminalOpacity by remember { mutableFloatStateOf(Settings.terminal_opacity) }
+            PreferenceTemplate(title = { Text("Terminal Opacity") }) {
+                Text("${(terminalOpacity * 100).toInt()}%")
+            }
+            PreferenceTemplate(title = {}) {
+                Slider(
+                    modifier = modifier,
+                    value = terminalOpacity,
+                    onValueChange = {
+                        terminalOpacity = it
+                        Settings.terminal_opacity = it
+                        // Apply opacity to terminal background
+                        terminalView.get()?.alpha = it
+                    },
+                    steps = 9,
+                    valueRange = 0.1f..1.0f,
+                )
+            }
+
+            // Add cursor style options
+            var cursorStyle by remember { mutableIntStateOf(Settings.cursor_style) }
+            PreferenceTemplate(
+                title = { Text("Cursor Style") },
+                description = { 
+                    Text(when(cursorStyle) {
+                        0 -> "Block"
+                        1 -> "Underline"  
+                        2 -> "Bar"
+                        else -> "Block"
+                    })
+                },
+                endWidget = {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Outlined.KeyboardArrowRight,
+                        contentDescription = null
+                    )
+                },
+                modifier = Modifier.clickable {
+                    cursorStyle = (cursorStyle + 1) % 3
+                    Settings.cursor_style = cursorStyle
+                }
+            )
         }
 
-        PreferenceGroup {
+        PreferenceGroup(heading = "Color Themes") {
+            var colorScheme by remember { mutableIntStateOf(Settings.color_scheme) }
+            
+            SettingsCard(
+                title = { Text("Dark Theme") },
+                description = { Text("Dark background with light text") },
+                startWidget = {
+                    RadioButton(
+                        modifier = Modifier.padding(start = 8.dp),
+                        selected = colorScheme == 0,
+                        onClick = {
+                            colorScheme = 0
+                            Settings.color_scheme = colorScheme
+                            // Apply color scheme
+                        }
+                    )
+                },
+                onClick = {
+                    colorScheme = 0
+                    Settings.color_scheme = colorScheme
+                }
+            )
+
+            SettingsCard(
+                title = { Text("Light Theme") },
+                description = { Text("Light background with dark text") },
+                startWidget = {
+                    RadioButton(
+                        modifier = Modifier.padding(start = 8.dp),
+                        selected = colorScheme == 1,
+                        onClick = {
+                            colorScheme = 1
+                            Settings.color_scheme = colorScheme
+                        }
+                    )
+                },
+                onClick = {
+                    colorScheme = 1
+                    Settings.color_scheme = colorScheme
+                }
+            )
+
+            SettingsCard(
+                title = { Text("High Contrast") },
+                description = { Text("High contrast for better visibility") },
+                startWidget = {
+                    RadioButton(
+                        modifier = Modifier.padding(start = 8.dp),
+                        selected = colorScheme == 2,
+                        onClick = {
+                            colorScheme = 2
+                            Settings.color_scheme = colorScheme
+                        }
+                    )
+                },
+                onClick = {
+                    colorScheme = 2
+                    Settings.color_scheme = colorScheme
+                }
+            )
+
+            SettingsCard(
+                title = { Text("Matrix Green") },
+                description = { Text("Classic green-on-black terminal look") },
+                startWidget = {
+                    RadioButton(
+                        modifier = Modifier.padding(start = 8.dp),
+                        selected = colorScheme == 3,
+                        onClick = {
+                            colorScheme = 3
+                            Settings.color_scheme = colorScheme
+                        }
+                    )
+                },
+                onClick = {
+                    colorScheme = 3
+                    Settings.color_scheme = colorScheme
+                }
+            )
+        }
+
+        PreferenceGroup(heading = "Interface") {
             SettingsToggle(
                 label = "StatusBar",
                 description = "Show statusbar",

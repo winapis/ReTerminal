@@ -50,29 +50,45 @@ class VirtualKeyClient(val session: TerminalSession) : IVirtualKeysView {
             // Use modern haptic feedback API if available (API 26+)
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 val vibrator = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                    val vibratorManager = view.context.getSystemService(Context.VIBRATOR_MANAGER_SERVICE) as VibratorManager
-                    vibratorManager.defaultVibrator
+                    val vibratorManager = view.context.getSystemService(Context.VIBRATOR_MANAGER_SERVICE) as VibratorManager?
+                    vibratorManager?.defaultVibrator
                 } else {
                     @Suppress("DEPRECATION")
-                    view.context.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
+                    view.context.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator?
                 }
 
-                if (vibrator.hasVibrator()) {
-                    val effect = VibrationEffect.createOneShot(30, VibrationEffect.DEFAULT_AMPLITUDE)
+                if (vibrator?.hasVibrator() == true) {
+                    val effect = VibrationEffect.createOneShot(50, VibrationEffect.DEFAULT_AMPLITUDE)
                     vibrator.vibrate(effect)
                     true
                 } else {
-                    false
+                    // If no vibrator available, fallback to haptic feedback
+                    view.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
+                    true
                 }
             } else {
-                // Fallback to view's haptic feedback for older Android versions
-                view.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
-                true
+                // For older Android versions, try vibrator service first
+                @Suppress("DEPRECATION")
+                val vibrator = view.context.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator?
+                if (vibrator?.hasVibrator() == true) {
+                    @Suppress("DEPRECATION")
+                    vibrator.vibrate(50)
+                    true
+                } else {
+                    // Fallback to view's haptic feedback
+                    view.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
+                    true
+                }
             }
         } catch (e: Exception) {
-            // Fallback to basic haptic feedback if vibrator service fails
-            view.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
-            true
+            // If all else fails, use basic haptic feedback
+            try {
+                view.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
+                true
+            } catch (e2: Exception) {
+                // Last resort: return false to let VirtualKeysView handle it
+                false
+            }
         }
     }
 }
