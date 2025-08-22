@@ -292,6 +292,40 @@ fun Customization(modifier: Modifier = Modifier) {
         }
 
         PreferenceGroup(heading = "Visual Appearance") {
+            // Theme Selection
+            var selectedTheme by remember { mutableIntStateOf(Settings.color_scheme) }
+            val themeNames = listOf("Default", "Monokai", "OneDark", "Dracula", "GitHub Light")
+            
+            // Theme selection header
+            PreferenceTemplate(
+                title = { Text("Color Theme") },
+                description = { Text("Choose your preferred color theme") }
+            ) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Outlined.KeyboardArrowRight,
+                    contentDescription = "theme selection"
+                )
+            }
+            
+            // Theme options
+            themeNames.forEachIndexed { index, themeName ->
+                PreferenceTemplate(
+                    modifier = Modifier.clickable {
+                        selectedTheme = index
+                        Settings.color_scheme = index
+                    },
+                    title = { Text("  $themeName") }
+                ) {
+                    RadioButton(
+                        selected = selectedTheme == index,
+                        onClick = {
+                            selectedTheme = index
+                            Settings.color_scheme = index
+                        }
+                    )
+                }
+            }
+            
             SettingsToggle(label = "Bell", description = "Play bell sound", showSwitch = true, default = Settings.bell, sideEffect = {
                 Settings.bell = it
             })

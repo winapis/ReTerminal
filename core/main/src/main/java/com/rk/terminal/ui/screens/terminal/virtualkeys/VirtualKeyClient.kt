@@ -47,47 +47,54 @@ class VirtualKeyClient(val session: TerminalSession) : IVirtualKeysView {
         }
 
         return try {
+            // Check if haptic feedback is enabled in system settings
+            val contentResolver = view.context.contentResolver
+            val hapticEnabled = android.provider.Settings.System.getInt(
+                contentResolver, 
+                android.provider.Settings.System.HAPTIC_FEEDBACK_ENABLED, 
+                1
+            ) == 1
+
+            if (!hapticEnabled) {
+                return false
+            }
+
             // Use modern haptic feedback API if available (API 26+)
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 val vibrator = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                    val vibratorManager = view.context.getSystemService(Context.VIBRATOR_MANAGER_SERVICE) as VibratorManager?
+                    val vibratorManager = view.context.getSystemService(Context.VIBRATOR_MANAGER_SERVICE) as? VibratorManager
                     vibratorManager?.defaultVibrator
                 } else {
                     @Suppress("DEPRECATION")
-                    view.context.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator?
+                    view.context.getSystemService(Context.VIBRATOR_SERVICE) as? Vibrator
                 }
 
                 if (vibrator?.hasVibrator() == true) {
-                    val effect = VibrationEffect.createOneShot(50, VibrationEffect.DEFAULT_AMPLITUDE)
+                    // Use lighter haptic feedback for better user experience
+                    val effect = VibrationEffect.createOneShot(30, VibrationEffect.DEFAULT_AMPLITUDE)
                     vibrator.vibrate(effect)
-                    true
-                } else {
-                    // If no vibrator available, fallback to haptic feedback
-                    view.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
-                    true
+                    return true
                 }
             } else {
                 // For older Android versions, try vibrator service first
                 @Suppress("DEPRECATION")
-                val vibrator = view.context.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator?
+                val vibrator = view.context.getSystemService(Context.VIBRATOR_SERVICE) as? Vibrator
                 if (vibrator?.hasVibrator() == true) {
                     @Suppress("DEPRECATION")
-                    vibrator.vibrate(50)
-                    true
-                } else {
-                    // Fallback to view's haptic feedback
-                    view.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
-                    true
+                    vibrator.vibrate(30) // Reduced from 50ms to 30ms for lighter feedback
+                    return true
                 }
             }
+
+            // Always fallback to view's haptic feedback
+            return view.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)
         } catch (e: Exception) {
             // If all else fails, use basic haptic feedback
             try {
-                view.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
-                true
+                return view.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)
             } catch (e2: Exception) {
                 // Last resort: return false to let VirtualKeysView handle it
-                false
+                return false
             }
         }
     }
