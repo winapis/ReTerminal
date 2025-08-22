@@ -18,6 +18,12 @@ object Rootfs {
 
     var isDownloaded = mutableStateOf(isFilesDownloaded())
     fun isFilesDownloaded(): Boolean{
-        return reTerminal.exists() && reTerminal.child("proot").exists() && reTerminal.child("libtalloc.so.2").exists() && reTerminal.child("alpine.tar.gz").exists()
+        if (!reTerminal.exists()) return false
+        if (!reTerminal.child("proot").exists()) return false
+        if (!reTerminal.child("libtalloc.so.2").exists()) return false
+        
+        // Check if any distribution rootfs exists
+        val distributions = listOf("alpine.tar.gz", "ubuntu.tar.gz", "debian.tar.gz", "arch.tar.gz", "kali.tar.gz")
+        return distributions.any { reTerminal.child(it).exists() }
     }
 }

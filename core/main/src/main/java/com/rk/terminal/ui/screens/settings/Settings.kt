@@ -66,6 +66,10 @@ fun SettingsCard(
 object WorkingMode{
     const val ALPINE = 0
     const val ANDROID = 1
+    const val UBUNTU = 2
+    const val DEBIAN = 3
+    const val ARCH = 4
+    const val KALI = 5
 }
 
 
@@ -95,6 +99,73 @@ fun Settings(modifier: Modifier = Modifier,navController: NavController,mainActi
                     Settings.working_Mode = selectedOption
                 })
 
+            SettingsCard(
+                title = { Text("Ubuntu") },
+                description = {Text("Ubuntu Linux ARM64")},
+                startWidget = {
+                    RadioButton(
+                        modifier = Modifier.padding(start = 8.dp),
+                        selected = selectedOption == WorkingMode.UBUNTU,
+                        onClick = {
+                            selectedOption = WorkingMode.UBUNTU
+                            Settings.working_Mode = selectedOption
+                        })
+                },
+                onClick = {
+                    selectedOption = WorkingMode.UBUNTU
+                    Settings.working_Mode = selectedOption
+                })
+
+            SettingsCard(
+                title = { Text("Debian") },
+                description = {Text("Debian Linux ARM64")},
+                startWidget = {
+                    RadioButton(
+                        modifier = Modifier.padding(start = 8.dp),
+                        selected = selectedOption == WorkingMode.DEBIAN,
+                        onClick = {
+                            selectedOption = WorkingMode.DEBIAN
+                            Settings.working_Mode = selectedOption
+                        })
+                },
+                onClick = {
+                    selectedOption = WorkingMode.DEBIAN
+                    Settings.working_Mode = selectedOption
+                })
+
+            SettingsCard(
+                title = { Text("Arch Linux") },
+                description = {Text("Arch Linux ARM64")},
+                startWidget = {
+                    RadioButton(
+                        modifier = Modifier.padding(start = 8.dp),
+                        selected = selectedOption == WorkingMode.ARCH,
+                        onClick = {
+                            selectedOption = WorkingMode.ARCH
+                            Settings.working_Mode = selectedOption
+                        })
+                },
+                onClick = {
+                    selectedOption = WorkingMode.ARCH
+                    Settings.working_Mode = selectedOption
+                })
+
+            SettingsCard(
+                title = { Text("Kali Linux") },
+                description = {Text("Kali Linux ARM64")},
+                startWidget = {
+                    RadioButton(
+                        modifier = Modifier.padding(start = 8.dp),
+                        selected = selectedOption == WorkingMode.KALI,
+                        onClick = {
+                            selectedOption = WorkingMode.KALI
+                            Settings.working_Mode = selectedOption
+                        })
+                },
+                onClick = {
+                    selectedOption = WorkingMode.KALI
+                    Settings.working_Mode = selectedOption
+                })
 
             SettingsCard(
                 title = { Text("Android") },
