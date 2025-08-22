@@ -450,8 +450,12 @@ fun TerminalScreen(
 
                             fun getNameOfWorkingMode(workingMode:Int?):String{
                                 return when(workingMode){
-                                    0 -> "ALPINE".lowercase()
-                                    1 -> "ANDROID".lowercase()
+                                    0 -> "alpine"
+                                    1 -> "android"
+                                    2 -> "ubuntu"
+                                    3 -> "debian"
+                                    4 -> "arch"
+                                    5 -> "kali"
                                     null -> "null"
                                     else -> "unknown"
                                 }

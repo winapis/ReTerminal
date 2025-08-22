@@ -106,7 +106,20 @@ if [[ ! -f /linkerconfig/ld.config.txt ]]; then
     touch /linkerconfig/ld.config.txt
 fi
 
+# Suppress group ID warnings by redirecting groups command errors
+# These warnings are expected in Android environment and can be safely ignored
+export GROUPS_SUPPRESS_WARNINGS=1 2>/dev/null || true
+
+# Create symlink to Android sdcard for easy access
+if [ -d "/sdcard" ] && [ ! -e "$HOME/sdcard" ]; then
+    ln -sf /sdcard "$HOME/sdcard" 2>/dev/null || true
+    echo "Created symlink: $HOME/sdcard -> /sdcard"
+fi
+
 if [ "$#" -eq 0 ]; then
+    # Suppress group warnings that occur during profile loading
+    # Redirect stderr to null for common commands that trigger group warnings
+    alias groups='groups 2>/dev/null' 2>/dev/null || true
     source /etc/profile 2>/dev/null || true
     export PS1="\[\e[38;5;46m\]\u\[\033[39m\]@reterm \[\033[39m\]\w \[\033[0m\]\\$ "
     cd $HOME
