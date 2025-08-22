@@ -37,6 +37,7 @@ import com.rk.terminal.ui.components.SettingsToggle
 import com.rk.terminal.ui.routes.MainActivityRoutes
 import com.rk.terminal.ui.theme.ThemeHelper
 import com.rk.terminal.ui.theme.ThemeManager
+import com.rk.terminal.ui.utils.HapticFeedback
 
 /**
  * Modern Settings screen with theme selection, search, and enhanced UI.
@@ -111,7 +112,10 @@ fun ModernSettings(
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         }
-                        IconButton(onClick = { showThemeDialog = true }) {
+                        IconButton(onClick = { 
+                            HapticFeedback.lightClick(context)
+                            showThemeDialog = true 
+                        }) {
                             Icon(Icons.AutoMirrored.Outlined.KeyboardArrowRight, contentDescription = null)
                         }
                     }
@@ -164,6 +168,7 @@ fun ModernSettings(
                             description = description,
                             selected = selectedWorkingMode == mode,
                             onClick = {
+                                HapticFeedback.lightClick(context)
                                 selectedWorkingMode = mode
                                 Settings.working_Mode = mode
                             }

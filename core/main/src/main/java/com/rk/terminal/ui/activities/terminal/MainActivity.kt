@@ -171,6 +171,10 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+        
+        // Apply system-appropriate theme
+        com.rk.terminal.ui.theme.SystemThemeDetector.applySystemTheme(this)
+        
         requestPermission()
         requestStoragePermissions()
 
