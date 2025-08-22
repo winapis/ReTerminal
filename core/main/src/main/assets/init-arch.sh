@@ -42,6 +42,31 @@ if [[ ! -f /linkerconfig/ld.config.txt ]]; then
     touch /linkerconfig/ld.config.txt
 fi
 
+# Check for silent mode flag
+SILENT_MODE_FILE="/.reterminal_installed"
+
+# Mark installation as complete for silent mode
+if [ ! -f "$SILENT_MODE_FILE" ]; then
+    touch "$SILENT_MODE_FILE"
+fi
+
+# Check and setup graphics acceleration if enabled
+GRAPHICS_ENABLED_FILE="/.reterminal_graphics_enabled"
+GRAPHICS_SETUP_COMPLETE="/.reterminal_graphics_setup_complete"
+
+if [ -f "$GRAPHICS_ENABLED_FILE" ] && [ ! -f "$GRAPHICS_SETUP_COMPLETE" ]; then
+    if [ ! -f "$SILENT_MODE_FILE" ]; then
+        echo "Setting up graphics acceleration..."
+    fi
+    
+    # Run graphics setup script if it exists
+    GRAPHICS_SCRIPT_PATH="$PREFIX/local/bin/setup-graphics.sh"
+    if [ -f "$GRAPHICS_SCRIPT_PATH" ]; then
+        chmod +x "$GRAPHICS_SCRIPT_PATH"
+        "$GRAPHICS_SCRIPT_PATH"
+    fi
+fi
+
 if [ "$#" -eq 0 ]; then
     source /etc/profile 2>/dev/null || true
     export PS1="\[\e[38;5;46m\]\u\[\033[39m\]@reterm \[\033[39m\]\w \[\033[0m\]\\$ "

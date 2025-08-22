@@ -87,6 +87,10 @@ object Settings {
         get() = Preference.getBoolean(key = "force_soft_keyboard", default = true)
         set(value) = Preference.setBoolean(key = "force_soft_keyboard",value)
 
+    var graphics_acceleration
+        get() = Preference.getBoolean(key = "graphics_acceleration", default = false)
+        set(value) = Preference.setBoolean(key = "graphics_acceleration",value)
+
 
 
 }

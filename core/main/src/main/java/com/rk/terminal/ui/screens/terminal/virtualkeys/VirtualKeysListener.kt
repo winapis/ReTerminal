@@ -1,7 +1,14 @@
 package com.rk.terminal.ui.screens.terminal.virtualkeys
 
+import android.content.Context
+import android.os.Build
+import android.os.VibrationEffect
+import android.os.Vibrator
+import android.os.VibratorManager
+import android.view.HapticFeedbackConstants
 import android.view.View
 import android.widget.Button
+import com.rk.settings.Settings
 import com.termux.terminal.TerminalSession
 
 class VirtualKeysListener(val session: TerminalSession) : VirtualKeysView.IVirtualKeysView {
@@ -37,6 +44,37 @@ class VirtualKeysListener(val session: TerminalSession) : VirtualKeysView.IVirtu
         buttonInfo: VirtualKeyButton?,
         button: Button?,
     ): Boolean {
-        return false
+        if (!Settings.vibrate || view == null) {
+            return false
+        }
+
+        return try {
+            // Use modern haptic feedback API if available (API 26+)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                val vibrator = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                    val vibratorManager = view.context.getSystemService(Context.VIBRATOR_MANAGER_SERVICE) as VibratorManager
+                    vibratorManager.defaultVibrator
+                } else {
+                    @Suppress("DEPRECATION")
+                    view.context.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
+                }
+
+                if (vibrator.hasVibrator()) {
+                    val effect = VibrationEffect.createOneShot(30, VibrationEffect.DEFAULT_AMPLITUDE)
+                    vibrator.vibrate(effect)
+                    true
+                } else {
+                    false
+                }
+            } else {
+                // Fallback to view's haptic feedback for older Android versions
+                view.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
+                true
+            }
+        } catch (e: Exception) {
+            // Fallback to basic haptic feedback if vibrator service fails
+            view.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
+            true
+        }
     }
 }

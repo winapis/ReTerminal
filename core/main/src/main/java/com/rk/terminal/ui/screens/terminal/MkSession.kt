@@ -66,6 +66,14 @@ object MkSession {
                     }
                 }
             }
+            
+            // Copy graphics setup script
+            localBinDir().child("setup-graphics.sh").apply {
+                if (exists().not()) {
+                    createFileIfNot()
+                    writeText(assets.open("setup-graphics.sh").bufferedReader().use { it.readText() })
+                }
+            }
 
             // Convert working mode to distribution name
             val selectedDistribution = when(workingMode) {
@@ -75,6 +83,23 @@ object MkSession {
                 WorkingMode.ARCH -> "arch"
                 WorkingMode.KALI -> "kali"
                 else -> "alpine" // Default fallback
+            }
+
+            // Handle graphics acceleration setting
+            val distributionDir = localDir().child("distribution")
+            val graphicsEnabledFile = distributionDir.child(".reterminal_graphics_enabled")
+            
+            if (Settings.graphics_acceleration) {
+                // Create flag file to enable graphics acceleration
+                if (distributionDir.exists()) {
+                    graphicsEnabledFile.createFileIfNot()
+                    graphicsEnabledFile.writeText("enabled")
+                }
+            } else {
+                // Remove flag file to disable graphics acceleration
+                if (graphicsEnabledFile.exists()) {
+                    graphicsEnabledFile.delete()
+                }
             }
 
             val env = mutableListOf(
