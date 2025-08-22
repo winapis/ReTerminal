@@ -26,18 +26,18 @@ jobs:
        run: chmod +x gradlew
 
      - name: Build Debug APK (without git SHA)
-       run: ./gradlew assembleFdroidDebug
+       run: ./gradlew assembleFdroidRelease
        env:
          EXCLUDE_GIT_INFO: true
        continue-on-error: false
 
      - name: Rename Debug APK
        run: |
-         mkdir -p app/build/outputs/apk/debug-artifacts
-         cp app/build/outputs/apk/Fdroid/debug/*.apk app/build/outputs/apk/debug-artifacts/reterminal-debug.apk
+         mkdir -p app/build/outputs/apk/release-artifacts
+         cp app/build/outputs/apk/Fdroid/release/*.apk app/build/outputs/apk/release-artifacts/reterminal-release.apk
 
      - name: Upload Debug APK
        uses: actions/upload-artifact@v4
        with:
          name: ReTerminal-Debug
-         path: app/build/outputs/apk/debug-artifacts/reterminal-debug.apk
+         path: app/build/outputs/apk/release-artifacts/reterminal-release.apk
