@@ -56,6 +56,16 @@ object MkSession {
                 }
             }
 
+            // Copy distribution-specific init scripts
+            val distributionScripts = listOf("alpine", "ubuntu", "debian", "arch", "kali")
+            distributionScripts.forEach { dist ->
+                localBinDir().child("init-$dist").apply {
+                    if (exists().not()) {
+                        createFileIfNot()
+                        writeText(assets.open("init-$dist.sh").bufferedReader().use { it.readText() })
+                    }
+                }
+            }
 
             // Convert working mode to distribution name
             val selectedDistribution = when(workingMode) {
