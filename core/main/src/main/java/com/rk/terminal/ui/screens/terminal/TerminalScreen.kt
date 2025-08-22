@@ -159,7 +159,7 @@ suspend fun setFont(typeface: Typeface) = withContext(Dispatchers.Main){
     }
 }
 
-inline fun getViewColor(): Int{
+fun getViewColor(): Int{
     return if (darkText.value){
         Color.BLACK
     }else{
@@ -167,7 +167,7 @@ inline fun getViewColor(): Int{
     }
 }
 
-inline fun getComposeColor():androidx.compose.ui.graphics.Color{
+fun getComposeColor():androidx.compose.ui.graphics.Color{
     return if (darkText.value){
         androidx.compose.ui.graphics.Color.Black
     }else{
