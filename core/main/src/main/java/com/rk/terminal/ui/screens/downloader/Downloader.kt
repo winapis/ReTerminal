@@ -159,7 +159,7 @@ private val abiMap = mapOf(
             "alpine" to "https://dl-cdn.alpinelinux.org/alpine/v3.21/releases/x86_64/alpine-minirootfs-3.21.0-x86_64.tar.gz",
             "ubuntu" to "https://cdimage.ubuntu.com/ubuntu-base/releases/22.04/release/ubuntu-base-22.04.1-base-amd64.tar.gz",
             "debian" to "https://github.com/debuerreotype/docker-debian-artifacts/raw/dist-amd64/bookworm/rootfs.tar.xz",
-            "arch" to "https://geo.mirror.pkgbuild.com/iso/latest/archlinux-bootstrap-x86_64.tar.gz",
+            "arch" to "https://mirror.archlinux.org/iso/latest/archlinux-bootstrap-x86_64.tar.gz",
             "kali" to "https://kali.download/base-images/kali-2024.1/kali-linux-docker-amd64.tar.xz"
         )
     ),
@@ -170,7 +170,7 @@ private val abiMap = mapOf(
             "alpine" to "https://dl-cdn.alpinelinux.org/alpine/v3.21/releases/aarch64/alpine-minirootfs-3.21.0-aarch64.tar.gz",
             "ubuntu" to "https://cdimage.ubuntu.com/ubuntu-base/releases/22.04/release/ubuntu-base-22.04.1-base-arm64.tar.gz",
             "debian" to "https://github.com/debuerreotype/docker-debian-artifacts/raw/dist-arm64v8/bookworm/rootfs.tar.xz",
-            "arch" to "https://geo.mirror.pkgbuild.com/iso/latest/archlinux-bootstrap-aarch64.tar.gz",
+            "arch" to "https://mirror.archlinux.org/iso/latest/archlinux-bootstrap-aarch64.tar.gz",
             "kali" to "https://kali.download/base-images/kali-2024.1/kali-linux-docker-arm64.tar.xz"
         )
     ),
@@ -181,7 +181,7 @@ private val abiMap = mapOf(
             "alpine" to "https://dl-cdn.alpinelinux.org/alpine/v3.21/releases/armhf/alpine-minirootfs-3.21.0-armhf.tar.gz",
             "ubuntu" to "https://cdimage.ubuntu.com/ubuntu-base/releases/22.04/release/ubuntu-base-22.04.1-base-armhf.tar.gz",
             "debian" to "https://github.com/debuerreotype/docker-debian-artifacts/raw/dist-arm32v7/bookworm/rootfs.tar.xz",
-            "arch" to "https://geo.mirror.pkgbuild.com/iso/latest/archlinux-bootstrap-armv7.tar.gz",
+            "arch" to "https://mirror.archlinux.org/iso/latest/archlinux-bootstrap-armv7h.tar.gz",
             "kali" to "https://kali.download/base-images/kali-2024.1/kali-linux-docker-armhf.tar.xz"
         )
     )
