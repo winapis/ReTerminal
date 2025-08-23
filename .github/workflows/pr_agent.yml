@@ -1,7 +1,10 @@
+name: Agent Pr
+
 on:
   pull_request:
     types: [opened, reopened, ready_for_review, review_requested]
   issue_comment:
+
 jobs:
   pr_agent_job:
     if: ${{ github.event.sender.type != 'Bot' }}
@@ -14,19 +17,15 @@ jobs:
     steps:
       - name: PR Agent action step
         id: pragent
-        uses: qodo-ai/pr-agent@main
+        uses: qodo-ai/pr-agent@v0.6.1 # Usa la última versión estable
         env:
           OPENAI_KEY: ${{ secrets.AZURE_OPENAI_KEY }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          # Azure OpenAI configuration
           OPENAI.API_TYPE: "azure"
           OPENAI.API_VERSION: "2025-01-01-preview"
           OPENAI.API_BASE: ${{ secrets.AZURE_OPENAI_ENDPOINT }}
           OPENAI.DEPLOYMENT_ID: ${{ secrets.AZURE_OPENAI_DEPLOYMENT }}
-          # Enable/disable automatic tools
           github_action_config.auto_review: "true"
           github_action_config.auto_describe: "true"
           github_action_config.auto_improve: "true"
-          # Configure which PR events trigger the action
           github_action_config.pr_actions: '["opened", "reopened", "ready_for_review", "review_requested"]'
-          
