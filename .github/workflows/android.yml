@@ -1,13 +1,24 @@
 name: Build CI
 
 on:
- workflow_dispatch:
- push:
-   branches:
-     - main
-     - master
-     - dev
-     - "*"
+  workflow_dispatch:
+  push:
+    branches:
+      - "*"
+  pull_request:
+    branches:
+      - "*"
+  create:
+    branches:
+      - "*"
+  issues:
+  pull_request_review:
+  pull_request_review_comment:
+  deployment:
+  deployment_status:
+  repository_dispatch:
+  workflow_call:
+  workflow_run:
 
 jobs:
  build-debug:
