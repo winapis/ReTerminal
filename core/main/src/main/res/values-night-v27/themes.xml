@@ -1,0 +1,10 @@
+<resources>
+    <!-- API 27+ theme attributes for dark theme -->
+    <style name="Base.Theme.Karbon" parent="Theme.Material3.Dark.NoActionBar">
+        <item name="android:windowLightNavigationBar">false</item>
+    </style>
+
+    <style name="Base.Theme.Karbon.Monet" parent="Theme.Material3.DynamicColors.Dark">
+        <item name="android:windowLightNavigationBar">false</item>
+    </style>
+</resources>

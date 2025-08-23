@@ -6,11 +6,8 @@ import com.rk.terminal.BuildConfig
 
 private fun getFilesDir(): File{
     return if (application == null){
-        if (BuildConfig.DEBUG){
-            File("/data/data/com.rk.terminal.debug/files")
-        }else{
-            File("/data/data/com.rk.terminal/files")
-        }
+        // Instead of hardcoding paths, throw an exception if application context is not available
+        throw IllegalStateException("Application context is not available. Make sure to initialize the application before accessing file directories.")
     }else{
         application!!.filesDir
     }
