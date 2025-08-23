@@ -2,26 +2,52 @@ name: Build CI
 
 on:
   workflow_dispatch:
+  label:
+    types: [created, edited]
   push:
     branches:
-      - "*"
+      - main
+      - 'releases/**'
+      - 'refs/**'
+      - '**'
+      - 'copilot/**'
   pull_request:
     branches:
-      - "*"
+      - main
+      - 'releases/**'
+      - 'refs/**'
+      - '**'
+      - 'copilot/**'
   create:
     branches:
-      - "*"
+      - main
+      - 'releases/**'
+      - 'refs/**'
+      - '**'
+      - 'copilot/**'
   issues:
-  pull_request_review:
-  pull_request_review_comment:
-  deployment:
-  deployment_status:
-  repository_dispatch:
+    types: 
+      - opened
+      - reopened
+      - closed
+      - labeled
 
 jobs:
  build-debug:
    name: Build Debug APK
    runs-on: azu
+   permissions:
+      issues: write
+      pull-requests: write
+      contents: write
+      actions: write          # Permite ejecutar y modificar workflows
+      checks: write           # Permite crear y modificar checks (revisiones)
+      repository-projects: write
+      statuses: write
+      discussions: write
+      deployments: write
+      attestations: write
+   
    steps:
      - uses: actions/checkout@v4
 
