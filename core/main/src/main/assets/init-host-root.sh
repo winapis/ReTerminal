@@ -1,3 +1,8 @@
+#!/bin/bash
+
+# Enhanced init-host script with root support
+# This script provides additional mounts, DNS configuration, and Android groups when root is available
+
 DISTRIBUTION_DIR=$PREFIX/local/distribution
 
 mkdir -p $DISTRIBUTION_DIR
@@ -63,15 +68,11 @@ extract_distribution() {
     log_message "Extracting $DISTRIBUTION_NAME rootfs from $ROOTFS_FILE..."
     
     # Use tar options that are more compatible with Android filesystem limitations
-    # --no-same-owner: Don't try to preserve owner (may fail on Android)
-    # --no-same-permissions: Don't try to preserve exact permissions (may fail on Android)
-    # --dereference: Follow symbolic links instead of preserving them
     TAR_OPTS="--no-same-owner --no-same-permissions"
     
     # Try extraction with different strategies if hard links fail
     if ! tar -xf "$PREFIX/files/$ROOTFS_FILE" -C "$DISTRIBUTION_DIR" $TAR_OPTS 2>/dev/null; then
         log_message "Standard extraction failed, trying with hard link conversion..."
-        # Try again with hard links converted to copies (more Android-compatible)
         if ! tar -xf "$PREFIX/files/$ROOTFS_FILE" -C "$DISTRIBUTION_DIR" $TAR_OPTS --hard-dereference 2>/dev/null; then
             log_message "Hard link conversion failed, trying without link preservation..."
             # Final attempt: ignore link creation errors and use app-writable temp directory
@@ -114,16 +115,85 @@ extract_distribution() {
             log_message "Warning: Expected directory $dir not found in extracted rootfs"
         fi
     done
-    
-    # For Ubuntu/Debian, verify apt is available
-    if [ "$DISTRIBUTION_NAME" = "ubuntu" ] || [ "$DISTRIBUTION_NAME" = "debian" ]; then
-        if [ ! -f "$DISTRIBUTION_DIR/usr/bin/apt" ] && [ ! -f "$DISTRIBUTION_DIR/usr/bin/apt-get" ]; then
-            log_message "Warning: Neither apt nor apt-get found in extracted $DISTRIBUTION_NAME rootfs"
-            if [ ! -f "$SILENT_MODE_FILE" ]; then
-                echo "Available binaries in usr/bin:"
-                ls "$DISTRIBUTION_DIR/usr/bin/" 2>/dev/null | grep -E "(apt|dpkg)" || echo "  - No apt/dpkg binaries found"
-            fi
+}
+
+# Function to setup root-specific configuration
+setup_root_configuration() {
+    if [ "$ROOT_ENABLED" = "true" ] && [ "$ROOT_VERIFIED" = "true" ]; then
+        log_message "Configuring enhanced root environment..."
+        
+        # Remount /data with dev and suid options if BusyBox is available
+        if [ -n "$BUSYBOX_PATH" ] && [ -x "$BUSYBOX_PATH" ]; then
+            log_message "Using BusyBox at $BUSYBOX_PATH for enhanced mounts..."
+            
+            # Enhanced mount options for root
+            su -c "$BUSYBOX_PATH mount -o remount,dev,suid /data" 2>/dev/null || {
+                log_message "Warning: Could not remount /data with enhanced options"
+            }
         fi
+        
+        # Setup DNS in the chroot environment
+        if [ -d "$DISTRIBUTION_DIR/etc" ]; then
+            log_message "Configuring DNS..."
+            su -c "echo 'nameserver 8.8.8.8' > $DISTRIBUTION_DIR/etc/resolv.conf" 2>/dev/null || {
+                log_message "Warning: Could not configure DNS"
+            }
+            su -c "echo 'nameserver 8.8.4.4' >> $DISTRIBUTION_DIR/etc/resolv.conf" 2>/dev/null || true
+            su -c "echo 'nameserver 1.1.1.1' >> $DISTRIBUTION_DIR/etc/resolv.conf" 2>/dev/null || true
+        fi
+        
+        # Add Android root groups if supported
+        if [ -d "$DISTRIBUTION_DIR/etc" ]; then
+            log_message "Adding Android groups..."
+            
+            # Create Android-specific groups for network and device access
+            ANDROID_GROUPS="
+groupadd -g 3001 aid_bt 2>/dev/null || true
+groupadd -g 3002 aid_bt_net 2>/dev/null || true  
+groupadd -g 3003 aid_inet 2>/dev/null || true
+groupadd -g 3004 aid_net_raw 2>/dev/null || true
+groupadd -g 3005 aid_admin 2>/dev/null || true
+groupadd -g 3006 aid_radio 2>/dev/null || true
+groupadd -g 3007 aid_nfc 2>/dev/null || true
+groupadd -g 3008 aid_drmrpc 2>/dev/null || true
+groupadd -g 3009 aid_vpn 2>/dev/null || true
+groupadd -g 3010 aid_media_rw 2>/dev/null || true
+"
+            
+            # Add groups to root user
+            ADD_USER_TO_GROUPS="
+usermod -a -G aid_bt,aid_bt_net,aid_inet,aid_net_raw,aid_admin,aid_radio,aid_nfc,aid_drmrpc,aid_vpn,aid_media_rw root 2>/dev/null || true
+"
+            
+            # For Debian-based distros, fix _apt user group
+            if [ "$DISTRIBUTION_NAME" = "ubuntu" ] || [ "$DISTRIBUTION_NAME" = "debian" ]; then
+                DEBIAN_APT_FIX="usermod -g aid_inet _apt 2>/dev/null || true"
+            else
+                DEBIAN_APT_FIX=""
+            fi
+            
+            # Execute group setup commands in chroot
+            ROOT_SETUP_SCRIPT="$DISTRIBUTION_DIR/tmp/root_setup.sh"
+            cat > "$ROOT_SETUP_SCRIPT" << EOF
+#!/bin/bash
+$ANDROID_GROUPS
+$ADD_USER_TO_GROUPS
+$DEBIAN_APT_FIX
+EOF
+            chmod +x "$ROOT_SETUP_SCRIPT"
+            
+            # Execute setup script in chroot environment
+            su -c "chroot $DISTRIBUTION_DIR /tmp/root_setup.sh" 2>/dev/null || {
+                log_message "Warning: Could not setup Android groups (will continue without them)"
+            }
+            
+            # Clean up setup script
+            rm -f "$ROOT_SETUP_SCRIPT" 2>/dev/null || true
+        fi
+        
+        log_message "Root configuration completed"
+    else
+        log_message "Root not available - using standard proot mode"
     fi
 }
 
@@ -170,6 +240,7 @@ if [ -z "$(ls -A "$DISTRIBUTION_DIR" | grep -vE '^(root|tmp)$')" ]; then
     # Directory is empty, extract the distribution
     log_message "Setting up $DISTRIBUTION_NAME environment..."
     extract_distribution
+    setup_root_configuration
     # Mark installation as complete for silent mode
     touch "$SILENT_MODE_FILE"
     log_message "$DISTRIBUTION_NAME installation completed"
@@ -178,89 +249,30 @@ else
     if verify_existing_distribution; then
         if [ ! -f "$SILENT_MODE_FILE" ]; then
             log_message "Using existing $DISTRIBUTION_NAME installation"
+            # Setup root configuration for existing installation
+            setup_root_configuration
             # Mark installation as complete for future silent mode
             touch "$SILENT_MODE_FILE"
         fi
     else
         log_message "Existing installation does not match selected distribution ($DISTRIBUTION_NAME)"
-        if [ -f "$DISTRIBUTION_DIR/etc/os-release" ]; then
-            existing_id=$(grep "^ID=" "$DISTRIBUTION_DIR/etc/os-release" 2>/dev/null | cut -d'=' -f2 | tr -d '"' 2>/dev/null || echo "unknown")
-            if [ -n "$existing_id" ] && [ "$existing_id" != "unknown" ]; then
-                log_message "Found existing distribution: $existing_id (expected: $DISTRIBUTION_NAME)"
-            else
-                log_message "Existing distribution could not be determined from /etc/os-release"
-            fi
-        else
-            log_message "No /etc/os-release found in existing installation"
-        fi
+        # Clear and reinstall with proper distribution
         log_message "Clearing existing installation and extracting correct distribution..."
-        # Clear existing installation more thoroughly and safely
-        log_message "Backing up important files before cleanup..."
-        
-        # Create temporary backup directory for any user data
-        BACKUP_DIR="/tmp/reterminal_backup_$$"
-        mkdir -p "$BACKUP_DIR"
-        
-        # Backup user home directory if it exists
-        if [ -d "$DISTRIBUTION_DIR/root" ] && [ "$(ls -A "$DISTRIBUTION_DIR/root" 2>/dev/null | wc -l)" -gt 0 ]; then
-            log_message "Backing up user data from /root..."
-            cp -r "$DISTRIBUTION_DIR/root" "$BACKUP_DIR/" 2>/dev/null || true
-        fi
-        
-        # More robust directory cleanup
-        log_message "Cleaning existing distribution files..."
         cd "$DISTRIBUTION_DIR" || exit 1
         
-        # Remove directories that are safe to remove completely
+        # Clean existing installation
         for dir in bin boot dev etc lib lib64 media mnt opt proc run sbin srv sys tmp usr var; do
             if [ -d "$dir" ]; then
-                log_message "Removing $dir..."
-                rm -rf "$dir" 2>/dev/null || {
-                    log_message "Warning: Could not remove $dir completely, trying to clean contents..."
-                    find "$dir" -mindepth 1 -exec rm -rf {} + 2>/dev/null || true
-                }
+                rm -rf "$dir" 2>/dev/null || true
             fi
         done
-        
-        # Remove any remaining files except home directory
-        find . -maxdepth 1 -type f -exec rm -f {} + 2>/dev/null || true
-        find . -maxdepth 1 -type l -exec rm -f {} + 2>/dev/null || true
-        
-        # Remove any remaining directories except home
-        for item in *; do
-            if [ -d "$item" ] && [ "$item" != "home" ] && [ "$item" != "root" ]; then
-                rm -rf "$item" 2>/dev/null || true
-            fi
-        done
-        
-        # Verify the directory is cleaned
-        remaining_items=$(find . -mindepth 1 -maxdepth 1 ! -name "home" ! -name "root" 2>/dev/null | wc -l)
-        if [ "$remaining_items" -gt 0 ]; then
-            log_message "Warning: Some items could not be removed:"
-            if [ ! -f "$SILENT_MODE_FILE" ]; then
-                ls -la . 2>/dev/null | grep -v -E "^total|^d.*\s\.\s*$|^d.*\s\.\.\s*$|home|root" || true
-            fi
-        fi
         
         cd - >/dev/null
-        
-        # Ensure directory exists and has proper permissions
         mkdir -p "$DISTRIBUTION_DIR"
         chmod 755 "$DISTRIBUTION_DIR"
         
         extract_distribution
-        
-        # Restore user data if backup exists
-        if [ -d "$BACKUP_DIR/root" ]; then
-            log_message "Restoring user data to new distribution..."
-            if [ -d "$DISTRIBUTION_DIR/root" ]; then
-                cp -r "$BACKUP_DIR/root/." "$DISTRIBUTION_DIR/root/" 2>/dev/null || true
-                log_message "User data restored from previous installation"
-            fi
-        fi
-        
-        # Clean up backup
-        rm -rf "$BACKUP_DIR" 2>/dev/null || true
+        setup_root_configuration
     fi
 fi
 
@@ -271,28 +283,55 @@ for sofile in "$PREFIX/files/"*.so.2; do
     [ ! -e "$dest" ] && cp "$sofile" "$dest"
 done
 
-
 ARGS="--kill-on-exit"
 ARGS="$ARGS -w /"
 
-for system_mnt in /apex /odm /product /system /system_ext /vendor \
- /linkerconfig/ld.config.txt \
- /linkerconfig/com.android.art/ld.config.txt \
- /plat_property_contexts /property_contexts; do
+# Enhanced mounts for root mode
+if [ "$ROOT_ENABLED" = "true" ] && [ "$USE_ROOT_MOUNTS" = "true" ] && [ "$ROOT_VERIFIED" = "true" ]; then
+    log_message "Using enhanced root mounts..."
+    
+    # Additional bind mounts with root privileges
+    for system_mnt in /apex /odm /product /system /system_ext /vendor \
+     /linkerconfig/ld.config.txt \
+     /linkerconfig/com.android.art/ld.config.txt \
+     /plat_property_contexts /property_contexts; do
+    
+     if [ -e "$system_mnt" ]; then
+      system_mnt=$(realpath "$system_mnt")
+      ARGS="$ARGS -b ${system_mnt}"
+     fi
+    done
+    
+    # Enhanced device mounts
+    ARGS="$ARGS -b /dev"
+    ARGS="$ARGS -b /dev/pts"
+    ARGS="$ARGS -b /sys"
+    ARGS="$ARGS -b /proc"
+    
+else
+    # Standard mounts for rootless mode
+    for system_mnt in /apex /odm /product /system /system_ext /vendor \
+     /linkerconfig/ld.config.txt \
+     /linkerconfig/com.android.art/ld.config.txt \
+     /plat_property_contexts /property_contexts; do
+    
+     if [ -e "$system_mnt" ]; then
+      system_mnt=$(realpath "$system_mnt")
+      ARGS="$ARGS -b ${system_mnt}"
+     fi
+    done
+    
+    ARGS="$ARGS -b /dev"
+    ARGS="$ARGS -b /proc"
+    ARGS="$ARGS -b /sys"
+fi
 
- if [ -e "$system_mnt" ]; then
-  system_mnt=$(realpath "$system_mnt")
-  ARGS="$ARGS -b ${system_mnt}"
- fi
-done
 unset system_mnt
 
 ARGS="$ARGS -b /sdcard"
 ARGS="$ARGS -b /storage"
-ARGS="$ARGS -b /dev"
 ARGS="$ARGS -b /data"
 ARGS="$ARGS -b /dev/urandom:/dev/random"
-ARGS="$ARGS -b /proc"
 ARGS="$ARGS -b $PREFIX"
 ARGS="$ARGS -b $PREFIX/local/stat:/proc/stat"
 ARGS="$ARGS -b $PREFIX/local/vmstat:/proc/vmstat"
@@ -312,10 +351,6 @@ fi
 if [ -e "/proc/self/fd/2" ]; then
   ARGS="$ARGS -b /proc/self/fd/2:/dev/stderr"
 fi
-
-
-ARGS="$ARGS -b $PREFIX"
-ARGS="$ARGS -b /sys"
 
 if [ ! -d "$PREFIX/local/distribution/tmp" ]; then
  mkdir -p "$PREFIX/local/distribution/tmp"
@@ -352,6 +387,11 @@ esac
 log_message "Starting $DISTRIBUTION_NAME environment with proot..."
 log_message "Distribution directory: $PREFIX/local/distribution"
 log_message "Init script: $INIT_SCRIPT"
+if [ "$ROOT_ENABLED" = "true" ]; then
+    log_message "Root mode: ENABLED with enhanced mounts"
+else
+    log_message "Root mode: DISABLED (rootless mode)"
+fi
 
 if [ ! -f "$PREFIX/local/bin/proot" ]; then
     echo "Error: proot binary not found at $PREFIX/local/bin/proot"

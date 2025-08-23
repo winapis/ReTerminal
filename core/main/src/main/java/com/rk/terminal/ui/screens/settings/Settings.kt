@@ -7,11 +7,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.KeyboardArrowRight
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.RadioButton
-import androidx.compose.material3.Text
-import androidx.compose.material3.ripple
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -22,11 +18,15 @@ import androidx.navigation.NavController
 import com.rk.components.compose.preferences.base.PreferenceGroup
 import com.rk.components.compose.preferences.base.PreferenceLayout
 import com.rk.components.compose.preferences.base.PreferenceTemplate
+import com.rk.components.compose.preferences.switch.PreferenceSwitch
 import com.rk.resources.strings
 import com.rk.settings.Settings
 import com.rk.terminal.ui.activities.terminal.MainActivity
 import com.rk.terminal.ui.components.SettingsToggle
 import com.rk.terminal.ui.routes.MainActivityRoutes
+import com.rk.terminal.utils.RootUtils
+import com.rk.terminal.utils.VibrationUtil
+import kotlinx.coroutines.launch
 
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -77,7 +77,38 @@ object WorkingMode{
 @Composable
 fun Settings(modifier: Modifier = Modifier,navController: NavController,mainActivity: MainActivity) {
     val context = LocalContext.current
+    val scope = rememberCoroutineScope()
     var selectedOption by remember { mutableIntStateOf(Settings.working_Mode) }
+    var showRootWarningDialog by remember { mutableStateOf(false) }
+
+    // Real-time root status checking every 10 seconds
+    LaunchedEffect(Unit) {
+        while (true) {
+            kotlinx.coroutines.delay(10000) // Check every 10 seconds
+            try {
+                if (Settings.root_enabled) {
+                    RootUtils.clearCache()
+                    val rootInfo = RootUtils.checkRootAccess()
+                    Settings.root_verified = rootInfo.isRootAvailable
+                    Settings.root_provider = rootInfo.rootProvider.name.lowercase()
+                    Settings.busybox_installed = rootInfo.isBusyBoxInstalled
+                    
+                    val busyboxPath = RootUtils.getBusyBoxPath()
+                    if (busyboxPath != null) {
+                        Settings.busybox_path = busyboxPath
+                    }
+                    
+                    // If root was lost while enabled, disable it
+                    if (!rootInfo.isRootAvailable) {
+                        Settings.root_enabled = false
+                        Settings.use_root_mounts = false
+                    }
+                }
+            } catch (e: Exception) {
+                // Root checking failed, keep current state
+            }
+        }
+    }
 
     PreferenceLayout(label = stringResource(strings.settings)) {
         PreferenceGroup(heading = "Default Working mode") {
@@ -90,11 +121,13 @@ fun Settings(modifier: Modifier = Modifier,navController: NavController,mainActi
                         modifier = Modifier.padding(start = 8.dp),
                         selected = selectedOption == WorkingMode.ALPINE,
                         onClick = {
+                            VibrationUtil.vibrateButton(context)
                             selectedOption = WorkingMode.ALPINE
                             Settings.working_Mode = selectedOption
                         })
                 },
                 onClick = {
+                    VibrationUtil.vibrateButton(context)
                     selectedOption = WorkingMode.ALPINE
                     Settings.working_Mode = selectedOption
                 })
@@ -188,7 +221,101 @@ fun Settings(modifier: Modifier = Modifier,navController: NavController,mainActi
         }
 
 
-        PreferenceGroup {
+        PreferenceGroup(heading = "Root Configuration") {
+            PreferenceSwitch(
+                label = "Enable Root Access",
+                description = if (Settings.root_enabled) {
+                    "Root access is enabled (${RootUtils.formatRootProviderName(Settings.root_provider)})"
+                } else {
+                    "Root access is disabled - using rootless mode"
+                },
+                enabled = Settings.root_verified || !Settings.root_enabled,
+                checked = Settings.root_enabled,
+                onCheckedChange = { enabled ->
+                    if (!enabled) {
+                        // Disabling root - show warning
+                        showRootWarningDialog = true
+                    } else if (Settings.root_verified) {
+                        // Re-enabling root if previously verified
+                        Settings.root_enabled = true
+                        Settings.use_root_mounts = true
+                    } else {
+                        // Root not verified, need to verify first
+                        scope.launch {
+                            try {
+                                val rootInfo = RootUtils.checkRootAccess()
+                                if (rootInfo.isRootAvailable) {
+                                    Settings.root_enabled = true
+                                    Settings.root_verified = true
+                                    Settings.root_provider = rootInfo.rootProvider.name.lowercase()
+                                    Settings.busybox_installed = rootInfo.isBusyBoxInstalled
+                                    Settings.use_root_mounts = true
+                                    
+                                    val busyboxPath = RootUtils.getBusyBoxPath()
+                                    if (busyboxPath != null) {
+                                        Settings.busybox_path = busyboxPath
+                                    }
+                                } else {
+                                    // Root not available
+                                    Settings.root_enabled = false
+                                }
+                            } catch (e: Exception) {
+                                Settings.root_enabled = false
+                            }
+                        }
+                    }
+                }
+            )
+            
+            if (Settings.root_enabled) {
+                SettingsCard(
+                    title = { Text("Root Provider") },
+                    description = { Text(RootUtils.formatRootProviderName(Settings.root_provider)) },
+                    onClick = { VibrationUtil.vibrateButton(context) }
+                )
+                
+                SettingsCard(
+                    title = { Text("BusyBox Status") },
+                    description = { 
+                        Text(
+                            if (Settings.busybox_installed) {
+                                "Installed at ${Settings.busybox_path.takeIf { it.isNotEmpty() } ?: "system path"}"
+                            } else {
+                                "Not installed - some features may be limited"
+                            }
+                        )
+                    },
+                    onClick = { VibrationUtil.vibrateButton(context) }
+                )
+                
+                PreferenceSwitch(
+                    label = "Use Root Mounts",
+                    description = "Enable enhanced filesystem mounts and bindings. Changes apply to new terminal sessions.",
+                    checked = Settings.use_root_mounts,
+                    enabled = Settings.root_enabled,
+                    onCheckedChange = { enabled ->
+                        VibrationUtil.vibrateAction(context)
+                        Settings.use_root_mounts = enabled
+                        if (enabled) {
+                            VibrationUtil.vibrateSuccess(context)
+                        }
+                    }
+                )
+            }
+        }
+
+
+        PreferenceGroup(heading = "Appearance") {
+            SettingsToggle(
+                label = "Theme Selection",
+                showSwitch = false,
+                default = false,
+                sideEffect = {
+                   navController.navigate(MainActivityRoutes.ThemeSelection.route)
+            }, endWidget = {
+                Icon(imageVector = Icons.AutoMirrored.Outlined.KeyboardArrowRight, contentDescription = null,modifier = Modifier.padding(16.dp))
+            })
+            
             SettingsToggle(
                 label = "Customizations",
                 showSwitch = false,
@@ -199,5 +326,42 @@ fun Settings(modifier: Modifier = Modifier,navController: NavController,mainActi
                 Icon(imageVector = Icons.AutoMirrored.Outlined.KeyboardArrowRight, contentDescription = null,modifier = Modifier.padding(16.dp))
             })
         }
+    }
+    
+    // Root warning dialog
+    if (showRootWarningDialog) {
+        AlertDialog(
+            onDismissRequest = { showRootWarningDialog = false },
+            title = { Text("Disable Root Access") },
+            text = { 
+                Text(
+                    "Disabling root access will:\n" +
+                    "• Remove enhanced filesystem mounts\n" +
+                    "• Disable BusyBox integration\n" +
+                    "• Fall back to standard proot mode\n\n" +
+                    "You can re-enable root access later. Continue?"
+                )
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = { 
+                        VibrationUtil.vibrateError(context)
+                        Settings.root_enabled = false
+                        Settings.use_root_mounts = false
+                        showRootWarningDialog = false
+                    }
+                ) {
+                    Text("Disable Root")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { 
+                    VibrationUtil.vibrateButton(context)
+                    showRootWarningDialog = false 
+                }) {
+                    Text("Cancel")
+                }
+            }
+        )
     }
 }

@@ -292,39 +292,6 @@ fun Customization(modifier: Modifier = Modifier) {
         }
 
         PreferenceGroup(heading = "Visual Appearance") {
-            // Theme Selection
-            var selectedTheme by remember { mutableIntStateOf(Settings.color_scheme) }
-            val themeNames = listOf("Default", "Monokai", "OneDark", "Dracula", "GitHub Light")
-            
-            // Theme selection header
-            PreferenceTemplate(
-                title = { Text("Color Theme") },
-                description = { Text("Choose your preferred color theme") }
-            ) {
-                Icon(
-                    imageVector = Icons.AutoMirrored.Outlined.KeyboardArrowRight,
-                    contentDescription = "theme selection"
-                )
-            }
-            
-            // Theme options
-            themeNames.forEachIndexed { index, themeName ->
-                PreferenceTemplate(
-                    modifier = Modifier.clickable {
-                        selectedTheme = index
-                        Settings.color_scheme = index
-                    },
-                    title = { Text("  $themeName") }
-                ) {
-                    RadioButton(
-                        selected = selectedTheme == index,
-                        onClick = {
-                            selectedTheme = index
-                            Settings.color_scheme = index
-                        }
-                    )
-                }
-            }
             
             SettingsToggle(label = "Bell", description = "Play bell sound", showSwitch = true, default = Settings.bell, sideEffect = {
                 Settings.bell = it
@@ -385,86 +352,7 @@ fun Customization(modifier: Modifier = Modifier) {
             )
         }
 
-        PreferenceGroup(heading = "Color Themes") {
-            var colorScheme by remember { mutableIntStateOf(Settings.color_scheme) }
-            
-            SettingsCard(
-                title = { Text("Dark Theme") },
-                description = { Text("Dark background with light text") },
-                startWidget = {
-                    RadioButton(
-                        modifier = Modifier.padding(start = 8.dp),
-                        selected = colorScheme == 0,
-                        onClick = {
-                            colorScheme = 0
-                            Settings.color_scheme = colorScheme
-                            // Apply color scheme
-                        }
-                    )
-                },
-                onClick = {
-                    colorScheme = 0
-                    Settings.color_scheme = colorScheme
-                }
-            )
 
-            SettingsCard(
-                title = { Text("Light Theme") },
-                description = { Text("Light background with dark text") },
-                startWidget = {
-                    RadioButton(
-                        modifier = Modifier.padding(start = 8.dp),
-                        selected = colorScheme == 1,
-                        onClick = {
-                            colorScheme = 1
-                            Settings.color_scheme = colorScheme
-                        }
-                    )
-                },
-                onClick = {
-                    colorScheme = 1
-                    Settings.color_scheme = colorScheme
-                }
-            )
-
-            SettingsCard(
-                title = { Text("High Contrast") },
-                description = { Text("High contrast for better visibility") },
-                startWidget = {
-                    RadioButton(
-                        modifier = Modifier.padding(start = 8.dp),
-                        selected = colorScheme == 2,
-                        onClick = {
-                            colorScheme = 2
-                            Settings.color_scheme = colorScheme
-                        }
-                    )
-                },
-                onClick = {
-                    colorScheme = 2
-                    Settings.color_scheme = colorScheme
-                }
-            )
-
-            SettingsCard(
-                title = { Text("Matrix Green") },
-                description = { Text("Classic green-on-black terminal look") },
-                startWidget = {
-                    RadioButton(
-                        modifier = Modifier.padding(start = 8.dp),
-                        selected = colorScheme == 3,
-                        onClick = {
-                            colorScheme = 3
-                            Settings.color_scheme = colorScheme
-                        }
-                    )
-                },
-                onClick = {
-                    colorScheme = 3
-                    Settings.color_scheme = colorScheme
-                }
-            )
-        }
 
         PreferenceGroup(heading = "Interface") {
             SettingsToggle(

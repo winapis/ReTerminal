@@ -107,7 +107,30 @@ object Settings {
         get() = Preference.getInt(key = "theme_variant", default = 0) // 0=auto, 1=light, 2=dark
         set(value) = Preference.setInt(key = "theme_variant", value)
 
+    // Root-related settings
+    var root_enabled
+        get() = Preference.getBoolean(key = "root_enabled", default = false)
+        set(value) = Preference.setBoolean(key = "root_enabled", value)
 
+    var root_provider
+        get() = Preference.getString(key = "root_provider", default = "none")
+        set(value) = Preference.setString(key = "root_provider", value)
+
+    var busybox_installed
+        get() = Preference.getBoolean(key = "busybox_installed", default = false)
+        set(value) = Preference.setBoolean(key = "busybox_installed", value)
+
+    var root_verified
+        get() = Preference.getBoolean(key = "root_verified", default = false)
+        set(value) = Preference.setBoolean(key = "root_verified", value)
+
+    var busybox_path
+        get() = Preference.getString(key = "busybox_path", default = "")
+        set(value) = Preference.setString(key = "busybox_path", value)
+
+    var use_root_mounts
+        get() = Preference.getBoolean(key = "use_root_mounts", default = false)
+        set(value) = Preference.setBoolean(key = "use_root_mounts", value)
 
 }
 

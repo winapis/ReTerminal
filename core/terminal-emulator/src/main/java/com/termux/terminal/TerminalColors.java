@@ -30,6 +30,18 @@ public final class TerminalColors {
     }
 
     /**
+     * Apply theme colors to terminal
+     * Call this method when the theme changes to update terminal colors
+     * 
+     * @param themeId The theme ID from ModernThemeManager
+     */
+    public static void applyTheme(int themeId) {
+        COLOR_SCHEME.applyThemeColors(themeId);
+        // Reset all terminal instances to use new colors
+        // This will be handled when terminals are refreshed
+    }
+
+    /**
      * Parse color according to http://manpages.ubuntu.com/manpages/intrepid/man3/XQueryColor.3.html
      * <p/>
      * Highest bit is set if successful, so return value is 0xFF${R}${G}${B}. Return 0 if failed.

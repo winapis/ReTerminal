@@ -56,7 +56,10 @@ fun Downloader(
                 "libtalloc.so.2" to abiMap[abi]!!.talloc,
                 "proot" to abiMap[abi]!!.proot,
                 "${selectedDistribution}.tar.gz" to abiMap[abi]!!.distributions[selectedDistribution]!!
-            ).map { (name, url) -> DownloadFile(url, Rootfs.reTerminal.child(name)) }
+            ).map { (name, url) -> 
+                // All files go directly in the files directory where init scripts expect them
+                DownloadFile(url, Rootfs.reTerminal.child(name))
+            }
 
             needsDownload = filesToDownload.any { !it.outputFile.exists() }
 

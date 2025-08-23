@@ -35,6 +35,7 @@ import com.rk.terminal.ui.navHosts.MainActivityNavHost
 import com.rk.terminal.ui.screens.terminal.TerminalScreen
 import com.rk.terminal.ui.screens.terminal.terminalView
 import com.rk.terminal.ui.theme.KarbonTheme
+import com.rk.terminal.ui.theme.ThemeState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.io.File
@@ -51,6 +52,9 @@ class MainActivity : ComponentActivity() {
             isBound = true
 
             lifecycleScope.launch(Dispatchers.Main){
+                // Initialize theme state
+                ThemeState.initialize()
+                
                 setContent {
                     KarbonTheme {
                         Surface {

@@ -10,6 +10,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import androidx.navigation.NavHostController
@@ -24,6 +25,10 @@ import com.rk.terminal.ui.screens.downloader.Downloader
 import com.rk.terminal.ui.screens.settings.Settings
 import com.rk.terminal.ui.screens.terminal.Rootfs
 import com.rk.terminal.ui.screens.terminal.TerminalScreen
+import com.rk.terminal.ui.screens.welcome.WelcomeScreen
+import com.rk.terminal.ui.screens.welcome.OnboardingScreen
+import com.rk.terminal.ui.screens.settings.ThemeSelectionScreen
+import com.rk.terminal.ui.theme.ModernThemeManager
 
 var showStatusBar = mutableStateOf(Settings.statusBar)
 var horizontal_statusBar = mutableStateOf(Settings.horizontal_statusBar)
@@ -66,14 +71,33 @@ fun UpdateStatusBar(mainActivityActivity: MainActivity,show: Boolean = true){
 
 @Composable
 fun MainActivityNavHost(modifier: Modifier = Modifier,navController: NavHostController,mainActivity: MainActivity) {
+    val context = LocalContext.current
+    
+    // Determine the start destination based on onboarding status
+    val startDestination = if (ModernThemeManager.isOnboardingCompleted(context)) {
+        MainActivityRoutes.MainScreen.route
+    } else {
+        MainActivityRoutes.Welcome.route
+    }
+    
     NavHost(
         navController = navController,
-        startDestination = MainActivityRoutes.MainScreen.route,
+        startDestination = startDestination,
         enterTransition = { NavigationAnimationTransitions.enterTransition },
         exitTransition = { NavigationAnimationTransitions.exitTransition },
         popEnterTransition = { NavigationAnimationTransitions.popEnterTransition },
         popExitTransition = { NavigationAnimationTransitions.popExitTransition },
     ) {
+
+        composable(MainActivityRoutes.Welcome.route) {
+            UpdateStatusBar(mainActivity, show = true)
+            WelcomeScreen(navController = navController)
+        }
+        
+        composable(MainActivityRoutes.Onboarding.route) {
+            UpdateStatusBar(mainActivity, show = true)
+            OnboardingScreen(navController = navController)
+        }
 
         composable(MainActivityRoutes.MainScreen.route) {
             if (Rootfs.isDownloaded.value){
@@ -96,6 +120,10 @@ fun MainActivityNavHost(modifier: Modifier = Modifier,navController: NavHostCont
         composable(MainActivityRoutes.Customization.route){
             UpdateStatusBar(mainActivity,show = true)
             Customization()
+        }
+        composable(MainActivityRoutes.ThemeSelection.route){
+            UpdateStatusBar(mainActivity,show = true)
+            ThemeSelectionScreen(navController = navController)
         }
     }
 }
