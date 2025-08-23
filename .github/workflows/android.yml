@@ -17,8 +17,6 @@ on:
   deployment:
   deployment_status:
   repository_dispatch:
-  workflow_call:
-  workflow_run:
 
 jobs:
  build-debug:
