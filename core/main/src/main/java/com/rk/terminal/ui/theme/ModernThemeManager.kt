@@ -2,7 +2,7 @@ package com.rk.terminal.ui.theme
 
 import android.content.Context
 import androidx.compose.ui.graphics.toArgb
-import com.rk.settings.Settings
+import com.rk.settings.SettingsManager
 
 /**
  * Modern theme manager for handling the new theme system
@@ -220,7 +220,7 @@ object ModernThemeManager {
      * Apply theme to the application
      */
     fun applyTheme(context: Context, themeId: Int) {
-        Settings.color_scheme = themeId
+        SettingsManager.Appearance.colorScheme = themeId
         ThemeState.updateTheme(themeId)
     }
     
@@ -232,7 +232,7 @@ object ModernThemeManager {
     /**
      * Get current theme info
      */
-    fun getCurrentTheme(): ThemeInfo = getThemeById(Settings.color_scheme) ?: getAllThemes()[0]
+    fun getCurrentTheme(): ThemeInfo = getThemeById(SettingsManager.Appearance.colorScheme) ?: getAllThemes()[0]
     
     /**
      * Check if onboarding was completed

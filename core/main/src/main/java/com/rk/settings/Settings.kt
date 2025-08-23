@@ -13,125 +13,136 @@ import com.rk.libcommons.application
 import com.rk.terminal.ui.screens.settings.WorkingMode
 import java.nio.charset.Charset
 
+/**
+ * Legacy Settings object maintained for backward compatibility
+ * @deprecated Use SettingsManager instead for new code
+ */
+@Deprecated("Use SettingsManager for new code", ReplaceWith("SettingsManager"))
 object Settings {
     //Boolean
 
     var amoled
-        get() = Preference.getBoolean(key = "oled", default = false)
-        set(value) = Preference.setBoolean(key = "oled",value)
+        get() = SettingsManager.Appearance.amoled
+        set(value) { SettingsManager.Appearance.amoled = value }
+        
     var monet
-        get() = Preference.getBoolean(
-            key = "monet",
-            default = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
-        )
-        set(value) = Preference.setBoolean(key = "monet",value)
+        get() = SettingsManager.Appearance.monet
+        set(value) { SettingsManager.Appearance.monet = value }
+        
     var ignore_storage_permission
-        get() = Preference.getBoolean(key = "ignore_storage_permission",default = false)
-        set(value) = Preference.setBoolean(key = "ignore_storage_permission",value)
+        get() = SettingsManager.System.ignoreStoragePermission
+        set(value) { SettingsManager.System.ignoreStoragePermission = value }
+        
     var github
-        get() = Preference.getBoolean(key = "github", default = true)
-        set(value) = Preference.setBoolean(key = "github",value)
-
+        get() = SettingsManager.System.githubIntegration
+        set(value) { SettingsManager.System.githubIntegration = value }
 
    var default_night_mode
-        get() = Preference.getInt(key = "default_night_mode", default = AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
-        set(value) = Preference.setInt(key = "default_night_mode",value)
+        get() = SettingsManager.Appearance.defaultNightMode
+        set(value) { SettingsManager.Appearance.defaultNightMode = value }
 
     var terminal_font_size
-        get() = Preference.getInt(key = "terminal_font_size", default = 13)
-        set(value) = Preference.setInt(key = "terminal_font_size",value)
+        get() = SettingsManager.Terminal.fontSize
+        set(value) { SettingsManager.Terminal.fontSize = value }
+        
     var working_Mode
-        get() = Preference.getInt(key = "workingMode", default = WorkingMode.ALPINE)
-        set(value) = Preference.setInt(key = "workingMode",value)
+        get() = SettingsManager.System.workingMode
+        set(value) { SettingsManager.System.workingMode = value }
 
     var custom_background_name
-        get() = Preference.getString(key = "custom_bg_name", default = "No Image Selected")
-        set(value) = Preference.setString(key = "custom_bg_name",value)
+        get() = SettingsManager.Terminal.customBackgroundName
+        set(value) { SettingsManager.Terminal.customBackgroundName = value }
     var custom_font_name
-        get() = Preference.getString(key = "custom_ttf_name", default = "No Font Selected")
-        set(value) = Preference.setString(key = "custom_ttf_name",value)
+        get() = SettingsManager.Terminal.customFontName
+        set(value) { SettingsManager.Terminal.customFontName = value }
 
     var blackTextColor
-        get() = Preference.getBoolean(key = "blackText", default = false)
-        set(value) = Preference.setBoolean(key = "blackText",value)
+        get() = SettingsManager.Terminal.blackTextColor
+        set(value) { SettingsManager.Terminal.blackTextColor = value }
 
     var bell
-        get() = Preference.getBoolean(key = "bell", default = false)
-        set(value) = Preference.setBoolean(key = "bell",value)
+        get() = SettingsManager.Feedback.bell
+        set(value) { SettingsManager.Feedback.bell = value }
 
     var vibrate
-        get() = Preference.getBoolean(key = "vibrate", default = true)
-        set(value) = Preference.setBoolean(key = "vibrate",value)
+        get() = SettingsManager.Feedback.vibrate
+        set(value) { SettingsManager.Feedback.vibrate = value }
 
     var toolbar
-        get() = Preference.getBoolean(key = "toolbar", default = true)
-        set(value) = Preference.setBoolean(key = "toolbar",value)
+        get() = SettingsManager.Interface.toolbar
+        set(value) { SettingsManager.Interface.toolbar = value }
 
     var statusBar
-        get() = Preference.getBoolean(key = "statusBar", default = true)
-        set(value) = Preference.setBoolean(key = "statusBar",value)
+        get() = SettingsManager.Interface.statusBar
+        set(value) { SettingsManager.Interface.statusBar = value }
 
     var horizontal_statusBar
-        get() = Preference.getBoolean(key = "horizontal_statusBar", default = true)
-        set(value) = Preference.setBoolean(key = "horizontal_statusBar",value)
+        get() = SettingsManager.Interface.horizontalStatusBar
+        set(value) { SettingsManager.Interface.horizontalStatusBar = value }
 
     var toolbar_in_horizontal
-        get() = Preference.getBoolean(key = "toolbar_h", default = true)
-        set(value) = Preference.setBoolean(key = "toolbar_h",value)
+        get() = SettingsManager.Interface.toolbarInHorizontal
+        set(value) { SettingsManager.Interface.toolbarInHorizontal = value }
 
     var virtualKeys
-        get() = Preference.getBoolean(key = "virtualKeys", default = true)
-        set(value) = Preference.setBoolean(key = "virtualKeys",value)
+        get() = SettingsManager.Interface.virtualKeys
+        set(value) { SettingsManager.Interface.virtualKeys = value }
 
     var hide_soft_keyboard_if_hwd
-        get() = Preference.getBoolean(key = "force_soft_keyboard", default = true)
-        set(value) = Preference.setBoolean(key = "force_soft_keyboard",value)
+        get() = SettingsManager.Interface.hideSoftKeyboardIfHardware
+        set(value) { SettingsManager.Interface.hideSoftKeyboardIfHardware = value }
 
     var graphics_acceleration
-        get() = Preference.getBoolean(key = "graphics_acceleration", default = false)
-        set(value) = Preference.setBoolean(key = "graphics_acceleration",value)
+        get() = SettingsManager.System.graphicsAcceleration
+        set(value) { SettingsManager.System.graphicsAcceleration = value }
 
     var terminal_opacity
-        get() = Preference.getFloat(key = "terminal_opacity", default = 1.0f)
-        set(value) = Preference.setFloat(key = "terminal_opacity", value)
+        get() = SettingsManager.Terminal.opacity
+        set(value) { SettingsManager.Terminal.opacity = value }
 
     var cursor_style
-        get() = Preference.getInt(key = "cursor_style", default = 0) // 0=block, 1=underline, 2=bar
-        set(value) = Preference.setInt(key = "cursor_style", value)
+        get() = SettingsManager.Terminal.cursorStyle
+        set(value) { SettingsManager.Terminal.cursorStyle = value }
 
     var color_scheme
-        get() = Preference.getInt(key = "color_scheme", default = 0) // 0=default, 1=monokai, 2=onedark, 3=dracula, 4=github_light
-        set(value) = Preference.setInt(key = "color_scheme", value)
+        get() = SettingsManager.Appearance.colorScheme
+        set(value) { SettingsManager.Appearance.colorScheme = value }
 
     var theme_variant
-        get() = Preference.getInt(key = "theme_variant", default = 0) // 0=auto, 1=light, 2=dark
-        set(value) = Preference.setInt(key = "theme_variant", value)
+        get() = SettingsManager.Appearance.themeVariant
+        set(value) { SettingsManager.Appearance.themeVariant = value }
 
     // Root-related settings
     var root_enabled
-        get() = Preference.getBoolean(key = "root_enabled", default = false)
-        set(value) = Preference.setBoolean(key = "root_enabled", value)
+        get() = SettingsManager.Root.enabled
+        set(value) { SettingsManager.Root.enabled = value }
 
     var root_provider
-        get() = Preference.getString(key = "root_provider", default = "none")
-        set(value) = Preference.setString(key = "root_provider", value)
+        get() = SettingsManager.Root.provider
+        set(value) { SettingsManager.Root.provider = value }
 
     var busybox_installed
-        get() = Preference.getBoolean(key = "busybox_installed", default = false)
-        set(value) = Preference.setBoolean(key = "busybox_installed", value)
+        get() = SettingsManager.Root.busyboxInstalled
+        set(value) { SettingsManager.Root.busyboxInstalled = value }
 
     var root_verified
-        get() = Preference.getBoolean(key = "root_verified", default = false)
-        set(value) = Preference.setBoolean(key = "root_verified", value)
+        get() = SettingsManager.Root.verified
+        set(value) { SettingsManager.Root.verified = value }
 
     var busybox_path
-        get() = Preference.getString(key = "busybox_path", default = "")
-        set(value) = Preference.setString(key = "busybox_path", value)
+        get() = SettingsManager.Root.busyboxPath
+        set(value) { SettingsManager.Root.busyboxPath = value }
 
     var use_root_mounts
-        get() = Preference.getBoolean(key = "use_root_mounts", default = false)
-        set(value) = Preference.setBoolean(key = "use_root_mounts", value)
+        get() = SettingsManager.Root.useMounts
+        set(value) { SettingsManager.Root.useMounts = value }
 
+    /**
+     * Initialize legacy settings compatibility layer
+     */
+    init {
+        SettingsManager.initialize()
+    }
 }
 
 object Preference {
