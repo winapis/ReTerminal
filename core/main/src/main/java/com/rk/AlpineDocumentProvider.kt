@@ -264,7 +264,8 @@ class AlpineDocumentProvider : DocumentsProvider() {
 
         private const val ALL_MIME_TYPES = "*/*"
 
-        private val BASE_DIR = alpineHomeDir()
+        private val BASE_DIR: File
+            get() = alpineHomeDir()
 
         // The default columns to return information about a root if no specific
         // columns are requested in a query.
