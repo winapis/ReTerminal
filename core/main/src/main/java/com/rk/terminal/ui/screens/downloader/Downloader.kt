@@ -57,12 +57,8 @@ fun Downloader(
                 "proot" to abiMap[abi]!!.proot,
                 "${selectedDistribution}.tar.gz" to abiMap[abi]!!.distributions[selectedDistribution]!!
             ).map { (name, url) -> 
-                if (name.endsWith(".tar.gz") || name.endsWith(".tar.xz")) {
-                    // Store distribution files in the files subdirectory for init-host.sh compatibility
-                    DownloadFile(url, Rootfs.reTerminal.child("files").child(name))
-                } else {
-                    DownloadFile(url, Rootfs.reTerminal.child(name))
-                }
+                // All files go directly in the files directory where init scripts expect them
+                DownloadFile(url, Rootfs.reTerminal.child(name))
             }
 
             needsDownload = filesToDownload.any { !it.outputFile.exists() }
