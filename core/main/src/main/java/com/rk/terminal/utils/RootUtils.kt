@@ -178,6 +178,7 @@ object RootUtils {
     
     /**
      * Get BusyBox binary path if available
+     * Only checks the three valid BusyBox paths as specified
      */
     suspend fun getBusyBoxPath(): String? = withContext(Dispatchers.IO) {
         val busyboxLocations = listOf(
@@ -191,12 +192,6 @@ object RootUtils {
             if (result.isSuccess && result.output.trim() == "found") {
                 return@withContext location
             }
-        }
-        
-        // Try busybox in PATH
-        val result = executeRootCommand("which busybox")
-        if (result.isSuccess && result.output.trim().isNotEmpty()) {
-            return@withContext result.output.trim()
         }
         
         return@withContext null
