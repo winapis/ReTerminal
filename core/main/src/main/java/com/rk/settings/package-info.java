@@ -1,4 +1,4 @@
-package com.rk.settings
+package com.rk.settings;
 
 /**
  * Settings categories and organization documentation

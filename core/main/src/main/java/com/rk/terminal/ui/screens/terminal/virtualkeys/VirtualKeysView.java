@@ -631,13 +631,14 @@ public final class VirtualKeysView extends GridLayout {
       
       // Get theme colors
       TypedValue typedValue = new TypedValue();
-      getContext().getTheme().resolveAttribute(androidx.appcompat.R.attr.colorSurface, typedValue, true);
+      // Use basic color attributes that are more widely available
+      getContext().getTheme().resolveAttribute(android.R.attr.colorBackground, typedValue, true);
       int surfaceColor = typedValue.data;
       
       getContext().getTheme().resolveAttribute(androidx.appcompat.R.attr.colorPrimary, typedValue, true);
       int primaryColor = typedValue.data;
       
-      getContext().getTheme().resolveAttribute(androidx.appcompat.R.attr.colorOnSurface, typedValue, true);
+      getContext().getTheme().resolveAttribute(android.R.attr.textColorPrimary, typedValue, true);
       int onSurfaceColor = typedValue.data;
       
       // Normal state drawable
@@ -742,7 +743,7 @@ public final class VirtualKeysView extends GridLayout {
       getContext().getTheme().resolveAttribute(androidx.appcompat.R.attr.colorPrimary, typedValue, true);
       button.setTextColor(typedValue.data);
     } else {
-      getContext().getTheme().resolveAttribute(androidx.appcompat.R.attr.colorOnSurface, typedValue, true);
+      getContext().getTheme().resolveAttribute(android.R.attr.textColorPrimary, typedValue, true);
       button.setTextColor(typedValue.data);
     }
     
