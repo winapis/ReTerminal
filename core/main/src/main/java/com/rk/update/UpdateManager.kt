@@ -8,19 +8,19 @@ import java.io.File
 
 class UpdateManager {
     fun onUpdate(){
-        val initFile: File = localBinDir().child("init-host")
+        val initFile: File = localBinDir().child("init-unified")
         if(initFile.exists()){
             initFile.delete()
         }
 
         if (initFile.exists().not()){
             initFile.createFileIfNot()
-            initFile.writeText(application!!.assets.open("init-host.sh").bufferedReader().use { it.readText() })
+            initFile.writeText(application!!.assets.open("init-unified.sh").bufferedReader().use { it.readText() })
         }
 
         // Update all distribution-specific init scripts
-        val initScripts = listOf("init", "init-alpine", "init-ubuntu", "init-debian", "init-arch", "init-kali")
-        val assetFiles = listOf("init.sh", "init-alpine.sh", "init-ubuntu.sh", "init-debian.sh", "init-arch.sh", "init-kali.sh")
+        val initScripts = listOf("init-alpine", "init-ubuntu", "init-debian", "init-arch", "init-kali")
+        val assetFiles = listOf("init-alpine.sh", "init-ubuntu.sh", "init-debian.sh", "init-arch.sh", "init-kali.sh")
         
         for (i in initScripts.indices) {
             val initFilex: File = localBinDir().child(initScripts[i])
