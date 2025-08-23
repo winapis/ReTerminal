@@ -16,22 +16,22 @@ import androidx.core.view.WindowInsetsControllerCompat
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import com.rk.settings.Settings
+import com.rk.settings.SettingsManager
 import com.rk.terminal.ui.activities.terminal.MainActivity
 import com.rk.terminal.ui.animations.NavigationAnimationTransitions
 import com.rk.terminal.ui.routes.MainActivityRoutes
-import com.rk.terminal.ui.screens.customization.Customization
+import com.rk.terminal.ui.screens.customization.ModernCustomizationScreen
 import com.rk.terminal.ui.screens.downloader.Downloader
-import com.rk.terminal.ui.screens.settings.Settings
+import com.rk.terminal.ui.screens.settings.ModernSettingsScreen
 import com.rk.terminal.ui.screens.terminal.Rootfs
 import com.rk.terminal.ui.screens.terminal.TerminalScreen
 import com.rk.terminal.ui.screens.welcome.WelcomeScreen
 import com.rk.terminal.ui.screens.welcome.OnboardingScreen
-import com.rk.terminal.ui.screens.settings.ThemeSelectionScreen
+import com.rk.terminal.ui.screens.settings.ModernThemeSelectionScreen
 import com.rk.terminal.ui.theme.ModernThemeManager
 
-var showStatusBar = mutableStateOf(Settings.statusBar)
-var horizontal_statusBar = mutableStateOf(Settings.horizontal_statusBar)
+var showStatusBar = mutableStateOf(SettingsManager.Interface.statusBar)
+var horizontal_statusBar = mutableStateOf(SettingsManager.Interface.horizontalStatusBar)
 
 fun showStatusBar(show: Boolean,window: Window){
     if (Build.VERSION.SDK_INT > Build.VERSION_CODES.Q){
@@ -115,15 +115,15 @@ fun MainActivityNavHost(modifier: Modifier = Modifier,navController: NavHostCont
         }
         composable(MainActivityRoutes.Settings.route) {
             UpdateStatusBar(mainActivity,show = true)
-            Settings(navController = navController, mainActivity = mainActivity)
+            ModernSettingsScreen(navController = navController, mainActivity = mainActivity)
         }
         composable(MainActivityRoutes.Customization.route){
             UpdateStatusBar(mainActivity,show = true)
-            Customization()
+            ModernCustomizationScreen()
         }
         composable(MainActivityRoutes.ThemeSelection.route){
             UpdateStatusBar(mainActivity,show = true)
-            ThemeSelectionScreen(navController = navController)
+            ModernThemeSelectionScreen(navController = navController)
         }
     }
 }
