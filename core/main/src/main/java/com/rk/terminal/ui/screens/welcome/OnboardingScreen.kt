@@ -22,7 +22,7 @@ import androidx.core.content.ContextCompat
 import androidx.navigation.NavController
 import com.rk.terminal.ui.theme.ModernThemeManager
 import com.rk.terminal.ui.routes.MainActivityRoutes
-import com.rk.settings.Settings
+import com.rk.settings.SettingsManager
 import com.rk.terminal.utils.RootUtils
 import com.rk.terminal.utils.RootProvider
 import kotlinx.coroutines.launch
@@ -324,7 +324,7 @@ private fun InitialSetupStep(
     onComplete: () -> Unit
 ) {
     val context = LocalContext.current
-    var selectedDistro by remember { mutableIntStateOf(Settings.working_Mode) }
+    var selectedDistro by remember { mutableIntStateOf(SettingsManager.System.workingMode) }
 
     Column(
         horizontalAlignment = Alignment.CenterHorizontally
@@ -391,7 +391,7 @@ private fun InitialSetupStep(
                             selected = selectedDistro == id,
                             onClick = { 
                                 selectedDistro = id
-                                Settings.working_Mode = id
+                                SettingsManager.System.workingMode = id
                             }
                         )
                         Text(
@@ -671,7 +671,7 @@ private fun RootConfigurationStep(
                 OutlinedButton(
                     onClick = {
                         // Continue without root
-                        Settings.root_enabled = false
+                        SettingsManager.Root.enabled = false
                         onNext()
                     },
                     modifier = Modifier.weight(1f)
@@ -695,16 +695,16 @@ private fun RootConfigurationStep(
                                     if (info.isRootAvailable) {
                                         rootCheckState = "found"
                                         // Save root configuration
-                                        Settings.root_enabled = true
-                                        Settings.root_verified = true
-                                        Settings.root_provider = info.rootProvider.name.lowercase()
-                                        Settings.busybox_installed = info.isBusyBoxInstalled
-                                        Settings.use_root_mounts = true
+                                        SettingsManager.Root.enabled = true
+                                        SettingsManager.Root.verified = true
+                                        SettingsManager.Root.provider = info.rootProvider.name.lowercase()
+                                        SettingsManager.Root.busyboxInstalled = info.isBusyBoxInstalled
+                                        SettingsManager.Root.useMounts = true
                                         
                                         // Save BusyBox path if available
                                         val busyboxPath = RootUtils.getBusyBoxPath()
                                         if (busyboxPath != null) {
-                                            Settings.busybox_path = busyboxPath
+                                            SettingsManager.Root.busyboxPath = busyboxPath
                                         }
                                     } else {
                                         rootCheckState = "not_found"
@@ -741,7 +741,7 @@ private fun RootConfigurationStep(
                             onNext()
                         } else if (rootCheckState == "not_found") {
                             // Ask if user wants to continue without root
-                            Settings.root_enabled = false
+                            SettingsManager.Root.enabled = false
                             onNext()
                         } else {
                             onNext()
@@ -817,7 +817,7 @@ private fun RootConfigurationStep(
             confirmButton = {
                 TextButton(onClick = { 
                     showRootWarningDialog = false
-                    Settings.root_enabled = false
+                    SettingsManager.Root.enabled = false
                     onNext()
                 }) {
                     Text("Sí, continuar sin root")

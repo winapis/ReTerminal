@@ -114,7 +114,7 @@ import com.rk.libcommons.dpToPx
 import com.rk.libcommons.localDir
 import com.rk.libcommons.pendingCommand
 import com.rk.resources.strings
-import com.rk.settings.Settings
+import com.rk.settings.SettingsManager
 import com.rk.terminal.ui.activities.terminal.MainActivity
 import com.rk.terminal.ui.components.SettingsToggle
 import com.rk.terminal.ui.routes.MainActivityRoutes
@@ -141,7 +141,7 @@ var terminalView = WeakReference<TerminalView?>(null)
 var virtualKeysView = WeakReference<VirtualKeysView?>(null)
 
 
-var darkText = mutableStateOf(Settings.blackTextColor)
+var darkText = mutableStateOf(SettingsManager.Terminal.blackTextColor)
 var bitmap = mutableStateOf<ImageBitmap?>(null)
 
 private val file = application!!.filesDir.child("font.ttf")
@@ -175,9 +175,9 @@ fun getComposeColor():androidx.compose.ui.graphics.Color{
     }
 }
 
-var showToolbar = mutableStateOf(Settings.toolbar)
-var showVirtualKeys = mutableStateOf(Settings.virtualKeys)
-var showHorizontalToolbar = mutableStateOf(Settings.toolbar)
+var showToolbar = mutableStateOf(SettingsManager.Interface.toolbar)
+var showVirtualKeys = mutableStateOf(SettingsManager.Interface.virtualKeys)
+var showHorizontalToolbar = mutableStateOf(SettingsManager.Interface.toolbar)
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -327,7 +327,7 @@ fun TerminalScreen(
         var showAddDialog by remember { mutableStateOf(false) }
 
         // Function to create a new terminal session
-        fun createSession(workingMode: Int = Settings.working_Mode) {
+        fun createSession(workingMode: Int = SettingsManager.System.workingMode) {
             fun generateUniqueString(existingStrings: List<String>): String {
                 var index = 1
                 var newString: String
@@ -723,7 +723,7 @@ fun TerminalScreen(
                                             terminalView = WeakReference(this)
                                             setTextSize(
                                                 dpToPx(
-                                                    Settings.terminal_font_size.toFloat(),
+                                                    SettingsManager.Terminal.fontSize.toFloat(),
                                                     context
                                                 )
                                             )
@@ -738,7 +738,7 @@ fun TerminalScreen(
                                                     ?: mainActivityActivity.sessionBinder!!.createSession(
                                                         pendingCommand!!.id,
                                                         client,
-                                                        mainActivityActivity, workingMode = Settings.working_Mode
+                                                        mainActivityActivity, workingMode = SettingsManager.System.workingMode
                                                     )
                                             } else {
                                                 mainActivityActivity.sessionBinder!!.getSession(
@@ -747,7 +747,7 @@ fun TerminalScreen(
                                                     ?: mainActivityActivity.sessionBinder!!.createSession(
                                                         mainActivityActivity.sessionBinder!!.getService().currentSession.value.first,
                                                         client,
-                                                        mainActivityActivity,workingMode = Settings.working_Mode
+                                                        mainActivityActivity,workingMode = SettingsManager.System.workingMode
                                                     )
                                             }
 
@@ -934,7 +934,7 @@ fun changeSession(mainActivityActivity: MainActivity, session_id: String) {
                 ?: mainActivityActivity.sessionBinder!!.createSession(
                     session_id,
                     client,
-                    mainActivityActivity,workingMode = Settings.working_Mode
+                    mainActivityActivity,workingMode = SettingsManager.System.workingMode
                 )
         session.updateTerminalSessionClient(client)
         attachSession(session)
