@@ -271,7 +271,7 @@ fun Settings(modifier: Modifier = Modifier,navController: NavController,mainActi
                 SettingsCard(
                     title = { Text("Root Provider") },
                     description = { Text(RootUtils.formatRootProviderName(Settings.root_provider)) },
-                    onClick = { }
+                    onClick = { VibrationUtil.vibrateButton(context) }
                 )
                 
                 SettingsCard(
@@ -285,17 +285,20 @@ fun Settings(modifier: Modifier = Modifier,navController: NavController,mainActi
                             }
                         )
                     },
-                    onClick = { }
+                    onClick = { VibrationUtil.vibrateButton(context) }
                 )
                 
                 PreferenceSwitch(
                     label = "Use Root Mounts",
-                    description = "Enable enhanced filesystem mounts and bindings",
+                    description = "Enable enhanced filesystem mounts and bindings. Changes apply to new terminal sessions.",
                     checked = Settings.use_root_mounts,
                     enabled = Settings.root_enabled,
                     onCheckedChange = { enabled ->
+                        VibrationUtil.vibrateAction(context)
                         Settings.use_root_mounts = enabled
-                        // TODO: Apply root mount changes immediately to running containers
+                        if (enabled) {
+                            VibrationUtil.vibrateSuccess(context)
+                        }
                     }
                 )
             }
@@ -342,6 +345,7 @@ fun Settings(modifier: Modifier = Modifier,navController: NavController,mainActi
             confirmButton = {
                 TextButton(
                     onClick = { 
+                        VibrationUtil.vibrateError(context)
                         Settings.root_enabled = false
                         Settings.use_root_mounts = false
                         showRootWarningDialog = false
@@ -351,7 +355,10 @@ fun Settings(modifier: Modifier = Modifier,navController: NavController,mainActi
                 }
             },
             dismissButton = {
-                TextButton(onClick = { showRootWarningDialog = false }) {
+                TextButton(onClick = { 
+                    VibrationUtil.vibrateButton(context)
+                    showRootWarningDialog = false 
+                }) {
                     Text("Cancel")
                 }
             }

@@ -22,6 +22,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.rk.terminal.ui.theme.ModernThemeManager
 import com.rk.terminal.ui.theme.ThemeState
+import com.rk.terminal.utils.VibrationUtil
 import com.rk.settings.Settings
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -66,6 +67,7 @@ fun ThemeSelectionScreen(
                     theme = allThemes[0], // System theme
                     isSelected = selectedTheme == 0,
                     onClick = {
+                        VibrationUtil.vibrateAction(context)
                         selectedTheme = 0
                         ThemeState.updateTheme(0)
                         ModernThemeManager.applyTheme(context, 0)
@@ -86,6 +88,7 @@ fun ThemeSelectionScreen(
                     theme = theme,
                     isSelected = selectedTheme == theme.id,
                     onClick = {
+                        VibrationUtil.vibrateAction(context)
                         selectedTheme = theme.id
                         ThemeState.updateTheme(theme.id)
                         ModernThemeManager.applyTheme(context, theme.id)
@@ -106,6 +109,7 @@ fun ThemeSelectionScreen(
                     theme = theme,
                     isSelected = selectedTheme == theme.id,
                     onClick = {
+                        VibrationUtil.vibrateAction(context)
                         selectedTheme = theme.id
                         ThemeState.updateTheme(theme.id)
                         ModernThemeManager.applyTheme(context, theme.id)
