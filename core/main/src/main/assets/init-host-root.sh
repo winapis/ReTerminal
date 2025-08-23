@@ -75,6 +75,12 @@ extract_distribution() {
         log_message "Standard extraction failed, trying with hard link conversion..."
         if ! tar -xf "$PREFIX/files/$ROOTFS_FILE" -C "$DISTRIBUTION_DIR" $TAR_OPTS --hard-dereference 2>/dev/null; then
             log_message "Hard link conversion failed, trying without link preservation..."
+            # Final attempt: ignore link creation errors and use app-writable temp directory
+            # Ensure we have a writable temp directory
+            if [ -z "$TMPDIR" ] || [ ! -w "$TMPDIR" ]; then
+                TMPDIR="$PREFIX/tmp"
+                mkdir -p "$TMPDIR"
+            fi
             TAR_LOG_FILE="${TMPDIR}/tar_errors.log"
             if ! tar -xf "$PREFIX/files/$ROOTFS_FILE" -C "$DISTRIBUTION_DIR" $TAR_OPTS --warning=no-file-ignored 2>"$TAR_LOG_FILE"; then
                 echo "Error: Failed to extract rootfs from $PREFIX/files/$ROOTFS_FILE"
