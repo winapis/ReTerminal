@@ -6,9 +6,6 @@
 # Set basic variables
 DISTRIBUTION_DIR=$PREFIX/local/distribution
 ROOT_ENABLED=${ROOT_ENABLED:-false}
-ROOT_VERIFIED=${ROOT_VERIFIED:-false}
-USE_ROOT_MOUNTS=${USE_ROOT_MOUNTS:-false}
-BUSYBOX_PATH=${BUSYBOX_PATH:-}
 
 # Create necessary directories
 mkdir -p $DISTRIBUTION_DIR
@@ -198,11 +195,11 @@ else
     ARGS="$ARGS -b /sys"
 
     # Setup /dev/shm
-    if [ ! -d "$PREFIX/local/distribution/tmp" ]; then
-     mkdir -p "$PREFIX/local/distribution/tmp"
-     chmod 1777 "$PREFIX/local/distribution/tmp"
+    if [ ! -d "$DISTRIBUTION_DIR/dev/shm" ]; then
+     mkdir -p "$DISTRIBUTION_DIR/dev/shm"
+     chmod 1777 "$DISTRIBUTION_DIR/dev/shm"
     fi
-    ARGS="$ARGS -b $PREFIX/local/distribution/tmp:/dev/shm"
+    ARGS="$ARGS -b $DISTRIBUTION_DIR/dev/shm:/dev/shm"
 
     # Final proot arguments
     ARGS="$ARGS -r $PREFIX/local/distribution -0 --link2symlink --sysvipc -L"
