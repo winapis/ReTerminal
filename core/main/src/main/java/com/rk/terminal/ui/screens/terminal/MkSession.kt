@@ -91,6 +91,11 @@ object MkSession {
                 WorkingMode.KALI -> "kali"
                 else -> "alpine" // Default fallback
             }
+            
+            // Debug: Log the selected distribution
+            if (BuildConfig.DEBUG) {
+                android.util.Log.d("MkSession", "Selected distribution: $selectedDistribution (working mode: $workingMode)")
+            }
 
             // Handle graphics acceleration setting
             val distributionDir = localDir().child("distribution")

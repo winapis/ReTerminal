@@ -33,6 +33,10 @@ if [ -n "$SELECTED_DISTRIBUTION" ]; then
         DISTRIBUTION_NAME="$SELECTED_DISTRIBUTION"
     else
         echo "Warning: Selected distribution '$SELECTED_DISTRIBUTION' not found, falling back to available distributions"
+        echo "Debug: Searching for '$SELECTED_DISTRIBUTION' in $PREFIX/files/"
+        echo "Debug: Files in $PREFIX/files/:"
+        ls -la "$PREFIX/files/" 2>/dev/null || echo "  - Directory not found or not accessible"
+        echo "Debug: Looking for: ${SELECTED_DISTRIBUTION}.tar.gz or ${SELECTED_DISTRIBUTION}.tar.xz"
     fi
 fi
 
