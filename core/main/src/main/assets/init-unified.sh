@@ -7,6 +7,10 @@
 DISTRIBUTION_DIR=$PREFIX/local/distribution
 ROOT_ENABLED=${ROOT_ENABLED:-false}
 
+# Export standard environment variables
+export PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/share/bin:/usr/share/sbin:/usr/local/bin:/usr/local/sbin:/system/bin:/system/xbin
+export HOME=/root
+
 # Create necessary directories
 mkdir -p $DISTRIBUTION_DIR
 mkdir -p $PREFIX/local/bin
@@ -173,7 +177,7 @@ if [ "$ROOT_ENABLED" = "true" ]; then
     su -c "busybox mount --bind /dev $DISTRIBUTION_DIR/dev"
     su -c "busybox mount --bind /sys $DISTRIBUTION_DIR/sys"
     su -c "busybox mount --bind /proc $DISTRIBUTION_DIR/proc"
-    su -c "busybox mount -t devpts devpts $DISTRIBUTION_DIR/dev/pts"
+    su -c "busybox mount --bind /dev/pts $DISTRIBUTION_DIR/dev/pts"
 
     # /dev/shm for Electron apps - ensure directory exists and has correct permissions
     if [ -d "$DISTRIBUTION_DIR/dev/shm" ]; then
