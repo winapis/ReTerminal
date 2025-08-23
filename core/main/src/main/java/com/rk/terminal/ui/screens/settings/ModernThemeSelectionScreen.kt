@@ -48,7 +48,7 @@ fun ModernThemeSelectionScreen(navController: NavController) {
                     // Theme variant toggle
                     var showVariantMenu by remember { mutableStateOf(false) }
                     IconButton(onClick = { showVariantMenu = true }) {
-                        Icon(Icons.Default.Tune, contentDescription = "Theme options")
+                        Icon(Icons.Default.Build, contentDescription = "Theme options")
                     }
                     
                     DropdownMenu(
@@ -221,7 +221,7 @@ private fun DynamicThemingSection() {
                 modifier = Modifier.padding(bottom = 8.dp)
             ) {
                 Icon(
-                    imageVector = Icons.Default.Palette,
+                    imageVector = Icons.Default.Star,
                     contentDescription = null,
                     tint = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.size(24.dp)

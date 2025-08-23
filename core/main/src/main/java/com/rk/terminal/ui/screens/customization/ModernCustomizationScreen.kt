@@ -115,7 +115,7 @@ fun ModernCustomizationScreen(modifier: Modifier = Modifier) {
 private fun TerminalAppearanceSection() {
     CustomizationCard(
         title = "Terminal Appearance",
-        icon = Icons.Default.Computer
+        icon = Icons.Default.Settings
     ) {
         // Terminal font size
         var fontSize by remember { mutableFloatStateOf(SettingsManager.Terminal.fontSize.toFloat()) }
@@ -130,7 +130,7 @@ private fun TerminalAppearanceSection() {
                     onValueChange = { newSize ->
                         fontSize = newSize
                         SettingsManager.Terminal.fontSize = newSize.toInt()
-                        terminalView?.textSize = newSize.toInt()
+                        terminalView.get()?.setTextSize(newSize.toInt())
                     },
                     valueRange = MIN_TEXT_SIZE..MAX_TEXT_SIZE,
                     steps = 10,
@@ -157,7 +157,7 @@ private fun TerminalAppearanceSection() {
                     onValueChange = { newOpacity ->
                         terminalOpacity = newOpacity
                         SettingsManager.Terminal.opacity = newOpacity
-                        terminalView?.alpha = newOpacity
+                        terminalView.get()?.alpha = newOpacity
                     },
                     valueRange = 0.3f..1.0f,
                     modifier = Modifier.fillMaxWidth()
@@ -180,15 +180,15 @@ private fun TerminalAppearanceSection() {
             Row(
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                CursorStyleOption("Block", Icons.Default.CropSquare, 0, cursorStyle) { 
+                CursorStyleOption("Block", Icons.Default.Check, 0, cursorStyle) { 
                     cursorStyle = it
                     SettingsManager.Terminal.cursorStyle = it
                 }
-                CursorStyleOption("Underline", Icons.Default.HorizontalRule, 1, cursorStyle) { 
+                CursorStyleOption("Underline", Icons.Default.Add, 1, cursorStyle) { 
                     cursorStyle = it
                     SettingsManager.Terminal.cursorStyle = it
                 }
-                CursorStyleOption("Bar", Icons.Default.Rectangle, 2, cursorStyle) { 
+                CursorStyleOption("Bar", Icons.Default.MoreVert, 2, cursorStyle) { 
                     cursorStyle = it
                     SettingsManager.Terminal.cursorStyle = it
                 }
@@ -215,7 +215,7 @@ private fun FontTypographySection() {
     
     CustomizationCard(
         title = "Font & Typography",
-        icon = Icons.Default.FontDownload
+        icon = Icons.Default.Edit
     ) {
         val fontPickerLauncher = rememberLauncherForActivityResult(
             contract = ActivityResultContracts.GetContent()
@@ -237,7 +237,9 @@ private fun FontTypographySection() {
                         IconButton(
                             onClick = {
                                 SettingsManager.Terminal.customFontName = "No Font Selected"
-                                setFont(null)
+                                scope.launch {
+                                    setFont(Typeface.DEFAULT)
+                                }
                             }
                         ) {
                             Icon(Icons.Outlined.Delete, contentDescription = "Remove font")
@@ -256,7 +258,7 @@ private fun FontTypographySection() {
 private fun InterfaceElementsSection() {
     CustomizationCard(
         title = "Interface Elements",
-        icon = Icons.Default.Widgets
+        icon = Icons.Default.Menu
     ) {
         PreferenceSwitch(
             label = "Status Bar",
@@ -314,7 +316,7 @@ private fun InterfaceElementsSection() {
 private fun VisualEffectsSection() {
     CustomizationCard(
         title = "Visual Effects",
-        icon = Icons.Default.AutoFixHigh
+        icon = Icons.Default.Star
     ) {
         PreferenceSwitch(
             label = "Graphics Acceleration",
@@ -345,7 +347,7 @@ private fun VisualEffectsSection() {
 private fun FeedbackSettingsSection() {
     CustomizationCard(
         title = "Feedback",
-        icon = Icons.Default.Vibration
+        icon = Icons.Default.Notifications
     ) {
         PreferenceSwitch(
             label = "Bell Sound",
@@ -367,7 +369,7 @@ private fun FeedbackSettingsSection() {
 private fun AdvancedCustomizationSection() {
     CustomizationCard(
         title = "Advanced",
-        icon = Icons.Default.SettingsApplications
+        icon = Icons.Default.Settings
     ) {
         PreferenceSwitch(
             label = "Hide Soft Keyboard",
@@ -518,10 +520,3 @@ private fun getFileName(contentResolver: ContentResolver, uri: Uri): String? {
     return name
 }
 
-/**
- * Legacy Customization composable for backward compatibility
- */
-@Composable
-fun Customization(modifier: Modifier = Modifier) {
-    ModernCustomizationScreen(modifier = modifier)
-}
