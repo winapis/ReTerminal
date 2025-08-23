@@ -141,15 +141,24 @@ echo "127.0.0.1 localhost" > "$DISTRIBUTION_DIR/etc/hosts"
 if [ "$ROOT_ENABLED" = "true" ]; then
     log_message "Configuring root environment..."
     
+    # Ensure critical directories exist before mounting
     su -c "mkdir -p $DISTRIBUTION_DIR/dev/shm"
+    su -c "mkdir -p $DISTRIBUTION_DIR/dev/pts"
+    su -c "mkdir -p $DISTRIBUTION_DIR/tmp"
+    
     su -c "busybox mount -o remount,dev,suid /data"
     su -c "busybox mount --bind /dev $DISTRIBUTION_DIR/dev"
     su -c "busybox mount --bind /sys $DISTRIBUTION_DIR/sys"
     su -c "busybox mount --bind /proc $DISTRIBUTION_DIR/proc"
     su -c "busybox mount -t devpts devpts $DISTRIBUTION_DIR/dev/pts"
 
-    # /dev/shm for Electron apps
-    su -c "busybox mount -t tmpfs -o size=256M tmpfs $DISTRIBUTION_DIR/dev/shm"
+    # /dev/shm for Electron apps - ensure directory exists and has correct permissions
+    if [ -d "$DISTRIBUTION_DIR/dev/shm" ]; then
+        su -c "chmod 1777 $DISTRIBUTION_DIR/dev/shm"
+        su -c "busybox mount -t tmpfs -o size=256M tmpfs $DISTRIBUTION_DIR/dev/shm" || log_message "Warning: Could not mount tmpfs on /dev/shm"
+    else
+        log_message "Warning: Could not create /dev/shm directory"
+    fi
 
     # Create necessary groups
     su -c "chroot $DISTRIBUTION_DIR groupadd -g 3003 aid_inet" 2>/dev/null || true
@@ -163,9 +172,34 @@ fi
 
 ## --- Boot logic ---
 if [ "$ROOT_ENABLED" = "true" ]; then
-    # Start distro with chroot and root
+    # Ensure the distribution-specific init script is copied into the chroot environment
+    INIT_SCRIPT="init-$DISTRIBUTION_NAME"
+    if [ ! -f "$PREFIX/local/bin/$INIT_SCRIPT" ]; then
+        echo "Error: Distribution init script not found at $PREFIX/local/bin/$INIT_SCRIPT"
+        echo "Available scripts:"
+        ls -la "$PREFIX/local/bin/init"* 2>/dev/null || echo "  - No init scripts found"
+        exit 1
+    fi
+    
+    # Copy the distribution script into the chroot environment
+    cp "$PREFIX/local/bin/$INIT_SCRIPT" "$DISTRIBUTION_DIR/tmp/$INIT_SCRIPT"
+    chmod +x "$DISTRIBUTION_DIR/tmp/$INIT_SCRIPT"
+    
+    # Mount SDCard for root users
+    if [ -d "/sdcard" ]; then
+        su -c "mkdir -p $DISTRIBUTION_DIR/root/sdcard"
+        su -c "busybox mount --bind /sdcard $DISTRIBUTION_DIR/root/sdcard" 2>/dev/null || log_message "Warning: Could not mount SDCard"
+    fi
+    
+    # Start distro with chroot and root, then execute distribution script
     log_message "Starting $DISTRIBUTION_NAME environment with chroot (root mode)..."
-    su -c "busybox chroot $DISTRIBUTION_DIR /bin/su - root"
+    if [ "$#" -eq 0 ]; then
+        # No arguments passed, run the distribution script for configuration then start shell
+        su -c "busybox chroot $DISTRIBUTION_DIR /tmp/$INIT_SCRIPT && /bin/su - root"
+    else
+        # Arguments passed, run the distribution script then execute the command
+        su -c "busybox chroot $DISTRIBUTION_DIR /tmp/$INIT_SCRIPT '$@'"
+    fi
 else
     # Setup proot arguments for non-root mode
     ARGS="--kill-on-exit -w /"
