@@ -15,6 +15,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 
+@OptIn(kotlinx.coroutines.DelicateCoroutinesApi::class)
 class LoadingPopup(private val ctx: Activity, hideAfterMillis: Long?,scope: CoroutineScope = GlobalScope) {
     private var dialog: AlertDialog? = null
     private lateinit var dialogView: View

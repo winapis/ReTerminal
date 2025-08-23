@@ -8,7 +8,7 @@ import android.os.VibratorManager
 import android.view.HapticFeedbackConstants
 import android.view.View
 import androidx.annotation.RequiresApi
-import com.rk.settings.Settings
+import com.rk.settings.SettingsManager
 
 /**
  * Utility class for handling vibration and haptic feedback throughout the app
@@ -29,7 +29,7 @@ object VibrationUtil {
      * Perform vibration with specified pattern
      */
     fun vibrate(context: Context, pattern: VibrationPattern = VibrationPattern.LIGHT) {
-        if (!Settings.vibrate) return
+        if (!SettingsManager.Feedback.vibrate) return
         
         try {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -46,7 +46,7 @@ object VibrationUtil {
      * Perform haptic feedback on a view
      */
     fun performHapticFeedback(view: View?, pattern: VibrationPattern = VibrationPattern.LIGHT): Boolean {
-        if (!Settings.vibrate || view == null) return false
+        if (!SettingsManager.Feedback.vibrate || view == null) return false
         
         return try {
             // First try system vibration for more precise control

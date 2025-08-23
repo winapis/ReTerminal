@@ -16,7 +16,7 @@ import com.rk.terminal.ui.activities.terminal.MainActivity
 import com.rk.terminal.ui.screens.terminal.Rootfs
 import com.rk.terminal.ui.screens.terminal.TerminalScreen
 import com.rk.terminal.ui.screens.settings.WorkingMode
-import com.rk.settings.Settings
+import com.rk.settings.SettingsManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -44,7 +44,7 @@ fun Downloader(
                 it in abiMap
             } ?: throw RuntimeException("Unsupported CPU")
 
-            val selectedDistribution = when (Settings.working_Mode) {
+            val selectedDistribution = when (SettingsManager.System.workingMode) {
                 WorkingMode.UBUNTU -> "ubuntu"
                 WorkingMode.DEBIAN -> "debian"
                 WorkingMode.ARCH -> "arch"

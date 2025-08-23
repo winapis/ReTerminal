@@ -14,6 +14,7 @@ import androidx.core.app.NotificationCompat
 import com.rk.resources.drawables
 import com.rk.resources.strings
 import com.rk.terminal.ui.activities.terminal.MainActivity
+import com.rk.settings.SettingsManager
 import com.rk.terminal.ui.screens.settings.Settings
 import com.rk.terminal.ui.screens.terminal.MkSession
 import com.termux.terminal.TerminalSession
@@ -23,7 +24,7 @@ import okhttp3.internal.wait
 class SessionService : Service() {
     private val sessions = hashMapOf<String, TerminalSession>()
     val sessionList = mutableStateMapOf<String,Int>()
-    var currentSession = mutableStateOf(Pair("main",com.rk.settings.Settings.working_Mode))
+    var currentSession = mutableStateOf(Pair("main",SettingsManager.System.workingMode))
 
     inner class SessionBinder : Binder() {
         fun getService():SessionService{
