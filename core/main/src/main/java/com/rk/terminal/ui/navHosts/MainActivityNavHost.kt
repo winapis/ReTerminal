@@ -16,7 +16,7 @@ import androidx.core.view.WindowInsetsControllerCompat
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import com.rk.settings.Settings
+import com.rk.settings.SettingsManager
 import com.rk.terminal.ui.activities.terminal.MainActivity
 import com.rk.terminal.ui.animations.NavigationAnimationTransitions
 import com.rk.terminal.ui.routes.MainActivityRoutes
@@ -30,8 +30,8 @@ import com.rk.terminal.ui.screens.welcome.OnboardingScreen
 import com.rk.terminal.ui.screens.settings.ThemeSelectionScreen
 import com.rk.terminal.ui.theme.ModernThemeManager
 
-var showStatusBar = mutableStateOf(Settings.statusBar)
-var horizontal_statusBar = mutableStateOf(Settings.horizontal_statusBar)
+var showStatusBar = mutableStateOf(SettingsManager.Interface.statusBar)
+var horizontal_statusBar = mutableStateOf(SettingsManager.Interface.horizontalStatusBar)
 
 fun showStatusBar(show: Boolean,window: Window){
     if (Build.VERSION.SDK_INT > Build.VERSION_CODES.Q){

@@ -50,7 +50,6 @@ import com.rk.components.compose.preferences.switch.PreferenceSwitch
 import com.rk.libcommons.child
 import com.rk.libcommons.createFileIfNot
 import com.rk.libcommons.dpToPx
-import com.rk.settings.Settings
 import com.rk.settings.SettingsManager
 import com.rk.terminal.ui.components.InfoBlock
 import com.rk.terminal.ui.components.SettingsToggle
@@ -78,7 +77,7 @@ fun Customization(modifier: Modifier = Modifier) {
     val context = LocalContext.current
 
     PreferenceLayout(label = "Customizations") {
-        var sliderPosition by remember { mutableFloatStateOf(Settings.terminal_font_size.toFloat()) }
+        var sliderPosition by remember { mutableFloatStateOf(SettingsManager.Terminal.fontSize.toFloat()) }
         PreferenceGroup {
             PreferenceTemplate(title = { Text("Text Size") }) {
                 Text(sliderPosition.toInt().toString())
@@ -89,7 +88,7 @@ fun Customization(modifier: Modifier = Modifier) {
                     value = sliderPosition,
                     onValueChange = {
                         sliderPosition = it
-                        Settings.terminal_font_size = it.toInt()
+                        SettingsManager.Terminal.fontSize = it.toInt()
                         terminalView.get()?.setTextSize(dpToPx(it.toFloat(), context))
                     },
                     steps = (max_text_size - min_text_size).toInt() - 1,
@@ -141,7 +140,7 @@ fun Customization(modifier: Modifier = Modifier) {
             var fontName by remember { mutableStateOf(if (!fontExists || !font.canRead()){
                 "No Font Selected"
             }else{
-                Settings.custom_font_name
+                SettingsManager.Terminal.customFontName
             }) }
 
             val fontLauncher = rememberLauncherForActivityResult(
@@ -157,7 +156,7 @@ fun Customization(modifier: Modifier = Modifier) {
                         }
 
                         val name = getFileNameFromUri(context,uri).toString()
-                        Settings.custom_font_name = name
+                        SettingsManager.Terminal.customFontName = name
                         fontName = name
                         fontExists = font.exists()
                         setFont(Typeface.createFromFile(font))
@@ -184,7 +183,7 @@ fun Customization(modifier: Modifier = Modifier) {
                             scope.launch{
                                 font.delete()
                                 fontName = "No Font Selected"
-                                Settings.custom_font_name = "No Font Selected"
+                                SettingsManager.Terminal.customFontName = "No Font Selected"
                                 setFont(Typeface.MONOSPACE)
                                 fontExists = font.exists()
                             }
@@ -209,7 +208,7 @@ fun Customization(modifier: Modifier = Modifier) {
             var backgroundName by remember { mutableStateOf(if (!imageExists || !image.canRead()){
                 "No Image Selected"
             }else{
-                Settings.custom_background_name
+                SettingsManager.Terminal.customBackgroundName
             }) }
 
 
@@ -227,7 +226,7 @@ fun Customization(modifier: Modifier = Modifier) {
                         }
 
                         val name = getFileNameFromUri(context,uri).toString()
-                        Settings.custom_background_name = name
+                        SettingsManager.Terminal.customBackgroundName = name
                         backgroundName = name
 
 
@@ -244,7 +243,7 @@ fun Customization(modifier: Modifier = Modifier) {
                                     val dominantColor = palette?.getDominantColor(android.graphics.Color.WHITE)
                                     val luminance = androidx.core.graphics.ColorUtils.calculateLuminance(dominantColor ?: android.graphics.Color.WHITE)
                                     val blackText = luminance > 0.5f
-                                    Settings.blackTextColor = blackText
+                                    SettingsManager.Terminal.blackTextColor = blackText
                                     darkText.value = blackText
                                 }
                             }
@@ -276,7 +275,7 @@ fun Customization(modifier: Modifier = Modifier) {
                         IconButton(onClick = {
                             scope.launch{
                                 image.delete()
-                                Settings.custom_background_name = "No Image Selected"
+                                SettingsManager.Terminal.customBackgroundName = "No Image Selected"
                                 backgroundName = "No Image Selected"
                                 darkText.value = !darkMode
                                 imageExists = image.exists()
@@ -294,20 +293,20 @@ fun Customization(modifier: Modifier = Modifier) {
 
         PreferenceGroup(heading = "Visual Appearance") {
             
-            SettingsToggle(label = "Bell", description = "Play bell sound", showSwitch = true, default = Settings.bell, sideEffect = {
-                Settings.bell = it
+            SettingsToggle(label = "Bell", description = "Play bell sound", showSwitch = true, default = SettingsManager.Feedback.bell, sideEffect = {
+                SettingsManager.Feedback.bell = it
             })
 
-            SettingsToggle(label = "Vibrate", description = "Virtual keypad vibration", showSwitch = true, default = Settings.vibrate, sideEffect = {
-                Settings.vibrate = it
+            SettingsToggle(label = "Vibrate", description = "Virtual keypad vibration", showSwitch = true, default = SettingsManager.Feedback.vibrate, sideEffect = {
+                SettingsManager.Feedback.vibrate = it
             })
             
-            SettingsToggle(label = "Graphics Acceleration", description = "Enable OpenGL/Vulkan acceleration in Linux distributions", showSwitch = true, default = Settings.graphics_acceleration, sideEffect = {
-                Settings.graphics_acceleration = it
+            SettingsToggle(label = "Graphics Acceleration", description = "Enable OpenGL/Vulkan acceleration in Linux distributions", showSwitch = true, default = SettingsManager.System.graphicsAcceleration, sideEffect = {
+                SettingsManager.System.graphicsAcceleration = it
             })
 
             // Add terminal transparency option
-            var terminalOpacity by remember { mutableFloatStateOf(Settings.terminal_opacity) }
+            var terminalOpacity by remember { mutableFloatStateOf(SettingsManager.Terminal.opacity) }
             PreferenceTemplate(title = { Text("Terminal Opacity") }) {
                 Text("${(terminalOpacity * 100).toInt()}%")
             }
@@ -317,7 +316,7 @@ fun Customization(modifier: Modifier = Modifier) {
                     value = terminalOpacity,
                     onValueChange = {
                         terminalOpacity = it
-                        Settings.terminal_opacity = it
+                        SettingsManager.Terminal.opacity = it
                     },
                     onValueChangeFinished = {
                         // Apply opacity only when user finishes dragging for better performance
@@ -329,7 +328,7 @@ fun Customization(modifier: Modifier = Modifier) {
             }
 
             // Add cursor style options
-            var cursorStyle by remember { mutableIntStateOf(Settings.cursor_style) }
+            var cursorStyle by remember { mutableIntStateOf(SettingsManager.Terminal.cursorStyle) }
             PreferenceTemplate(
                 title = { Text("Cursor Style") },
                 description = { 
@@ -348,7 +347,7 @@ fun Customization(modifier: Modifier = Modifier) {
                 },
                 modifier = Modifier.clickable {
                     cursorStyle = (cursorStyle + 1) % 3
-                    Settings.cursor_style = cursorStyle
+                    SettingsManager.Terminal.cursorStyle = cursorStyle
                 }
             )
         }
@@ -360,8 +359,8 @@ fun Customization(modifier: Modifier = Modifier) {
                 label = "StatusBar",
                 description = "Show statusbar",
                 showSwitch = true,
-                default = Settings.statusBar, sideEffect = {
-                    Settings.statusBar = it
+                default = SettingsManager.Interface.statusBar, sideEffect = {
+                    SettingsManager.Interface.statusBar = it
                     showStatusBar.value = it
                 })
 
@@ -369,8 +368,8 @@ fun Customization(modifier: Modifier = Modifier) {
                 label = "Horizontal StatusBar",
                 description = "Show statusbar in horizontal mode",
                 showSwitch = true,
-                default = Settings.horizontal_statusBar, sideEffect = {
-                    Settings.horizontal_statusBar = it
+                default = SettingsManager.Interface.horizontalStatusBar, sideEffect = {
+                    SettingsManager.Interface.horizontalStatusBar = it
                     horizontal_statusBar.value = it
                 })
 
@@ -381,14 +380,14 @@ fun Customization(modifier: Modifier = Modifier) {
                         setTitle("Attention")
                         setMessage("Turning off the toolbar may prevent the drawer from opening on some devices. If this happens, you'll need to clear the app data to fix it.");
                         setPositiveButton("OK"){_,_ ->
-                            Settings.toolbar = it
+                            SettingsManager.Interface.toolbar = it
                             showToolbar.value = it
                         }
                         setNegativeButton("Cancel",null)
                         show()
                     }
                 }else{
-                    Settings.toolbar = it
+                    SettingsManager.Interface.toolbar = it
                     showToolbar.value = it
                 }
 
@@ -411,16 +410,16 @@ fun Customization(modifier: Modifier = Modifier) {
                 label = "Horizontal TitleBar",
                 description = "Show ToolBar in horizontal mode",
                 showSwitch = true,
-                default = Settings.toolbar_in_horizontal, sideEffect = {
-                    Settings.toolbar_in_horizontal = it
+                default = SettingsManager.Interface.toolbarInHorizontal, sideEffect = {
+                    SettingsManager.Interface.toolbarInHorizontal = it
                     showHorizontalToolbar.value = it
                 })
             SettingsToggle(
                 label = "Virtual Keys",
                 description = "Show virtual keys below terminal",
                 showSwitch = true,
-                default = Settings.virtualKeys, sideEffect = {
-                    Settings.virtualKeys = it
+                default = SettingsManager.Interface.virtualKeys, sideEffect = {
+                    SettingsManager.Interface.virtualKeys = it
                     showVirtualKeys.value = it
                 })
 
@@ -428,8 +427,8 @@ fun Customization(modifier: Modifier = Modifier) {
                 label = "Hide soft Keyboard",
                 description = "Hide virtual keyboard if hardware keyboard is connected",
                 showSwitch = true,
-                default = Settings.hide_soft_keyboard_if_hwd, sideEffect = {
-                    Settings.hide_soft_keyboard_if_hwd = it
+                default = SettingsManager.Interface.hideSoftKeyboardIfHardware, sideEffect = {
+                    SettingsManager.Interface.hideSoftKeyboardIfHardware = it
                 })
 
         }
