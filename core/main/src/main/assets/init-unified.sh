@@ -39,18 +39,21 @@ if [ -n "$SELECTED_DISTRIBUTION" ]; then
     if [ -n "$FOUND_FILE" ]; then
         ROOTFS_FILE="$FOUND_FILE"
         DISTRIBUTION_NAME="$SELECTED_DISTRIBUTION"
+        log_message "Using selected distribution: $SELECTED_DISTRIBUTION"
     else
-        echo "Warning: Selected distribution '$SELECTED_DISTRIBUTION' not found, falling back to available distributions"
+        echo "Error: Selected distribution '$SELECTED_DISTRIBUTION' not found!"
+        echo "Available files in $PREFIX/files/:"
+        ls -la "$PREFIX/files/" 2>/dev/null || echo "  - Directory not found"
+        exit 1
     fi
-fi
-
-# If no valid selection found, fall back to checking available files
-if [ -z "$DISTRIBUTION_NAME" ]; then
+else
+    # If no specific distribution selected, check available files in order
     for dist in alpine ubuntu debian arch kali; do
         FOUND_FILE=$(find_distribution_file "$dist")
         if [ -n "$FOUND_FILE" ]; then
             ROOTFS_FILE="$FOUND_FILE"
             DISTRIBUTION_NAME="$dist"
+            log_message "Auto-detected distribution: $dist"
             break
         fi
     done
@@ -145,7 +148,8 @@ else
     else
         log_message "Existing installation does not match selected distribution ($DISTRIBUTION_NAME)"
         log_message "Clearing existing installation and extracting correct distribution..."
-        rm -rf "$DISTRIBUTION_DIR"/*
+        # Ensure complete cleanup of existing distribution
+        rm -rf "$DISTRIBUTION_DIR"
         mkdir -p "$DISTRIBUTION_DIR"
         extract_distribution
         touch "$SILENT_MODE_FILE"
@@ -191,20 +195,6 @@ if [ "$ROOT_ENABLED" = "true" ]; then
     su -c "chroot $DISTRIBUTION_DIR groupadd -g 3003 aid_inet" 2>/dev/null || true
     su -c "chroot $DISTRIBUTION_DIR groupadd -g 3004 aid_net_raw" 2>/dev/null || true
     su -c "chroot $DISTRIBUTION_DIR groupadd -g 1003 aid_graphics" 2>/dev/null || true
-
-    # Adjust user permissions
-    su -c "chroot $DISTRIBUTION_DIR usermod -g 3003 -G 3003,3004 -a _apt" 2>/dev/null || true
-    su -c "chroot $DISTRIBUTION_DIR usermod -G 3003 -a root" 2>/dev/null || true
-    
-    # Fix APT permissions for _apt user to resolve package management issues
-    if su -c "chroot $DISTRIBUTION_DIR id _apt" >/dev/null 2>&1; then
-        log_message "Configuring APT permissions for _apt user..."
-        su -c "chroot $DISTRIBUTION_DIR mkdir -p /var/lib/apt/lists/partial" 2>/dev/null || true
-        su -c "chroot $DISTRIBUTION_DIR mkdir -p /var/cache/apt/archives/partial" 2>/dev/null || true
-        su -c "chroot $DISTRIBUTION_DIR mkdir -p /var/log/apt" 2>/dev/null || true
-        su -c "chroot $DISTRIBUTION_DIR chown -R _apt:root /var/lib/apt /var/cache/apt /var/log/apt" 2>/dev/null || true
-        su -c "chroot $DISTRIBUTION_DIR chmod -R 755 /var/lib/apt /var/cache/apt /var/log/apt" 2>/dev/null || true
-    fi
 fi
 
 ## --- Boot logic ---
