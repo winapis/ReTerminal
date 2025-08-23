@@ -28,6 +28,7 @@ import com.rk.resources.strings
 import com.rk.settings.SettingsManager
 import com.rk.terminal.ui.activities.terminal.MainActivity
 import com.rk.terminal.ui.components.SettingsToggle
+import kotlinx.coroutines.CoroutineScope
 import com.rk.terminal.ui.routes.MainActivityRoutes
 import com.rk.terminal.utils.RootUtils
 import com.rk.terminal.utils.VibrationUtil
@@ -110,13 +111,13 @@ fun ModernSettingsScreen(
                     SettingsCategory(
                         title = "Theme Selection",
                         description = "Choose your preferred color scheme",
-                        icon = Icons.Default.Palette,
+                        icon = Icons.Default.Star,
                         route = MainActivityRoutes.ThemeSelection.route
                     ),
                     SettingsCategory(
                         title = "Visual Customization",
                         description = "Fonts, transparency, and visual settings",
-                        icon = Icons.Default.Tune,
+                        icon = Icons.Default.Build,
                         route = MainActivityRoutes.Customization.route
                     )
                 ),
@@ -290,12 +291,12 @@ private fun WorkingModeSection(
             )
             
             val workingModes = listOf(
-                WorkingMode.ALPINE to "Alpine Linux" to "Lightweight Linux distribution",
-                WorkingMode.UBUNTU to "Ubuntu" to "Ubuntu Linux ARM64",
-                WorkingMode.DEBIAN to "Debian" to "Debian Linux ARM64",
-                WorkingMode.ARCH to "Arch Linux" to "Arch Linux ARM64",
-                WorkingMode.KALI to "Kali Linux" to "Kali Linux ARM64",
-                WorkingMode.ANDROID to "Android" to "ReTerminal Android shell"
+                Triple(WorkingMode.ALPINE, "Alpine Linux", "Lightweight Linux distribution"),
+                Triple(WorkingMode.UBUNTU, "Ubuntu", "Ubuntu Linux ARM64"),
+                Triple(WorkingMode.DEBIAN, "Debian", "Debian Linux ARM64"),
+                Triple(WorkingMode.ARCH, "Arch Linux", "Arch Linux ARM64"),
+                Triple(WorkingMode.KALI, "Kali Linux", "Kali Linux ARM64"),
+                Triple(WorkingMode.ANDROID, "Android", "ReTerminal Android shell")
             )
             
             workingModes.forEachIndexed { index, (mode, name, description) ->
