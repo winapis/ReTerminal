@@ -7,6 +7,10 @@
 DISTRIBUTION_DIR=$PREFIX/local/distribution
 ROOT_ENABLED=${ROOT_ENABLED:-false}
 
+# Export standard environment variables
+export PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/share/bin:/usr/share/sbin:/usr/local/bin:/usr/local/sbin:/system/bin:/system/xbin
+export HOME=/root
+
 # Create necessary directories
 mkdir -p $DISTRIBUTION_DIR
 mkdir -p $PREFIX/local/bin
@@ -35,18 +39,21 @@ if [ -n "$SELECTED_DISTRIBUTION" ]; then
     if [ -n "$FOUND_FILE" ]; then
         ROOTFS_FILE="$FOUND_FILE"
         DISTRIBUTION_NAME="$SELECTED_DISTRIBUTION"
+        log_message "Using selected distribution: $SELECTED_DISTRIBUTION"
     else
-        echo "Warning: Selected distribution '$SELECTED_DISTRIBUTION' not found, falling back to available distributions"
+        echo "Error: Selected distribution '$SELECTED_DISTRIBUTION' not found!"
+        echo "Available files in $PREFIX/files/:"
+        ls -la "$PREFIX/files/" 2>/dev/null || echo "  - Directory not found"
+        exit 1
     fi
-fi
-
-# If no valid selection found, fall back to checking available files
-if [ -z "$DISTRIBUTION_NAME" ]; then
+else
+    # If no specific distribution selected, check available files in order
     for dist in alpine ubuntu debian arch kali; do
         FOUND_FILE=$(find_distribution_file "$dist")
         if [ -n "$FOUND_FILE" ]; then
             ROOTFS_FILE="$FOUND_FILE"
             DISTRIBUTION_NAME="$dist"
+            log_message "Auto-detected distribution: $dist"
             break
         fi
     done
@@ -86,7 +93,26 @@ extract_distribution() {
         exit 1
     fi
     
-    log_message "Successfully extracted $DISTRIBUTION_NAME rootfs"
+    # Verify distribution extraction created expected directory structure
+    log_message "Verifying distribution structure in $DISTRIBUTION_DIR..."
+    expected_dirs="bin etc usr var root home dev sys proc tmp"
+    missing_dirs=""
+    
+    for dir in $expected_dirs; do
+        if [ ! -d "$DISTRIBUTION_DIR/$dir" ]; then
+            missing_dirs="$missing_dirs $dir"
+        fi
+    done
+    
+    if [ -n "$missing_dirs" ]; then
+        log_message "Warning: Some expected directories are missing:$missing_dirs"
+        log_message "Creating missing critical directories..."
+        for dir in $missing_dirs; do
+            mkdir -p "$DISTRIBUTION_DIR/$dir" 2>/dev/null || true
+        done
+    fi
+    
+    log_message "Successfully extracted $DISTRIBUTION_NAME rootfs to $DISTRIBUTION_DIR"
 }
 
 # Function to verify existing distribution matches selected one
@@ -109,16 +135,21 @@ if [ -z "$(ls -A "$DISTRIBUTION_DIR" 2>/dev/null)" ]; then
     extract_distribution
     touch "$SILENT_MODE_FILE"
     log_message "$DISTRIBUTION_NAME installation completed"
+    log_message "Distribution content in $DISTRIBUTION_DIR:"
+    ls -la "$DISTRIBUTION_DIR" 2>/dev/null || log_message "Could not list distribution directory"
 else
     if verify_existing_distribution; then
         if [ ! -f "$SILENT_MODE_FILE" ]; then
             log_message "Using existing $DISTRIBUTION_NAME installation"
+            log_message "Distribution content in $DISTRIBUTION_DIR:"
+            ls -la "$DISTRIBUTION_DIR" 2>/dev/null || log_message "Could not list distribution directory"
             touch "$SILENT_MODE_FILE"
         fi
     else
         log_message "Existing installation does not match selected distribution ($DISTRIBUTION_NAME)"
         log_message "Clearing existing installation and extracting correct distribution..."
-        rm -rf "$DISTRIBUTION_DIR"/*
+        # Ensure complete cleanup of existing distribution
+        rm -rf "$DISTRIBUTION_DIR"
         mkdir -p "$DISTRIBUTION_DIR"
         extract_distribution
         touch "$SILENT_MODE_FILE"
@@ -141,31 +172,61 @@ echo "127.0.0.1 localhost" > "$DISTRIBUTION_DIR/etc/hosts"
 if [ "$ROOT_ENABLED" = "true" ]; then
     log_message "Configuring root environment..."
     
+    # Ensure critical directories exist before mounting
     su -c "mkdir -p $DISTRIBUTION_DIR/dev/shm"
+    su -c "mkdir -p $DISTRIBUTION_DIR/dev/pts"
+    su -c "mkdir -p $DISTRIBUTION_DIR/tmp"
+    
     su -c "busybox mount -o remount,dev,suid /data"
     su -c "busybox mount --bind /dev $DISTRIBUTION_DIR/dev"
     su -c "busybox mount --bind /sys $DISTRIBUTION_DIR/sys"
     su -c "busybox mount --bind /proc $DISTRIBUTION_DIR/proc"
-    su -c "busybox mount -t devpts devpts $DISTRIBUTION_DIR/dev/pts"
+    su -c "busybox mount --bind /dev/pts $DISTRIBUTION_DIR/dev/pts"
 
-    # /dev/shm for Electron apps
-    su -c "busybox mount -t tmpfs -o size=256M tmpfs $DISTRIBUTION_DIR/dev/shm"
+    # /dev/shm for Electron apps - ensure directory exists and has correct permissions
+    if [ -d "$DISTRIBUTION_DIR/dev/shm" ]; then
+        su -c "chmod 1777 $DISTRIBUTION_DIR/dev/shm"
+        su -c "busybox mount -t tmpfs -o size=256M tmpfs $DISTRIBUTION_DIR/dev/shm" || log_message "Warning: Could not mount tmpfs on /dev/shm"
+    else
+        log_message "Warning: Could not create /dev/shm directory"
+    fi
 
     # Create necessary groups
     su -c "chroot $DISTRIBUTION_DIR groupadd -g 3003 aid_inet" 2>/dev/null || true
     su -c "chroot $DISTRIBUTION_DIR groupadd -g 3004 aid_net_raw" 2>/dev/null || true
     su -c "chroot $DISTRIBUTION_DIR groupadd -g 1003 aid_graphics" 2>/dev/null || true
-
-    # Adjust user permissions
-    su -c "chroot $DISTRIBUTION_DIR usermod -g 3003 -G 3003,3004 -a _apt" 2>/dev/null || true
-    su -c "chroot $DISTRIBUTION_DIR usermod -G 3003 -a root" 2>/dev/null || true
 fi
 
 ## --- Boot logic ---
 if [ "$ROOT_ENABLED" = "true" ]; then
-    # Start distro with chroot and root
+    # Ensure the distribution-specific init script is copied into the chroot environment
+    INIT_SCRIPT="init-$DISTRIBUTION_NAME"
+    if [ ! -f "$PREFIX/local/bin/$INIT_SCRIPT" ]; then
+        echo "Error: Distribution init script not found at $PREFIX/local/bin/$INIT_SCRIPT"
+        echo "Available scripts:"
+        ls -la "$PREFIX/local/bin/init"* 2>/dev/null || echo "  - No init scripts found"
+        exit 1
+    fi
+    
+    # Copy the distribution script into the chroot environment
+    cp "$PREFIX/local/bin/$INIT_SCRIPT" "$DISTRIBUTION_DIR/tmp/$INIT_SCRIPT"
+    chmod +x "$DISTRIBUTION_DIR/tmp/$INIT_SCRIPT"
+    
+    # Mount SDCard for root users
+    if [ -d "/sdcard" ]; then
+        su -c "mkdir -p $DISTRIBUTION_DIR/root/sdcard"
+        su -c "busybox mount --bind /sdcard $DISTRIBUTION_DIR/root/sdcard" 2>/dev/null || log_message "Warning: Could not mount SDCard"
+    fi
+    
+    # Start distro with chroot and root, then execute distribution script
     log_message "Starting $DISTRIBUTION_NAME environment with chroot (root mode)..."
-    su -c "busybox chroot $DISTRIBUTION_DIR /bin/su - root"
+    if [ "$#" -eq 0 ]; then
+        # No arguments passed, run the distribution script for configuration then start shell
+        su -c "busybox chroot $DISTRIBUTION_DIR /tmp/$INIT_SCRIPT && /bin/su - root"
+    else
+        # Arguments passed, run the distribution script then execute the command
+        su -c "busybox chroot $DISTRIBUTION_DIR /tmp/$INIT_SCRIPT '$@'"
+    fi
 else
     # Setup proot arguments for non-root mode
     ARGS="--kill-on-exit -w /"
