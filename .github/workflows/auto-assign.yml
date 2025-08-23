@@ -319,31 +319,15 @@ jobs:
             @copilot Please perform a comprehensive code review focusing on:
             
             1. **Code Quality & Standards**
-               - Python PEP 8 compliance
                - Code structure and organization
                - Error handling and edge cases
-            
-            2. **DumprX Specific Checks**
-               - Firmware extraction logic integrity
-               - Performance impact assessment
-               - Configuration management compatibility
-            
-            3. **Security & Reliability**
-               - Input validation and sanitization
-               - Resource management and cleanup
-               - Potential security vulnerabilities
-            
-            4. **Integration & Testing**
-               - Compatibility with existing workflows
-               - Test coverage requirements
-               - Documentation updates needed
             
             ⚡ **Auto-merge Configuration:**
             - Auto-merge will be enabled after successful review and CI checks
             - Squash merge method will be used for clean history
             
             ---
-            *Automated assignment by DumprX Auto-Assign workflow*`;
+            *Automated assignment by ReTerminal Auto-Assign workflow*`;
             
             try {
               await github.rest.issues.createComment({
