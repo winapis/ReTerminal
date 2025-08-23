@@ -1,0 +1,130 @@
+# Advanced Configuration for auto-assign-action
+# This configures intelligent assignment rules for pull requests and issues
+# with enhanced Copilot integration and automated workflows
+
+# Primary assignees to add to new pull requests and issues
+addAssignees:
+  - Eduardob3677
+  - github-copilot[bot]  # GitHub Copilot as assignee
+
+# Reviewers to add to new pull requests
+addReviewers:
+  - Eduardob3677
+  - github-copilot[bot]  # GitHub Copilot as reviewer
+
+# Team reviewers (if using GitHub teams)
+# addTeamReviewers:
+#   - winapis/core-team
+
+# Reviews to request for new pull requests
+addReviewRequests:
+  - Eduardob3677
+  - github-copilot[bot]  # GitHub Copilot review requests
+
+# Labels to add automatically based on content and type
+addLabels:
+  - copilot
+  - auto-assigned
+  - needs-review
+  - copilot-automation
+  - ai-assisted
+
+# Keywords that skip auto assignment (if found in title/body)
+skipKeywords:
+  - wip
+  - draft
+  - "[skip assign]"
+  - "[no assign]"
+  - "work in progress"
+
+# Advanced path-based assignment and labeling
+filterLabels:
+  "python-core": 
+    - "*.py"
+    - "requirements.txt" 
+    - "setup.py"
+    - "utils/**"
+  "workflows": 
+    - ".github/workflows/*"
+    - ".github/*"
+  "documentation": 
+    - "*.md"
+    - "docs/**"
+    - "README*"
+  "configuration":
+    - "*.conf"
+    - "*.config"
+    - "*.yml"
+    - "*.yaml"
+  "firmware-tools":
+    - "dumper.py"
+    - "utils/downloaders/**"
+
+# Advanced assignment rules based on file patterns
+assignees:
+  "*.py":
+    - Eduardob3677
+    - github-copilot[bot]
+  ".github/**":
+    - Eduardob3677
+    - github-copilot[bot]
+  "dumper.py":
+    - Eduardob3677
+    - github-copilot[bot]
+
+# Reviewers based on expertise areas
+reviewers:
+  "*.py":
+    - Eduardob3677
+    - github-copilot[bot]
+  ".github/workflows/*":
+    - Eduardob3677
+    - github-copilot[bot]
+
+# Advanced options for intelligent assignment
+options:
+  # Enable auto-assignment for both issues and PRs
+  addAssignees: true
+  addReviewers: true
+  addLabels: true
+  
+  # Skip draft PRs from auto-assignment
+  skipDraft: true
+  
+  # Skip assignment on weekends (optional)
+  # skipWeekends: true
+  
+  # Enable advanced filtering and intelligent assignment
+  useAssignmentMessages: true
+  
+  # Number of assignees to add (max)
+  numberOfAssignees: 2
+  
+  # Number of reviewers to add (max)  
+  numberOfReviewers: 2
+
+# Custom messages for different scenarios
+messages:
+  assignMessage: |
+    👋 @{assignee} and @github-copilot have been automatically assigned to this {type}.
+    🤖 GitHub Copilot integration is enabled for enhanced AI assistance.
+  
+  reviewMessage: |
+    📝 @{reviewer} and @github-copilot have been automatically requested to review this pull request.
+    ⚡ Auto-merge is enabled pending approval and successful CI checks.
+
+# Conditional assignment based on issue/PR properties
+conditions:
+  # Only assign if certain labels are NOT present
+  skipLabels:
+    - "external"
+    - "third-party"
+    - "community"
+  
+  # Only assign to specific file extensions
+  includeExtensions:
+    - ".py"
+    - ".yml" 
+    - ".yaml"
+    - ".md"
+    - ".conf"
