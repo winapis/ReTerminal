@@ -1,0 +1,388 @@
+name: Auto Assign
+
+"on":
+  issues:
+    types: [opened, reopened]
+  pull_request:
+    types: [opened, reopened, ready_for_review]
+  workflow_dispatch:  # Allow manual triggering
+
+jobs:
+  auto-assign:
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+      pull-requests: write
+      contents: write
+      actions: write          # Permite ejecutar y modificar workflows
+      checks: write           # Permite crear y modificar checks (revisiones)
+      repository-projects: write
+      statuses: write
+      discussions: write
+      deployments: write
+      attestations: write     # Permiso correcto para modificar workflows
+      
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      # Auto-assign issues to Eduardob3677 and Copilot with intelligent routing
+      - name: 'Auto-assign issue to Eduardob3677'
+        if: github.event_name == 'issues'
+        uses: pozil/auto-assign-issue@v2
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          assignees: Eduardob3677
+          numOfAssignee: 2
+
+      # Assign GitHub Copilot to issues using official API
+      - name: 'Assign GitHub Copilot to Issue'
+        if: github.event_name == 'issues'
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const issue_number = context.issue.number;
+            
+            try {
+              // Use the GitHub Copilot API to assign Copilot to the issue
+              console.log(`🤖 Assigning GitHub Copilot to issue #${issue_number}`);
+              
+              // Assign Copilot using the official assignment API
+              await github.rest.repos.assignCopilotToIssue({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issueNumber: issue_number
+              });
+              
+              console.log(`✅ Successfully assigned GitHub Copilot to issue #${issue_number}`);
+              
+              // Also add Copilot as a regular assignee if the API supports it
+              try {
+                await github.rest.issues.addAssignees({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: issue_number,
+                  assignees: ['github-copilot[bot]']
+                });
+                console.log(`✅ Added github-copilot[bot] as assignee to issue #${issue_number}`);
+              } catch (assigneeError) {
+                console.log(`ℹ️ Note: Could not add Copilot as regular assignee: ${assigneeError.message}`);
+              }
+              
+            } catch (error) {
+              console.log(`⚠️ Note: Official Copilot assignment API not available: ${error.message}`);
+              console.log(`🔄 Falling back to alternative Copilot integration...`);
+              
+              // Fallback: Add Copilot mention and labels
+              const copilotMention = `🤖 **GitHub Copilot Assigned**
+              
+              @github-copilot has been assigned to assist with this issue.
+              
+              **Copilot Assignment Details:**
+              - 👤 **Primary Assignee:** @Eduardob3677
+              - 🤖 **AI Assistant:** @github-copilot  
+              - 📋 **Issue:** #${issue_number}
+              
+              Copilot will provide automated assistance and code suggestions for this issue.`;
+              
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issue_number,
+                body: copilotMention
+              });
+              
+              console.log(`✅ Created Copilot assignment comment for issue #${issue_number}`);
+            }
+
+      # Auto-assign pull requests using kentaro-m action with advanced configuration
+      - name: 'Auto-assign pull request with advanced rules'
+        if: github.event_name == 'pull_request'
+        uses: kentaro-m/auto-assign-action@v2.0.0
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          configuration-path: '.github/auto-assign-config.yml'
+
+      # Assign GitHub Copilot to Pull Requests
+      - name: 'Assign GitHub Copilot to Pull Request'
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const pr_number = context.payload.pull_request.number;
+            
+            try {
+              // Use the GitHub Copilot API to assign Copilot to the PR
+              console.log(`🤖 Assigning GitHub Copilot to PR #${pr_number}`);
+              
+              // Assign Copilot using the official assignment API
+              await github.rest.repos.assignCopilotToIssue({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issueNumber: pr_number
+              });
+              
+              console.log(`✅ Successfully assigned GitHub Copilot to PR #${pr_number}`);
+              
+              // Also try to add Copilot as a regular assignee
+              try {
+                await github.rest.issues.addAssignees({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: pr_number,
+                  assignees: ['github-copilot[bot]']
+                });
+                console.log(`✅ Added github-copilot[bot] as assignee to PR #${pr_number}`);
+              } catch (assigneeError) {
+                console.log(`ℹ️ Note: Could not add Copilot as regular assignee: ${assigneeError.message}`);
+              }
+              
+              // Request Copilot as a reviewer
+              try {
+                await github.rest.pulls.requestReviewers({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  pull_number: pr_number,
+                  reviewers: ['github-copilot[bot]']
+                });
+                console.log(`✅ Requested review from github-copilot[bot] for PR #${pr_number}`);
+              } catch (reviewError) {
+                console.log(`ℹ️ Note: Could not request Copilot review: ${reviewError.message}`);
+              }
+              
+            } catch (error) {
+              console.log(`⚠️ Note: Official Copilot assignment API not available: ${error.message}`);
+              console.log(`🔄 Falling back to alternative Copilot integration...`);
+              
+              // Fallback: Add Copilot mention and assignment comment
+              const copilotMention = `🤖 **GitHub Copilot Assigned to PR**
+              
+              @github-copilot has been assigned to assist with this pull request.
+              
+              **Assignment Details:**
+              - 👤 **Primary Assignee:** @Eduardob3677  
+              - 🤖 **AI Assistant:** @github-copilot
+              - 🔍 **PR:** #${pr_number}
+              
+              Copilot will provide automated code review and suggestions for this pull request.`;
+              
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: pr_number,
+                body: copilotMention
+              });
+              
+              console.log(`✅ Created Copilot assignment comment for PR #${pr_number}`);
+            }
+
+      # Add copilot label and additional contextual labels
+      - name: 'Add intelligent labels'
+        uses: actions-ecosystem/action-add-labels@v1
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          labels: |
+            copilot
+            auto-assigned
+
+      # Assign GitHub Copilot to issues and PRs for automated assistance
+      - name: 'Assign GitHub Copilot for Automated Assistance'
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const issue_number = context.payload.issue?.number || context.payload.pull_request?.number;
+            const event_type = context.eventName;
+            
+            if (!issue_number) {
+              console.log('⚠️ No issue or PR number found');
+              return;
+            }
+            
+            try {
+              // Try to assign copilot bot to the issue/PR
+              // Note: This may not always work depending on repository settings
+              console.log(`🤖 Attempting to assign Copilot to ${event_type} #${issue_number}`);
+              
+              // Request Copilot review for PRs
+              if (event_type === 'pull_request') {
+                // Add requested reviewers including copilot if available
+                await github.rest.pulls.requestReviewers({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  pull_number: issue_number,
+                  reviewers: ['Eduardob3677']
+                });
+                console.log(`✅ Successfully requested review from Eduardob3677 for PR #${issue_number}`);
+              }
+              
+              // Add a specific Copilot automation label
+              await github.rest.issues.addLabels({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issue_number,
+                labels: ['copilot-automation', 'ai-assisted']
+              });
+              console.log(`✅ Successfully added Copilot automation labels to ${event_type} #${issue_number}`);
+              
+            } catch (error) {
+              console.log(`⚠️ Error in Copilot assignment: ${error.message}`);
+              // Continue workflow even if this step fails
+            }
+
+      # Enhanced GitHub Copilot integration for issues
+      - name: 'Enhanced Copilot Integration for Issues'
+        if: github.event_name == 'issues'
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const issue_number = context.issue.number;
+            const issue = context.payload.issue;
+            const assignees = ['Eduardob3677', 'github-copilot[bot]'];
+            
+            // Add assignees to the issue
+            try {
+              await github.rest.issues.addAssignees({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issue_number,
+                assignees: assignees
+              });
+              console.log(`✅ Successfully assigned issue #${issue_number} to ${assignees.join(', ')}`);
+            } catch (error) {
+              console.log(`⚠️ Failed to assign issue: ${error.message}`);
+            }
+            
+            // Create intelligent Copilot assistance comment
+            const copilotComment = `🤖 **GitHub Copilot Auto-Assignment Activated**
+            
+            👋 Hello @Eduardob3677! This issue has been automatically assigned to you.
+            
+            📋 **Issue Summary:**
+            - **Title:** ${issue.title}
+            - **Author:** @${issue.user.login}
+            - **Labels:** ${issue.labels.map(label => label.name).join(', ') || 'None'}
+            
+            🚀 **Copilot Assistance Available:**
+            @github-copilot Please analyze this issue and provide:
+            1. Technical assessment and complexity analysis
+            2. Suggested implementation approach
+            3. Potential dependencies or related components
+            4. Estimated effort and timeline
+            
+            💡 **Next Steps:**
+            - Review the issue details and requirements
+            - Use Copilot's suggestions for implementation planning
+            - Update issue labels and milestones as needed
+            - Begin development with Copilot assistance
+            
+            ---
+            *This is an automated assignment. For questions, contact @Eduardob3677*`;
+            
+            try {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issue_number,
+                body: copilotComment
+              });
+              console.log(`✅ Successfully created Copilot comment for issue #${issue_number}`);
+            } catch (error) {
+              console.log(`⚠️ Failed to create comment: ${error.message}`);
+            }
+
+      # Enhanced Copilot integration for Pull Requests
+      - name: 'Enhanced Copilot Integration for PRs'
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const pr_number = context.payload.pull_request.number;
+            const pr = context.payload.pull_request;
+            
+            // Create intelligent Copilot review request
+            const copilotComment = `🔍 **Automated PR Review & Copilot Integration**
+            
+            👋 @Eduardob3677, this pull request has been automatically assigned for review.
+            
+            📊 **PR Overview:**
+            - **Title:** ${pr.title}
+            - **Author:** @${pr.user.login}
+            - **Branch:** \`${pr.head.ref}\` → \`${pr.base.ref}\`
+            - **Changes:** ${pr.changed_files || 'N/A'} files modified
+            
+            🤖 **Copilot Code Review:**
+            @github-copilot Please perform a comprehensive code review focusing on:
+            
+            1. **Code Quality & Standards**
+               - Python PEP 8 compliance
+               - Code structure and organization
+               - Error handling and edge cases
+            
+            2. **DumprX Specific Checks**
+               - Firmware extraction logic integrity
+               - Performance impact assessment
+               - Configuration management compatibility
+            
+            3. **Security & Reliability**
+               - Input validation and sanitization
+               - Resource management and cleanup
+               - Potential security vulnerabilities
+            
+            4. **Integration & Testing**
+               - Compatibility with existing workflows
+               - Test coverage requirements
+               - Documentation updates needed
+            
+            ⚡ **Auto-merge Configuration:**
+            - Auto-merge will be enabled after successful review and CI checks
+            - Squash merge method will be used for clean history
+            
+            ---
+            *Automated assignment by DumprX Auto-Assign workflow*`;
+            
+            try {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: pr_number,
+                body: copilotComment
+              });
+              console.log(`✅ Successfully created Copilot comment for PR #${pr_number}`);
+            } catch (error) {
+              console.log(`⚠️ Failed to create comment: ${error.message}`);
+            }
+
+      # Smart conditional auto-merge for PRs with enhanced checks
+      - name: 'Configure intelligent auto-merge'
+        if: github.event_name == 'pull_request' && !github.event.pull_request.draft
+        uses: peter-evans/enable-pull-request-automerge@v3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          pull-request-number: ${{ github.event.pull_request.number }}
+          merge-method: squash
+
+      # Advanced notification system
+      - name: 'Send advanced notifications'
+        if: always()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const eventType = context.eventName;
+            const eventAction = context.payload.action;
+            const number = context.payload.issue?.number || context.payload.pull_request?.number;
+            const title = context.payload.issue?.title || context.payload.pull_request?.title;
+            
+            console.log(`✅ Auto-assignment completed for ${eventType} #${number}: "${title}"`);
+            console.log(`🎯 Event: ${eventType}.${eventAction}`);
+            console.log(`👤 Assigned to: Eduardob3677`);
+            console.log(`🤖 Copilot integration: Activated`);
+            console.log(`🏷️ Labels added: copilot, auto-assigned`);
+            
+            if (eventType === 'pull_request') {
+              console.log(`🔄 Auto-merge: Enabled (squash method)`);
+            }

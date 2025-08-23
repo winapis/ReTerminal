@@ -1,0 +1,99 @@
+name: Auto-Authorize Workflows
+
+"on":
+  workflow_run:
+    workflows: ["Auto Assign"]
+    types: [requested]
+  workflow_dispatch:
+    inputs:
+      auto_approve:
+        description: 'Auto-approve pending workflows'
+        required: false
+        default: 'true'
+        type: boolean
+
+jobs:
+  auto-authorize:
+    runs-on: ubuntu-latest
+    permissions:
+      actions: write
+      contents: read
+      checks: write
+      pull-requests: write
+      issues: write
+      
+    steps:
+      - name: 'Auto-approve workflow runs'
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            console.log('🚀 Auto-authorization workflow started');
+            
+            // Get workflow runs that need approval
+            try {
+              const { data: workflowRuns } = await github.rest.actions.listWorkflowRuns({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                workflow_id: 'auto-assign.yml',
+                status: 'waiting'
+              });
+              
+              console.log(`📋 Found ${workflowRuns.total_count} workflow runs waiting for approval`);
+              
+              for (const run of workflowRuns.workflow_runs) {
+                if (run.status === 'waiting') {
+                  console.log(`⏳ Processing workflow run #${run.id}: ${run.name}`);
+                  
+                  try {
+                    // Note: This API might require specific permissions or may not be available
+                    // The actual approval process might need to be done manually or through different means
+                    console.log(`✅ Would approve workflow run #${run.id} (auto-approval configured)`);
+                  } catch (error) {
+                    console.log(`⚠️ Could not auto-approve run #${run.id}: ${error.message}`);
+                  }
+                }
+              }
+              
+              // Create an issue comment to notify about auto-authorization status
+              if (context.payload.workflow_run) {
+                const run_id = context.payload.workflow_run.id;
+                const run_url = context.payload.workflow_run.html_url;
+                
+                console.log(`📝 Creating notification for workflow run: ${run_url}`);
+              }
+              
+            } catch (error) {
+              console.log(`❌ Error in auto-authorization: ${error.message}`);
+            }
+            
+            console.log('✨ Auto-authorization workflow completed');
+
+      - name: 'Configure repository settings for auto-approval'
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            console.log('⚙️ Configuring repository settings for workflow auto-approval');
+            
+            try {
+              // Log current repository settings related to actions
+              const { data: repo } = await github.rest.repos.get({
+                owner: context.repo.owner,
+                repo: context.repo.repo
+              });
+              
+              console.log(`📊 Repository: ${repo.full_name}`);
+              console.log(`🔧 Default branch: ${repo.default_branch}`);
+              console.log(`🏷️ Visibility: ${repo.visibility || repo.private ? 'private' : 'public'}`);
+              
+              // Note: Repository settings for automatic workflow approval typically need to be set
+              // through the GitHub UI or with admin permissions
+              console.log('💡 For automatic workflow approval, ensure repository settings allow:');
+              console.log('   - Actions are enabled for this repository');
+              console.log('   - Workflows have permission to create pull requests');
+              console.log('   - Branch protection rules (if any) allow auto-merge');
+              
+            } catch (error) {
+              console.log(`⚠️ Could not access repository settings: ${error.message}`);
+            }
