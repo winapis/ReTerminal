@@ -41,29 +41,14 @@ object MkSession {
 
             val workingDir = pendingCommand?.workingDir ?: alpineHomeDir().path
 
-            val initFile: File = localBinDir().child("init-host")
-
-            if (initFile.exists().not()){
-                initFile.createFileIfNot()
-                initFile.writeText(assets.open("init-host.sh").bufferedReader().use { it.readText() })
+            // Create unified init script that handles everything
+            val unifiedInitFile: File = localBinDir().child("init-unified")
+            if (unifiedInitFile.exists().not()){
+                unifiedInitFile.createFileIfNot()
+                unifiedInitFile.writeText(assets.open("init-unified.sh").bufferedReader().use { it.readText() })
             }
 
-            // Create enhanced root version if root is enabled
-            val initRootFile: File = localBinDir().child("init-host-root")
-            if (initRootFile.exists().not()){
-                initRootFile.createFileIfNot()
-                initRootFile.writeText(assets.open("init-host-root.sh").bufferedReader().use { it.readText() })
-            }
-
-
-            localBinDir().child("init").apply {
-                if (exists().not()){
-                    createFileIfNot()
-                    writeText(assets.open("init.sh").bufferedReader().use { it.readText() })
-                }
-            }
-
-            // Copy distribution-specific init scripts
+            // Copy distribution-specific configuration scripts
             val distributionScripts = listOf("alpine", "ubuntu", "debian", "arch", "kali")
             distributionScripts.forEach { dist ->
                 localBinDir().child("init-$dist").apply {
@@ -175,13 +160,8 @@ object MkSession {
 
             val shell = if (pendingCommand == null) {
                 args = if (workingMode != WorkingMode.ANDROID){
-                    // Choose the appropriate init script based on root configuration
-                    val initScriptFile = if (SettingsManager.Root.enabled && SettingsManager.Root.verified) {
-                        localBinDir().child("init-host-root")
-                    } else {
-                        initFile
-                    }
-                    arrayOf("-c", initScriptFile.absolutePath)
+                    // Use the unified init script that handles both root and non-root scenarios
+                    arrayOf("-c", unifiedInitFile.absolutePath)
                 }else{
                     arrayOf()
                 }
