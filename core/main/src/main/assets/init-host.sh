@@ -62,26 +62,32 @@ fi
 extract_distribution() {
     log_message "Extracting $DISTRIBUTION_NAME rootfs from $ROOTFS_FILE..."
     
-    # Use tar options that are more compatible with Android filesystem limitations
-    # --no-same-owner: Don't try to preserve owner (may fail on Android)
-    # --no-same-permissions: Don't try to preserve exact permissions (may fail on Android)
-    # --dereference: Follow symbolic links instead of preserving them
-    TAR_OPTS="--no-same-owner --no-same-permissions"
+    # Use tar options that are optimized for Android filesystem limitations
+    # --no-same-owner: Don't try to preserve owner (fails on Android)
+    # --no-same-permissions: Don't try to preserve exact permissions (fails on Android)
+    # --dereference: Follow symbolic links and create files instead of symlinks
+    # --hard-dereference: Convert hard links to regular files
+    TAR_OPTS="--no-same-owner --no-same-permissions --dereference"
     
-    # Try extraction with different strategies if hard links fail
+    # Try extraction with progressively more compatible options
     if ! tar -xf "$PREFIX/files/$ROOTFS_FILE" -C "$DISTRIBUTION_DIR" $TAR_OPTS 2>/dev/null; then
         log_message "Standard extraction failed, trying with hard link conversion..."
-        # Try again with hard links converted to copies (more Android-compatible)
+        # Try with hard link conversion to regular files
         if ! tar -xf "$PREFIX/files/$ROOTFS_FILE" -C "$DISTRIBUTION_DIR" $TAR_OPTS --hard-dereference 2>/dev/null; then
-            log_message "Hard link conversion failed, trying without link preservation..."
-            # Final attempt: ignore link creation errors and use app-writable temp directory
+            log_message "Hard link conversion failed, trying with all links as files and ignore errors..."
+            # Final attempt: ignore all link errors, convert everything to files
             # Ensure we have a writable temp directory
             if [ -z "$TMPDIR" ] || [ ! -w "$TMPDIR" ]; then
                 TMPDIR="$PREFIX/tmp"
                 mkdir -p "$TMPDIR"
             fi
             TAR_LOG_FILE="${TMPDIR}/tar_errors.log"
-            if ! tar -xf "$PREFIX/files/$ROOTFS_FILE" -C "$DISTRIBUTION_DIR" $TAR_OPTS 2>"$TAR_LOG_FILE"; then
+            
+            # Most permissive extraction: ignore missing files, convert all links to files
+            # Use --ignore-failed-read to continue even if some files can't be read
+            if ! tar -xf "$PREFIX/files/$ROOTFS_FILE" -C "$DISTRIBUTION_DIR" \
+                --no-same-owner --no-same-permissions --dereference --hard-dereference \
+                --ignore-failed-read --skip-old-files 2>"$TAR_LOG_FILE"; then
                 echo "Error: Failed to extract rootfs from $PREFIX/files/$ROOTFS_FILE"
                 echo "File details:"
                 ls -la "$PREFIX/files/$ROOTFS_FILE" 2>/dev/null || echo "  - File not found"
@@ -96,9 +102,15 @@ extract_distribution() {
                 fi
                 exit 1
             else
-                log_message "Warning: Extraction completed with some link creation errors (non-critical)"
+                log_message "Warning: Extraction completed with some file system compatibility issues (non-critical)"
                 if [ -f "$TAR_LOG_FILE" ]; then
-                    log_message "Note: Some hard links were converted to file copies for Android compatibility"
+                    log_message "Note: Some symlinks and hard links were converted to regular files for Android compatibility"
+                    # Don't show full error log unless debugging, as many are expected on Android
+                    if [ ! -f "$SILENT_MODE_FILE" ]; then
+                        echo "Android filesystem compatibility notes:"
+                        grep -c "not under" "$TAR_LOG_FILE" 2>/dev/null && echo "- Some system symlinks were ignored (expected)"
+                        grep -c "Permission denied" "$TAR_LOG_FILE" 2>/dev/null && echo "- Some hard links were converted to files (expected)"
+                    fi
                     rm -f "$TAR_LOG_FILE"
                 fi
             fi

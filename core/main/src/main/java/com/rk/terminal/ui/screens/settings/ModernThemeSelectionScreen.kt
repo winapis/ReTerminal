@@ -34,6 +34,9 @@ fun ModernThemeSelectionScreen(navController: NavController) {
     val availableThemes = ModernThemeManager.getAllThemes()
     var currentTheme by remember { mutableIntStateOf(SettingsManager.Appearance.colorScheme) }
     var showingCategory by remember { mutableStateOf("all") }
+    
+    // Create a reactive key that changes when monet setting changes
+    val monetKey = remember { derivedStateOf { SettingsManager.Appearance.monet } }.value
 
     Scaffold(
         topBar = {
@@ -120,7 +123,7 @@ fun ModernThemeSelectionScreen(navController: NavController) {
 
             // Theme preview grid
             item {
-                val filteredThemes = if (SettingsManager.Appearance.monet) {
+                val filteredThemes = if (monetKey) {
                     // When Material Design is enabled, only show system theme or empty list
                     emptyList()
                 } else {
@@ -132,7 +135,7 @@ fun ModernThemeSelectionScreen(navController: NavController) {
                     }
                 }
 
-                if (SettingsManager.Appearance.monet) {
+                if (monetKey) {
                     // Show message when Material Design is active
                     Card(
                         modifier = Modifier.fillMaxWidth(),
@@ -248,6 +251,9 @@ private fun CategoryChip(
 
 @Composable
 private fun DynamicThemingSection() {
+    var materialDesignEnabled by remember { mutableStateOf(SettingsManager.Appearance.monet) }
+    var amoledEnabled by remember { mutableStateOf(SettingsManager.Appearance.amoled) }
+    
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(12.dp)
@@ -287,12 +293,15 @@ private fun DynamicThemingSection() {
             ) {
                 Text("Enable Dynamic Colors")
                 Switch(
-                    checked = SettingsManager.Appearance.monet,
-                    onCheckedChange = { SettingsManager.Appearance.monet = it }
+                    checked = materialDesignEnabled,
+                    onCheckedChange = { 
+                        materialDesignEnabled = it
+                        SettingsManager.Appearance.monet = it
+                    }
                 )
             }
             
-            if (SettingsManager.Appearance.monet) {
+            if (materialDesignEnabled) {
                 Spacer(modifier = Modifier.height(8.dp))
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -301,8 +310,11 @@ private fun DynamicThemingSection() {
                 ) {
                     Text("AMOLED Black")
                     Switch(
-                        checked = SettingsManager.Appearance.amoled,
-                        onCheckedChange = { SettingsManager.Appearance.amoled = it }
+                        checked = amoledEnabled,
+                        onCheckedChange = { 
+                            amoledEnabled = it
+                            SettingsManager.Appearance.amoled = it
+                        }
                     )
                 }
             }
