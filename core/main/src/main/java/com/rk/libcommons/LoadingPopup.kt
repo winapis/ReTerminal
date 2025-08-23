@@ -27,7 +27,7 @@ class LoadingPopup(private val ctx: Activity, hideAfterMillis: Long?,scope: Coro
             // Create a temporary parent for proper layout parameter resolution
             val tempParent = FrameLayout(ctx)
             dialogView = inflater1.inflate(R.layout.progress_dialog, tempParent, false)
-            dialogView.findViewById<TextView>(R.id.progress_message).text = "Please wait..."
+            dialogView.findViewById<TextView>(R.id.progress_message).text = ctx.getString(com.rk.resources.R.string.please_wait)
             dialog =
                 MaterialAlertDialogBuilder(ctx).setView(dialogView).setCancelable(false).create()
 

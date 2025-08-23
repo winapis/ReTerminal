@@ -8,4 +8,5 @@
     <string name="default_mime_type">text/plain</string>
     <string name="search_term">Search term</string>
     <string name="replace_with">Replace with</string>
+    <string name="please_wait">Please wait…</string>
 </resources>
