@@ -1,6 +1,6 @@
 name: Auto-Authorize Workflows
 
-"on":
+on:
   workflow_run:
     workflows: ["Auto Assign"]
     types: [requested]
