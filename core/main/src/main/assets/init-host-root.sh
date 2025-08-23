@@ -82,7 +82,7 @@ extract_distribution() {
                 mkdir -p "$TMPDIR"
             fi
             TAR_LOG_FILE="${TMPDIR}/tar_errors.log"
-            if ! tar -xf "$PREFIX/files/$ROOTFS_FILE" -C "$DISTRIBUTION_DIR" $TAR_OPTS --warning=no-file-ignored 2>"$TAR_LOG_FILE"; then
+            if ! tar -xf "$PREFIX/files/$ROOTFS_FILE" -C "$DISTRIBUTION_DIR" $TAR_OPTS 2>"$TAR_LOG_FILE"; then
                 echo "Error: Failed to extract rootfs from $PREFIX/files/$ROOTFS_FILE"
                 echo "File details:"
                 ls -la "$PREFIX/files/$ROOTFS_FILE" 2>/dev/null || echo "  - File not found"

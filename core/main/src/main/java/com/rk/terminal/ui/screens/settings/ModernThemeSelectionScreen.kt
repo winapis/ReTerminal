@@ -120,29 +120,68 @@ fun ModernThemeSelectionScreen(navController: NavController) {
 
             // Theme preview grid
             item {
-                val filteredThemes = when (showingCategory) {
-                    "dark" -> availableThemes.filter { it.isDark && it.id != 0 }
-                    "light" -> availableThemes.filter { !it.isDark && it.id != 0 }
-                    "system" -> availableThemes.filter { it.id == 0 }
-                    else -> availableThemes
+                val filteredThemes = if (SettingsManager.Appearance.monet) {
+                    // When Material Design is enabled, only show system theme or empty list
+                    emptyList()
+                } else {
+                    when (showingCategory) {
+                        "dark" -> availableThemes.filter { it.isDark && it.id != 0 }
+                        "light" -> availableThemes.filter { !it.isDark && it.id != 0 }
+                        "system" -> availableThemes.filter { it.id == 0 }
+                        else -> availableThemes
+                    }
                 }
 
-                LazyVerticalStaggeredGrid(
-                    columns = StaggeredGridCells.Adaptive(280.dp),
-                    verticalItemSpacing = 12.dp,
-                    horizontalArrangement = Arrangement.spacedBy(12.dp),
-                    modifier = Modifier.height(600.dp) // Fixed height for nested scrolling
-                ) {
-                    items(filteredThemes) { theme ->
-                        ThemePreviewCard(
-                            theme = theme,
-                            isSelected = currentTheme == theme.id,
-                            onSelect = {
-                                VibrationUtil.vibrateButton(context)
-                                currentTheme = theme.id
-                                ModernThemeManager.applyTheme(context, theme.id)
-                            }
-                        )
+                if (SettingsManager.Appearance.monet) {
+                    // Show message when Material Design is active
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(12.dp)
+                    ) {
+                        Column(
+                            modifier = Modifier.padding(24.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Star,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.primary,
+                                modifier = Modifier.size(48.dp)
+                            )
+                            Spacer(modifier = Modifier.height(16.dp))
+                            Text(
+                                text = "Material Design Active",
+                                style = MaterialTheme.typography.titleLarge,
+                                fontWeight = FontWeight.Bold,
+                                textAlign = TextAlign.Center
+                            )
+                            Spacer(modifier = Modifier.height(8.dp))
+                            Text(
+                                text = "Manual theme selection is disabled when Material Design is enabled. Disable Dynamic Colors to choose custom themes.",
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                textAlign = TextAlign.Center
+                            )
+                        }
+                    }
+                } else {
+                    LazyVerticalStaggeredGrid(
+                        columns = StaggeredGridCells.Adaptive(280.dp),
+                        verticalItemSpacing = 12.dp,
+                        horizontalArrangement = Arrangement.spacedBy(12.dp),
+                        modifier = Modifier.height(600.dp) // Fixed height for nested scrolling
+                    ) {
+                        items(filteredThemes) { theme ->
+                            ThemePreviewCard(
+                                theme = theme,
+                                isSelected = currentTheme == theme.id,
+                                onSelect = {
+                                    VibrationUtil.vibrateButton(context)
+                                    currentTheme = theme.id
+                                    ModernThemeManager.applyTheme(context, theme.id)
+                                }
+                            )
+                        }
                     }
                 }
             }
