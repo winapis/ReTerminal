@@ -5,12 +5,12 @@
 # Primary assignees to add to new pull requests and issues
 addAssignees:
   - Eduardob3677
-  - github-copilot[bot]  # GitHub Copilot as assignee
+  - copilot[bot]  # GitHub Copilot as assignee
 
 # Reviewers to add to new pull requests
 addReviewers:
   - Eduardob3677
-  - github-copilot[bot]  # GitHub Copilot as reviewer
+  - copilot[bot]  # GitHub Copilot as reviewer
 
 # Team reviewers (if using GitHub teams)
 # addTeamReviewers:
@@ -19,7 +19,7 @@ addReviewers:
 # Reviews to request for new pull requests
 addReviewRequests:
   - Eduardob3677
-  - github-copilot[bot]  # GitHub Copilot review requests
+  - copilot[bot]  # GitHub Copilot review requests
 
 # Labels to add automatically based on content and type
 addLabels:
@@ -56,30 +56,27 @@ filterLabels:
     - "*.config"
     - "*.yml"
     - "*.yaml"
-  "firmware-tools":
-    - "dumper.py"
-    - "utils/downloaders/**"
 
 # Advanced assignment rules based on file patterns
 assignees:
-  "*.py":
+  "*.java":
     - Eduardob3677
-    - github-copilot[bot]
+    - copilot[bot]
   ".github/**":
     - Eduardob3677
-    - github-copilot[bot]
-  "dumper.py":
+    - copilot[bot]
+  "*.kt":
     - Eduardob3677
-    - github-copilot[bot]
+    - copilot[bot]
 
 # Reviewers based on expertise areas
 reviewers:
-  "*.py":
+  "*.java":
     - Eduardob3677
-    - github-copilot[bot]
+    - copilot[bot]
   ".github/workflows/*":
     - Eduardob3677
-    - github-copilot[bot]
+    - copilot[bot]
 
 # Advanced options for intelligent assignment
 options:
@@ -106,11 +103,11 @@ options:
 # Custom messages for different scenarios
 messages:
   assignMessage: |
-    👋 @{assignee} and @github-copilot have been automatically assigned to this {type}.
+    👋 @{assignee} and @copilot have been automatically assigned to this {type}.
     🤖 GitHub Copilot integration is enabled for enhanced AI assistance.
   
   reviewMessage: |
-    📝 @{reviewer} and @github-copilot have been automatically requested to review this pull request.
+    📝 @{reviewer} and @copilot have been automatically requested to review this pull request.
     ⚡ Auto-merge is enabled pending approval and successful CI checks.
 
 # Conditional assignment based on issue/PR properties
@@ -123,8 +120,9 @@ conditions:
   
   # Only assign to specific file extensions
   includeExtensions:
-    - ".py"
+    - ".java"
     - ".yml" 
     - ".yaml"
     - ".md"
     - ".conf"
+    - ".kt"
