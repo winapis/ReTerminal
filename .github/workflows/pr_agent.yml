@@ -17,7 +17,6 @@ jobs:
       discussions: write
       statuses: write
       security-events: write
-      models: write
       id-token: write
       deployments: write
       attestations: write
