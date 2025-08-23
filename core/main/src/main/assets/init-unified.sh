@@ -86,7 +86,26 @@ extract_distribution() {
         exit 1
     fi
     
-    log_message "Successfully extracted $DISTRIBUTION_NAME rootfs"
+    # Verify distribution extraction created expected directory structure
+    log_message "Verifying distribution structure in $DISTRIBUTION_DIR..."
+    expected_dirs="bin etc usr var root home dev sys proc tmp"
+    missing_dirs=""
+    
+    for dir in $expected_dirs; do
+        if [ ! -d "$DISTRIBUTION_DIR/$dir" ]; then
+            missing_dirs="$missing_dirs $dir"
+        fi
+    done
+    
+    if [ -n "$missing_dirs" ]; then
+        log_message "Warning: Some expected directories are missing:$missing_dirs"
+        log_message "Creating missing critical directories..."
+        for dir in $missing_dirs; do
+            mkdir -p "$DISTRIBUTION_DIR/$dir" 2>/dev/null || true
+        done
+    fi
+    
+    log_message "Successfully extracted $DISTRIBUTION_NAME rootfs to $DISTRIBUTION_DIR"
 }
 
 # Function to verify existing distribution matches selected one
@@ -109,10 +128,14 @@ if [ -z "$(ls -A "$DISTRIBUTION_DIR" 2>/dev/null)" ]; then
     extract_distribution
     touch "$SILENT_MODE_FILE"
     log_message "$DISTRIBUTION_NAME installation completed"
+    log_message "Distribution content in $DISTRIBUTION_DIR:"
+    ls -la "$DISTRIBUTION_DIR" 2>/dev/null || log_message "Could not list distribution directory"
 else
     if verify_existing_distribution; then
         if [ ! -f "$SILENT_MODE_FILE" ]; then
             log_message "Using existing $DISTRIBUTION_NAME installation"
+            log_message "Distribution content in $DISTRIBUTION_DIR:"
+            ls -la "$DISTRIBUTION_DIR" 2>/dev/null || log_message "Could not list distribution directory"
             touch "$SILENT_MODE_FILE"
         fi
     else
@@ -168,6 +191,16 @@ if [ "$ROOT_ENABLED" = "true" ]; then
     # Adjust user permissions
     su -c "chroot $DISTRIBUTION_DIR usermod -g 3003 -G 3003,3004 -a _apt" 2>/dev/null || true
     su -c "chroot $DISTRIBUTION_DIR usermod -G 3003 -a root" 2>/dev/null || true
+    
+    # Fix APT permissions for _apt user to resolve package management issues
+    if su -c "chroot $DISTRIBUTION_DIR id _apt" >/dev/null 2>&1; then
+        log_message "Configuring APT permissions for _apt user..."
+        su -c "chroot $DISTRIBUTION_DIR mkdir -p /var/lib/apt/lists/partial" 2>/dev/null || true
+        su -c "chroot $DISTRIBUTION_DIR mkdir -p /var/cache/apt/archives/partial" 2>/dev/null || true
+        su -c "chroot $DISTRIBUTION_DIR mkdir -p /var/log/apt" 2>/dev/null || true
+        su -c "chroot $DISTRIBUTION_DIR chown -R _apt:root /var/lib/apt /var/cache/apt /var/log/apt" 2>/dev/null || true
+        su -c "chroot $DISTRIBUTION_DIR chmod -R 755 /var/lib/apt /var/cache/apt /var/log/apt" 2>/dev/null || true
+    fi
 fi
 
 ## --- Boot logic ---
