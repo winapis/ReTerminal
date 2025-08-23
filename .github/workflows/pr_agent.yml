@@ -28,7 +28,7 @@ jobs:
     steps:
       - name: PR Agent action step
         id: pragent
-        uses: qodo-ai/pr-agent@v0.6.1 # Usa la última versión estable
+        uses: qodo-ai/pr-agent@latest # Usa la última versión estable
         env:
           OPENAI_KEY: ${{ secrets.AZURE_OPENAI_KEY }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
