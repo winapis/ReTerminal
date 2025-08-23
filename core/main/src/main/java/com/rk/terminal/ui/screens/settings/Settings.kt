@@ -20,7 +20,7 @@ import com.rk.components.compose.preferences.base.PreferenceLayout
 import com.rk.components.compose.preferences.base.PreferenceTemplate
 import com.rk.components.compose.preferences.switch.PreferenceSwitch
 import com.rk.resources.strings
-import com.rk.settings.Settings
+import com.rk.settings.SettingsManager
 import com.rk.terminal.ui.activities.terminal.MainActivity
 import com.rk.terminal.ui.components.SettingsToggle
 import com.rk.terminal.ui.routes.MainActivityRoutes
@@ -78,7 +78,7 @@ object WorkingMode{
 fun Settings(modifier: Modifier = Modifier,navController: NavController,mainActivity: MainActivity) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
-    var selectedOption by remember { mutableIntStateOf(Settings.working_Mode) }
+    var selectedOption by remember { mutableIntStateOf(SettingsManager.System.workingMode) }
     var showRootWarningDialog by remember { mutableStateOf(false) }
 
     // Real-time root status checking every 10 seconds
@@ -86,22 +86,22 @@ fun Settings(modifier: Modifier = Modifier,navController: NavController,mainActi
         while (true) {
             kotlinx.coroutines.delay(10000) // Check every 10 seconds
             try {
-                if (Settings.root_enabled) {
+                if (SettingsManager.Root.enabled) {
                     RootUtils.clearCache()
                     val rootInfo = RootUtils.checkRootAccess()
-                    Settings.root_verified = rootInfo.isRootAvailable
-                    Settings.root_provider = rootInfo.rootProvider.name.lowercase()
-                    Settings.busybox_installed = rootInfo.isBusyBoxInstalled
+                    SettingsManager.Root.verified = rootInfo.isRootAvailable
+                    SettingsManager.Root.provider = rootInfo.rootProvider.name.lowercase()
+                    SettingsManager.Root.busyboxInstalled = rootInfo.isBusyBoxInstalled
                     
                     val busyboxPath = RootUtils.getBusyBoxPath()
                     if (busyboxPath != null) {
-                        Settings.busybox_path = busyboxPath
+                        SettingsManager.Root.busyboxPath = busyboxPath
                     }
                     
                     // If root was lost while enabled, disable it
                     if (!rootInfo.isRootAvailable) {
-                        Settings.root_enabled = false
-                        Settings.use_root_mounts = false
+                        SettingsManager.Root.enabled = false
+                        SettingsManager.Root.useMounts = false
                     }
                 }
             } catch (e: Exception) {
@@ -123,13 +123,13 @@ fun Settings(modifier: Modifier = Modifier,navController: NavController,mainActi
                         onClick = {
                             VibrationUtil.vibrateButton(context)
                             selectedOption = WorkingMode.ALPINE
-                            Settings.working_Mode = selectedOption
+                            SettingsManager.System.workingMode = selectedOption
                         })
                 },
                 onClick = {
                     VibrationUtil.vibrateButton(context)
                     selectedOption = WorkingMode.ALPINE
-                    Settings.working_Mode = selectedOption
+                    SettingsManager.System.workingMode = selectedOption
                 })
 
             SettingsCard(
@@ -141,12 +141,12 @@ fun Settings(modifier: Modifier = Modifier,navController: NavController,mainActi
                         selected = selectedOption == WorkingMode.UBUNTU,
                         onClick = {
                             selectedOption = WorkingMode.UBUNTU
-                            Settings.working_Mode = selectedOption
+                            SettingsManager.System.workingMode = selectedOption
                         })
                 },
                 onClick = {
                     selectedOption = WorkingMode.UBUNTU
-                    Settings.working_Mode = selectedOption
+                    SettingsManager.System.workingMode = selectedOption
                 })
 
             SettingsCard(
@@ -158,12 +158,12 @@ fun Settings(modifier: Modifier = Modifier,navController: NavController,mainActi
                         selected = selectedOption == WorkingMode.DEBIAN,
                         onClick = {
                             selectedOption = WorkingMode.DEBIAN
-                            Settings.working_Mode = selectedOption
+                            SettingsManager.System.workingMode = selectedOption
                         })
                 },
                 onClick = {
                     selectedOption = WorkingMode.DEBIAN
-                    Settings.working_Mode = selectedOption
+                    SettingsManager.System.workingMode = selectedOption
                 })
 
             SettingsCard(
@@ -175,12 +175,12 @@ fun Settings(modifier: Modifier = Modifier,navController: NavController,mainActi
                         selected = selectedOption == WorkingMode.ARCH,
                         onClick = {
                             selectedOption = WorkingMode.ARCH
-                            Settings.working_Mode = selectedOption
+                            SettingsManager.System.workingMode = selectedOption
                         })
                 },
                 onClick = {
                     selectedOption = WorkingMode.ARCH
-                    Settings.working_Mode = selectedOption
+                    SettingsManager.System.workingMode = selectedOption
                 })
 
             SettingsCard(
@@ -192,12 +192,12 @@ fun Settings(modifier: Modifier = Modifier,navController: NavController,mainActi
                         selected = selectedOption == WorkingMode.KALI,
                         onClick = {
                             selectedOption = WorkingMode.KALI
-                            Settings.working_Mode = selectedOption
+                            SettingsManager.System.workingMode = selectedOption
                         })
                 },
                 onClick = {
                     selectedOption = WorkingMode.KALI
-                    Settings.working_Mode = selectedOption
+                    SettingsManager.System.workingMode = selectedOption
                 })
 
             SettingsCard(
@@ -211,12 +211,12 @@ fun Settings(modifier: Modifier = Modifier,navController: NavController,mainActi
                         selected = selectedOption == WorkingMode.ANDROID,
                         onClick = {
                             selectedOption = WorkingMode.ANDROID
-                            Settings.working_Mode = selectedOption
+                            SettingsManager.System.workingMode = selectedOption
                         })
                 },
                 onClick = {
                     selectedOption = WorkingMode.ANDROID
-                    Settings.working_Mode = selectedOption
+                    SettingsManager.System.workingMode = selectedOption
                 })
         }
 
@@ -224,53 +224,53 @@ fun Settings(modifier: Modifier = Modifier,navController: NavController,mainActi
         PreferenceGroup(heading = "Root Configuration") {
             PreferenceSwitch(
                 label = "Enable Root Access",
-                description = if (Settings.root_enabled) {
-                    "Root access is enabled (${RootUtils.formatRootProviderName(Settings.root_provider)})"
+                description = if (SettingsManager.Root.enabled) {
+                    "Root access is enabled (${RootUtils.formatRootProviderName(SettingsManager.Root.provider)})"
                 } else {
                     "Root access is disabled - using rootless mode"
                 },
-                enabled = Settings.root_verified || !Settings.root_enabled,
-                checked = Settings.root_enabled,
+                enabled = SettingsManager.Root.verified || !SettingsManager.Root.enabled,
+                checked = SettingsManager.Root.enabled,
                 onCheckedChange = { enabled ->
                     if (!enabled) {
                         // Disabling root - show warning
                         showRootWarningDialog = true
-                    } else if (Settings.root_verified) {
+                    } else if (SettingsManager.Root.verified) {
                         // Re-enabling root if previously verified
-                        Settings.root_enabled = true
-                        Settings.use_root_mounts = true
+                        SettingsManager.Root.enabled = true
+                        SettingsManager.Root.useMounts = true
                     } else {
                         // Root not verified, need to verify first
                         scope.launch {
                             try {
                                 val rootInfo = RootUtils.checkRootAccess()
                                 if (rootInfo.isRootAvailable) {
-                                    Settings.root_enabled = true
-                                    Settings.root_verified = true
-                                    Settings.root_provider = rootInfo.rootProvider.name.lowercase()
-                                    Settings.busybox_installed = rootInfo.isBusyBoxInstalled
-                                    Settings.use_root_mounts = true
+                                    SettingsManager.Root.enabled = true
+                                    SettingsManager.Root.verified = true
+                                    SettingsManager.Root.provider = rootInfo.rootProvider.name.lowercase()
+                                    SettingsManager.Root.busyboxInstalled = rootInfo.isBusyBoxInstalled
+                                    SettingsManager.Root.useMounts = true
                                     
                                     val busyboxPath = RootUtils.getBusyBoxPath()
                                     if (busyboxPath != null) {
-                                        Settings.busybox_path = busyboxPath
+                                        SettingsManager.Root.busyboxPath = busyboxPath
                                     }
                                 } else {
                                     // Root not available
-                                    Settings.root_enabled = false
+                                    SettingsManager.Root.enabled = false
                                 }
                             } catch (e: Exception) {
-                                Settings.root_enabled = false
+                                SettingsManager.Root.enabled = false
                             }
                         }
                     }
                 }
             )
             
-            if (Settings.root_enabled) {
+            if (SettingsManager.Root.enabled) {
                 SettingsCard(
                     title = { Text("Root Provider") },
-                    description = { Text(RootUtils.formatRootProviderName(Settings.root_provider)) },
+                    description = { Text(RootUtils.formatRootProviderName(SettingsManager.Root.provider)) },
                     onClick = { VibrationUtil.vibrateButton(context) }
                 )
                 
@@ -278,8 +278,8 @@ fun Settings(modifier: Modifier = Modifier,navController: NavController,mainActi
                     title = { Text("BusyBox Status") },
                     description = { 
                         Text(
-                            if (Settings.busybox_installed) {
-                                "Installed at ${Settings.busybox_path.takeIf { it.isNotEmpty() } ?: "system path"}"
+                            if (SettingsManager.Root.busyboxInstalled) {
+                                "Installed at ${SettingsManager.Root.busyboxPath.takeIf { it.isNotEmpty() } ?: "system path"}"
                             } else {
                                 "Not installed - some features may be limited"
                             }
@@ -291,11 +291,11 @@ fun Settings(modifier: Modifier = Modifier,navController: NavController,mainActi
                 PreferenceSwitch(
                     label = "Use Root Mounts",
                     description = "Enable enhanced filesystem mounts and bindings. Changes apply to new terminal sessions.",
-                    checked = Settings.use_root_mounts,
-                    enabled = Settings.root_enabled,
+                    checked = SettingsManager.Root.useMounts,
+                    enabled = SettingsManager.Root.enabled,
                     onCheckedChange = { enabled ->
                         VibrationUtil.vibrateAction(context)
-                        Settings.use_root_mounts = enabled
+                        SettingsManager.Root.useMounts = enabled
                         if (enabled) {
                             VibrationUtil.vibrateSuccess(context)
                         }
@@ -346,8 +346,8 @@ fun Settings(modifier: Modifier = Modifier,navController: NavController,mainActi
                 TextButton(
                     onClick = { 
                         VibrationUtil.vibrateError(context)
-                        Settings.root_enabled = false
-                        Settings.use_root_mounts = false
+                        SettingsManager.Root.enabled = false
+                        SettingsManager.Root.useMounts = false
                         showRootWarningDialog = false
                     }
                 ) {

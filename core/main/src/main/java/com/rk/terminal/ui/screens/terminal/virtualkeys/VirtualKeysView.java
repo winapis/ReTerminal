@@ -360,10 +360,12 @@ public final class VirtualKeysView extends GridLayout {
         button.setText(buttonInfo.getDisplay());
         button.setTextColor(mButtonTextColor);
         button.setAllCaps(mButtonTextAllCaps);
-        button.setPadding(8, 8, 8, 8); // Add padding for better touch targets
         
-        // Apply modern button styling
+        // Apply modern button styling with improved responsiveness
         applyModernButtonStyling(button, isSpecialButton(buttonInfo));
+        
+        // Configure responsive layout parameters
+        configureResponsiveLayout(button, row, col, buttons.length, buttons[row].length);
 
         button.setOnClickListener(
             view -> {
@@ -596,60 +598,233 @@ public final class VirtualKeysView extends GridLayout {
 
   /**
    * Apply modern styling to virtual key buttons with Material Design 3 principles
+   * Enhanced with better theming, accessibility, and responsive design
    */
   private void applyModernButtonStyling(Button button, boolean isSpecialButton) {
     try {
-      // Get drawable resource identifiers by name since R.java might not be accessible
-      int normalBackgroundRes = getContext().getResources().getIdentifier(
-          "virtual_key_button_background", "drawable", getContext().getPackageName());
-      int activeBackgroundRes = getContext().getResources().getIdentifier(
-          "virtual_key_button_active", "drawable", getContext().getPackageName());
+      // Create modern Material Design 3 compliant background
+      createMaterialDesign3Background(button, isSpecialButton);
       
-      if (normalBackgroundRes != 0) {
-        Drawable background = ContextCompat.getDrawable(getContext(), normalBackgroundRes);
-        if (background != null) {
-          button.setBackground(background);
-        }
-      } else {
-        // Fallback: create programmatic background with rounded corners
-        createProgrammaticBackground(button, isSpecialButton);
-      }
+      // Improve typography with adaptive sizing
+      applyAdaptiveTypography(button);
       
-      // Add elevation for better visual hierarchy
-      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-        button.setElevation(4f);
-        button.setStateListAnimator(null); // Remove default state animator for custom styling
-      }
+      // Add proper touch feedback and accessibility
+      configureTouchFeedback(button);
       
-      // Improve typography
-      button.setTextSize(TypedValue.COMPLEX_UNIT_SP, 12);
+      // Apply theme-aware colors
+      applyThemeColors(button, isSpecialButton);
       
     } catch (Exception e) {
-      // Fallback to programmatic styling if drawable resources fail
-      createProgrammaticBackground(button, isSpecialButton);
+      // Fallback to simplified styling if anything fails
+      createFallbackStyling(button, isSpecialButton);
     }
   }
 
   /**
-   * Create programmatic background with rounded corners as fallback
+   * Create Material Design 3 compliant background with rounded corners and proper states
    */
-  private void createProgrammaticBackground(Button button, boolean isSpecialButton) {
-    // This is a simplified fallback - in a real app you'd use GradientDrawable
-    // For now, we'll just ensure proper padding and text styling
-    button.setPadding(12, 8, 12, 8);
-    
-    // Get theme colors programmatically
-    TypedValue typedValue = new TypedValue();
-    getContext().getTheme().resolveAttribute(android.R.attr.colorBackground, typedValue, true);
-    int backgroundColor = typedValue.data;
-    
-    getContext().getTheme().resolveAttribute(android.R.attr.colorAccent, typedValue, true);
-    int accentColor = typedValue.data;
-    
-    // Apply basic styling
+  private void createMaterialDesign3Background(Button button, boolean isSpecialButton) {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-      button.setElevation(2f);
+      // Create StateListDrawable for different button states
+      android.graphics.drawable.StateListDrawable stateListDrawable = 
+          new android.graphics.drawable.StateListDrawable();
+      
+      // Get theme colors
+      TypedValue typedValue = new TypedValue();
+      getContext().getTheme().resolveAttribute(androidx.appcompat.R.attr.colorSurface, typedValue, true);
+      int surfaceColor = typedValue.data;
+      
+      getContext().getTheme().resolveAttribute(androidx.appcompat.R.attr.colorPrimary, typedValue, true);
+      int primaryColor = typedValue.data;
+      
+      getContext().getTheme().resolveAttribute(androidx.appcompat.R.attr.colorOnSurface, typedValue, true);
+      int onSurfaceColor = typedValue.data;
+      
+      // Normal state drawable
+      android.graphics.drawable.GradientDrawable normalDrawable = 
+          new android.graphics.drawable.GradientDrawable();
+      normalDrawable.setShape(android.graphics.drawable.GradientDrawable.RECTANGLE);
+      normalDrawable.setCornerRadius(12f); // Material Design 3 corner radius
+      normalDrawable.setColor(isSpecialButton ? 
+          adjustColorAlpha(primaryColor, 0.12f) : 
+          adjustColorAlpha(surfaceColor, 0.08f));
+      normalDrawable.setStroke(1, adjustColorAlpha(onSurfaceColor, 0.12f));
+      
+      // Pressed state drawable
+      android.graphics.drawable.GradientDrawable pressedDrawable = 
+          new android.graphics.drawable.GradientDrawable();
+      pressedDrawable.setShape(android.graphics.drawable.GradientDrawable.RECTANGLE);
+      pressedDrawable.setCornerRadius(12f);
+      pressedDrawable.setColor(isSpecialButton ? 
+          adjustColorAlpha(primaryColor, 0.24f) : 
+          adjustColorAlpha(onSurfaceColor, 0.12f));
+      pressedDrawable.setStroke(1, adjustColorAlpha(primaryColor, 0.4f));
+      
+      // Add states to StateListDrawable
+      stateListDrawable.addState(new int[]{android.R.attr.state_pressed}, pressedDrawable);
+      stateListDrawable.addState(new int[]{android.R.attr.state_focused}, pressedDrawable);
+      stateListDrawable.addState(new int[]{}, normalDrawable);
+      
+      button.setBackground(stateListDrawable);
+      
+      // Add elevation for depth
+      button.setElevation(isSpecialButton ? 3f : 2f);
+      button.setStateListAnimator(null); // Remove default animator for custom control
+    } else {
+      // Fallback for older Android versions
+      createLegacyBackground(button, isSpecialButton);
     }
+  }
+  
+  /**
+   * Apply adaptive typography based on screen density and accessibility settings
+   */
+  private void applyAdaptiveTypography(Button button) {
+    // Base text size in SP
+    float baseTextSize = 12f;
+    
+    // Get screen density for adaptive sizing
+    float density = getContext().getResources().getDisplayMetrics().density;
+    
+    // Check if large text is enabled in accessibility settings
+    float fontScale = getContext().getResources().getConfiguration().fontScale;
+    
+    // Adaptive text size calculation
+    float adaptiveTextSize = baseTextSize;
+    if (density >= 3.0f) { // XXHDPI and above
+      adaptiveTextSize = baseTextSize + 1f;
+    } else if (density <= 1.5f) { // HDPI and below
+      adaptiveTextSize = baseTextSize - 1f;
+    }
+    
+    // Apply font scale but cap it to ensure buttons don't become too large
+    adaptiveTextSize *= Math.min(fontScale, 1.3f);
+    
+    button.setTextSize(TypedValue.COMPLEX_UNIT_SP, adaptiveTextSize);
+    
+    // Set font weight for better readability
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+      button.setTypeface(android.graphics.Typeface.create(null, 500, false)); // Medium weight
+    }
+  }
+  
+  /**
+   * Configure touch feedback and accessibility features
+   */
+  private void configureTouchFeedback(Button button) {
+    // Ensure minimum touch target size (48dp) for accessibility
+    int minTouchTarget = (int) (48 * getContext().getResources().getDisplayMetrics().density);
+    button.setMinWidth(minTouchTarget);
+    button.setMinHeight(minTouchTarget);
+    
+    // Add proper padding for comfortable touch
+    int paddingHorizontal = (int) (16 * getContext().getResources().getDisplayMetrics().density);
+    int paddingVertical = (int) (12 * getContext().getResources().getDisplayMetrics().density);
+    button.setPadding(paddingHorizontal, paddingVertical, paddingHorizontal, paddingVertical);
+    
+    // Enable haptic feedback
+    button.setHapticFeedbackEnabled(true);
+    
+    // Add content description for screen readers
+    if (button.getText() != null) {
+      button.setContentDescription("Virtual key: " + button.getText());
+    }
+  }
+  
+  /**
+   * Apply theme-aware colors based on current theme
+   */
+  private void applyThemeColors(Button button, boolean isSpecialButton) {
+    TypedValue typedValue = new TypedValue();
+    
+    // Get appropriate text color based on button type and theme
+    if (isSpecialButton) {
+      getContext().getTheme().resolveAttribute(androidx.appcompat.R.attr.colorPrimary, typedValue, true);
+      button.setTextColor(typedValue.data);
+    } else {
+      getContext().getTheme().resolveAttribute(androidx.appcompat.R.attr.colorOnSurface, typedValue, true);
+      button.setTextColor(typedValue.data);
+    }
+    
+    // Disable all caps for better readability
+    button.setAllCaps(false);
+  }
+  
+  /**
+   * Helper method to adjust color alpha
+   */
+  private int adjustColorAlpha(int color, float alpha) {
+    int originalAlpha = android.graphics.Color.alpha(color);
+    int newAlpha = Math.round(originalAlpha * alpha);
+    return android.graphics.Color.argb(
+        newAlpha,
+        android.graphics.Color.red(color),
+        android.graphics.Color.green(color),
+        android.graphics.Color.blue(color)
+    );
+  }
+  
+  /**
+   * Legacy background creation for older Android versions
+   */
+  private void createLegacyBackground(Button button, boolean isSpecialButton) {
+    // Simple background for older versions
+    button.setBackgroundColor(isSpecialButton ? 
+        android.graphics.Color.parseColor("#E3F2FD") : 
+        android.graphics.Color.parseColor("#F5F5F5"));
+    
+    int paddingHorizontal = (int) (12 * getContext().getResources().getDisplayMetrics().density);
+    int paddingVertical = (int) (8 * getContext().getResources().getDisplayMetrics().density);
+    button.setPadding(paddingHorizontal, paddingVertical, paddingHorizontal, paddingVertical);
+  }
+  
+  /**
+   * Fallback styling when main styling fails
+   */
+  private void createFallbackStyling(Button button, boolean isSpecialButton) {
+    // Ensure basic usability even if styling fails
+    int minPadding = (int) (8 * getContext().getResources().getDisplayMetrics().density);
+    button.setPadding(minPadding, minPadding, minPadding, minPadding);
+    button.setTextSize(TypedValue.COMPLEX_UNIT_SP, 12);
+    button.setAllCaps(false);
+    
+    // Set basic background color
+    button.setBackgroundColor(android.graphics.Color.parseColor("#F0F0F0"));
+    button.setTextColor(android.graphics.Color.parseColor("#333333"));
+  }
+  
+  /**
+   * Configure responsive layout parameters for better screen adaptation
+   */
+  private void configureResponsiveLayout(Button button, int row, int col, int totalRows, int totalCols) {
+    GridLayout.LayoutParams params = new GridLayout.LayoutParams();
+    params.rowSpec = GridLayout.spec(row, 1f);
+    params.columnSpec = GridLayout.spec(col, 1f);
+    
+    // Calculate dynamic margins based on screen size
+    float density = getContext().getResources().getDisplayMetrics().density;
+    int margin = (int) (2 * density); // 2dp base margin
+    
+    // Adjust margins for better spacing on different screen sizes
+    android.util.DisplayMetrics displayMetrics = getContext().getResources().getDisplayMetrics();
+    int screenWidth = displayMetrics.widthPixels;
+    
+    if (screenWidth > 1200 * density) { // Large screens
+      margin = (int) (4 * density);
+    } else if (screenWidth < 480 * density) { // Small screens
+      margin = (int) (1 * density);
+    }
+    
+    params.setMargins(margin, margin, margin, margin);
+    
+    // Set minimum width and height for consistent appearance
+    params.width = 0; // Use weight instead of fixed width
+    params.height = GridLayout.LayoutParams.WRAP_CONTENT;
+    
+    button.setLayoutParams(params);
+    
+    // Ensure proper weight distribution
+    button.setLayoutParams(params);
   }
 
   /** General util function to compute the longest column length in a matrix. */

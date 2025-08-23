@@ -5,6 +5,7 @@ import android.os.Build
 import android.os.StrictMode
 import com.github.anrwatchdog.ANRWatchDog
 import com.rk.libcommons.application
+import com.rk.settings.SettingsManager
 import com.rk.resources.Res
 import com.rk.update.UpdateManager
 import kotlinx.coroutines.DelicateCoroutinesApi
@@ -33,6 +34,9 @@ class App : Application() {
         super.onCreate()
         application = this
         Res.application = this
+        
+        // Initialize the new settings manager
+        SettingsManager.initialize()
 
         GlobalScope.launch(Dispatchers.IO) {
             getTempDir().apply {

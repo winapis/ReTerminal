@@ -51,6 +51,7 @@ import com.rk.libcommons.child
 import com.rk.libcommons.createFileIfNot
 import com.rk.libcommons.dpToPx
 import com.rk.settings.Settings
+import com.rk.settings.SettingsManager
 import com.rk.terminal.ui.components.InfoBlock
 import com.rk.terminal.ui.components.SettingsToggle
 import com.rk.terminal.ui.navHosts.horizontal_statusBar
