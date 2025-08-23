@@ -13,6 +13,18 @@ jobs:
       issues: write
       pull-requests: write
       contents: write
+      actions: write
+      discussions: write
+      statuses: write
+      security-events: write
+      models: write
+      id-token: write
+      deployments: write
+      attestations: write
+      packages: write
+      repository-projects: write
+      
+      
     name: Run pr agent on every pull request, respond to user comments
     steps:
       - name: PR Agent action step
