@@ -608,20 +608,8 @@ fun KarbonTheme(
     val currentTheme by ThemeState.currentTheme
     
     val colorScheme = when {
-        // If dynamic color is enabled and supported, use it (overrides custom themes)
-        dynamicColor && supportsDynamicTheming() -> {
-            val context = LocalContext.current
-            when {
-                darkTheme && highContrastDarkTheme ->
-                    dynamicDarkColorScheme(context)
-                        .copy(background = Color.Black, surface = Color.Black)
-                darkTheme -> dynamicDarkColorScheme(context)
-                else -> dynamicLightColorScheme(context)
-            }
-        }
-        
-        // Custom theme selection based on current theme state
-        else -> {
+        // If user has selected a custom theme (non-zero), use it regardless of dynamic color settings
+        currentTheme != 0 -> {
             when (currentTheme) {
                 // Dark Themes (1-10)
                 1 -> DraculaDarkColorScheme
@@ -648,7 +636,7 @@ fun KarbonTheme(
                 20 -> PaperColorLightColorScheme
                 
                 else -> {
-                    // Default themes based on dark/light mode
+                    // Fallback to default theme behavior for unknown theme IDs
                     when {
                         darkTheme && highContrastDarkTheme ->
                             DarkColorScheme.copy(background = Color.Black, surface = Color.Black)
@@ -656,6 +644,28 @@ fun KarbonTheme(
                         else -> LightColorScheme
                     }
                 }
+            }
+        }
+        
+        // If system theme (0) is selected and dynamic color is enabled, use dynamic colors
+        dynamicColor && supportsDynamicTheming() -> {
+            val context = LocalContext.current
+            when {
+                darkTheme && highContrastDarkTheme ->
+                    dynamicDarkColorScheme(context)
+                        .copy(background = Color.Black, surface = Color.Black)
+                darkTheme -> dynamicDarkColorScheme(context)
+                else -> dynamicLightColorScheme(context)
+            }
+        }
+        
+        // Default system themes when no custom theme and no dynamic colors
+        else -> {
+            when {
+                darkTheme && highContrastDarkTheme ->
+                    DarkColorScheme.copy(background = Color.Black, surface = Color.Black)
+                darkTheme -> DarkColorScheme
+                else -> LightColorScheme
             }
         }
     }
