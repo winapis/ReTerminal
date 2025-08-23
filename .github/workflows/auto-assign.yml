@@ -1,6 +1,6 @@
 name: Auto Assign
 
-"on":
+on:
   issues:
     types: [opened, reopened]
   pull_request:
@@ -63,9 +63,9 @@ jobs:
                   owner: context.repo.owner,
                   repo: context.repo.repo,
                   issue_number: issue_number,
-                  assignees: ['github-copilot[bot]']
+                  assignees: ['copilot[bot]']
                 });
-                console.log(`✅ Added github-copilot[bot] as assignee to issue #${issue_number}`);
+                console.log(`✅ Added copilot[bot] as assignee to issue #${issue_number}`);
               } catch (assigneeError) {
                 console.log(`ℹ️ Note: Could not add Copilot as regular assignee: ${assigneeError.message}`);
               }
@@ -77,11 +77,11 @@ jobs:
               // Fallback: Add Copilot mention and labels
               const copilotMention = `🤖 **GitHub Copilot Assigned**
               
-              @github-copilot has been assigned to assist with this issue.
+              @copilot has been assigned to assist with this issue.
               
               **Copilot Assignment Details:**
               - 👤 **Primary Assignee:** @Eduardob3677
-              - 🤖 **AI Assistant:** @github-copilot  
+              - 🤖 **AI Assistant:** @copilot  
               - 📋 **Issue:** #${issue_number}
               
               Copilot will provide automated assistance and code suggestions for this issue.`;
@@ -132,9 +132,9 @@ jobs:
                   owner: context.repo.owner,
                   repo: context.repo.repo,
                   issue_number: pr_number,
-                  assignees: ['github-copilot[bot]']
+                  assignees: ['copilot[bot]']
                 });
-                console.log(`✅ Added github-copilot[bot] as assignee to PR #${pr_number}`);
+                console.log(`✅ Added copilot[bot] as assignee to PR #${pr_number}`);
               } catch (assigneeError) {
                 console.log(`ℹ️ Note: Could not add Copilot as regular assignee: ${assigneeError.message}`);
               }
@@ -145,9 +145,9 @@ jobs:
                   owner: context.repo.owner,
                   repo: context.repo.repo,
                   pull_number: pr_number,
-                  reviewers: ['github-copilot[bot]']
+                  reviewers: ['copilot[bot]']
                 });
-                console.log(`✅ Requested review from github-copilot[bot] for PR #${pr_number}`);
+                console.log(`✅ Requested review from copilot[bot] for PR #${pr_number}`);
               } catch (reviewError) {
                 console.log(`ℹ️ Note: Could not request Copilot review: ${reviewError.message}`);
               }
@@ -159,11 +159,11 @@ jobs:
               // Fallback: Add Copilot mention and assignment comment
               const copilotMention = `🤖 **GitHub Copilot Assigned to PR**
               
-              @github-copilot has been assigned to assist with this pull request.
+              @copilot has been assigned to assist with this pull request.
               
               **Assignment Details:**
               - 👤 **Primary Assignee:** @Eduardob3677  
-              - 🤖 **AI Assistant:** @github-copilot
+              - 🤖 **AI Assistant:** @copilot
               - 🔍 **PR:** #${pr_number}
               
               Copilot will provide automated code review and suggestions for this pull request.`;
@@ -241,7 +241,7 @@ jobs:
           script: |
             const issue_number = context.issue.number;
             const issue = context.payload.issue;
-            const assignees = ['Eduardob3677', 'github-copilot[bot]'];
+            const assignees = ['Eduardob3677', 'copilot[bot]'];
             
             // Add assignees to the issue
             try {
@@ -267,7 +267,7 @@ jobs:
             - **Labels:** ${issue.labels.map(label => label.name).join(', ') || 'None'}
             
             🚀 **Copilot Assistance Available:**
-            @github-copilot Please analyze this issue and provide:
+            @copilot Please analyze this issue and provide:
             1. Technical assessment and complexity analysis
             2. Suggested implementation approach
             3. Potential dependencies or related components
@@ -316,7 +316,7 @@ jobs:
             - **Changes:** ${pr.changed_files || 'N/A'} files modified
             
             🤖 **Copilot Code Review:**
-            @github-copilot Please perform a comprehensive code review focusing on:
+            @copilot Please perform a comprehensive code review focusing on:
             
             1. **Code Quality & Standards**
                - Python PEP 8 compliance
