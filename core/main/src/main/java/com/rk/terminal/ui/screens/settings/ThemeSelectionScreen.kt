@@ -23,7 +23,7 @@ import androidx.navigation.NavController
 import com.rk.terminal.ui.theme.ModernThemeManager
 import com.rk.terminal.ui.theme.ThemeState
 import com.rk.terminal.utils.VibrationUtil
-import com.rk.settings.Settings
+import com.rk.settings.SettingsManager
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
