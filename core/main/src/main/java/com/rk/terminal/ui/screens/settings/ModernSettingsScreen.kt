@@ -209,7 +209,7 @@ private fun SettingsCategorySection(
                 )
                 
                 if (index < categories.size - 1) {
-                    Divider(
+                    HorizontalDivider(
                         modifier = Modifier.padding(vertical = 8.dp),
                         color = MaterialTheme.colorScheme.outline.copy(alpha = 0.2f)
                     )
@@ -309,7 +309,7 @@ private fun WorkingModeSection(
                 )
                 
                 if (index < workingModes.size - 1) {
-                    Divider(
+                    HorizontalDivider(
                         modifier = Modifier.padding(vertical = 8.dp),
                         color = MaterialTheme.colorScheme.outline.copy(alpha = 0.2f)
                     )

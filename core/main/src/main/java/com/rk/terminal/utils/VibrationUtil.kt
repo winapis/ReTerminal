@@ -47,6 +47,7 @@ object VibrationUtil {
     /**
      * Perform haptic feedback on a view
      */
+    @RequiresPermission(android.Manifest.permission.VIBRATE)
     fun performHapticFeedback(view: View?, pattern: VibrationPattern = VibrationPattern.LIGHT): Boolean {
         if (!SettingsManager.Feedback.vibrate || view == null) return false
         
@@ -141,30 +142,36 @@ object VibrationUtil {
     /**
      * Quick vibration for button presses
      */
+    @RequiresPermission(android.Manifest.permission.VIBRATE)
     fun vibrateButton(context: Context) = vibrate(context, VibrationPattern.LIGHT)
     
     /**
      * Medium vibration for important actions
      */
+    @RequiresPermission(android.Manifest.permission.VIBRATE)
     fun vibrateAction(context: Context) = vibrate(context, VibrationPattern.MEDIUM)
     
     /**
      * Heavy vibration for critical actions
      */
+    @RequiresPermission(android.Manifest.permission.VIBRATE)
     fun vibrateCritical(context: Context) = vibrate(context, VibrationPattern.HEAVY)
     
     /**
      * Success vibration pattern
      */
+    @RequiresPermission(android.Manifest.permission.VIBRATE)
     fun vibrateSuccess(context: Context) = vibrate(context, VibrationPattern.SUCCESS)
     
     /**
      * Error vibration pattern
      */
+    @RequiresPermission(android.Manifest.permission.VIBRATE)
     fun vibrateError(context: Context) = vibrate(context, VibrationPattern.ERROR)
     
     /**
      * Notification vibration pattern
      */
+    @RequiresPermission(android.Manifest.permission.VIBRATE)
     fun vibrateNotification(context: Context) = vibrate(context, VibrationPattern.NOTIFICATION)
 }
