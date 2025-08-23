@@ -25,6 +25,7 @@ import com.rk.terminal.ui.activities.terminal.MainActivity
 import com.rk.terminal.ui.components.SettingsToggle
 import com.rk.terminal.ui.routes.MainActivityRoutes
 import com.rk.terminal.utils.RootUtils
+import com.rk.terminal.utils.VibrationUtil
 import kotlinx.coroutines.launch
 
 
@@ -80,6 +81,35 @@ fun Settings(modifier: Modifier = Modifier,navController: NavController,mainActi
     var selectedOption by remember { mutableIntStateOf(Settings.working_Mode) }
     var showRootWarningDialog by remember { mutableStateOf(false) }
 
+    // Real-time root status checking every 10 seconds
+    LaunchedEffect(Unit) {
+        while (true) {
+            kotlinx.coroutines.delay(10000) // Check every 10 seconds
+            try {
+                if (Settings.root_enabled) {
+                    RootUtils.clearCache()
+                    val rootInfo = RootUtils.checkRootAccess()
+                    Settings.root_verified = rootInfo.isRootAvailable
+                    Settings.root_provider = rootInfo.rootProvider.name.lowercase()
+                    Settings.busybox_installed = rootInfo.isBusyBoxInstalled
+                    
+                    val busyboxPath = RootUtils.getBusyBoxPath()
+                    if (busyboxPath != null) {
+                        Settings.busybox_path = busyboxPath
+                    }
+                    
+                    // If root was lost while enabled, disable it
+                    if (!rootInfo.isRootAvailable) {
+                        Settings.root_enabled = false
+                        Settings.use_root_mounts = false
+                    }
+                }
+            } catch (e: Exception) {
+                // Root checking failed, keep current state
+            }
+        }
+    }
+
     PreferenceLayout(label = stringResource(strings.settings)) {
         PreferenceGroup(heading = "Default Working mode") {
 
@@ -91,11 +121,13 @@ fun Settings(modifier: Modifier = Modifier,navController: NavController,mainActi
                         modifier = Modifier.padding(start = 8.dp),
                         selected = selectedOption == WorkingMode.ALPINE,
                         onClick = {
+                            VibrationUtil.vibrateButton(context)
                             selectedOption = WorkingMode.ALPINE
                             Settings.working_Mode = selectedOption
                         })
                 },
                 onClick = {
+                    VibrationUtil.vibrateButton(context)
                     selectedOption = WorkingMode.ALPINE
                     Settings.working_Mode = selectedOption
                 })
@@ -193,7 +225,7 @@ fun Settings(modifier: Modifier = Modifier,navController: NavController,mainActi
             PreferenceSwitch(
                 label = "Enable Root Access",
                 description = if (Settings.root_enabled) {
-                    "Root access is enabled (${Settings.root_provider.uppercase()})"
+                    "Root access is enabled (${RootUtils.formatRootProviderName(Settings.root_provider)})"
                 } else {
                     "Root access is disabled - using rootless mode"
                 },
@@ -238,7 +270,7 @@ fun Settings(modifier: Modifier = Modifier,navController: NavController,mainActi
             if (Settings.root_enabled) {
                 SettingsCard(
                     title = { Text("Root Provider") },
-                    description = { Text(Settings.root_provider.uppercase()) },
+                    description = { Text(RootUtils.formatRootProviderName(Settings.root_provider)) },
                     onClick = { }
                 )
                 
@@ -263,37 +295,10 @@ fun Settings(modifier: Modifier = Modifier,navController: NavController,mainActi
                     enabled = Settings.root_enabled,
                     onCheckedChange = { enabled ->
                         Settings.use_root_mounts = enabled
+                        // TODO: Apply root mount changes immediately to running containers
                     }
                 )
             }
-            
-            SettingsCard(
-                title = { Text("Re-verify Root Access") },
-                description = { Text("Check root status and update configuration") },
-                onClick = {
-                    scope.launch {
-                        try {
-                            RootUtils.clearCache()
-                            val rootInfo = RootUtils.checkRootAccess()
-                            Settings.root_verified = rootInfo.isRootAvailable
-                            Settings.root_provider = rootInfo.rootProvider.name.lowercase()
-                            Settings.busybox_installed = rootInfo.isBusyBoxInstalled
-                            
-                            val busyboxPath = RootUtils.getBusyBoxPath()
-                            if (busyboxPath != null) {
-                                Settings.busybox_path = busyboxPath
-                            }
-                            
-                            if (!rootInfo.isRootAvailable && Settings.root_enabled) {
-                                Settings.root_enabled = false
-                                Settings.use_root_mounts = false
-                            }
-                        } catch (e: Exception) {
-                            Settings.root_verified = false
-                        }
-                    }
-                }
-            )
         }
 
 

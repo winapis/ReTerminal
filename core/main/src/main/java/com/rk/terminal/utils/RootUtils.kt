@@ -111,11 +111,8 @@ object RootUtils {
             // Try to find busybox in common locations
             val busyboxLocations = listOf(
                 "/system/bin/busybox",
-                "/system/xbin/busybox", 
-                "/sbin/busybox",
-                "/data/adb/magisk/busybox",
-                "/data/adb/ksu/bin/busybox",
-                "busybox" // In PATH
+                "/system/xbin/busybox",
+                "/sbin/busybox"
             )
             
             for (location in busyboxLocations) {
@@ -186,9 +183,7 @@ object RootUtils {
         val busyboxLocations = listOf(
             "/system/bin/busybox",
             "/system/xbin/busybox",
-            "/sbin/busybox", 
-            "/data/adb/magisk/busybox",
-            "/data/adb/ksu/bin/busybox"
+            "/sbin/busybox"
         )
         
         for (location in busyboxLocations) {
@@ -212,6 +207,19 @@ object RootUtils {
      */
     fun clearCache() {
         cachedRootInfo = null
+    }
+    
+    /**
+     * Format root provider name for display
+     */
+    fun formatRootProviderName(provider: String): String {
+        return when (provider.lowercase()) {
+            "magisk" -> "Magisk"
+            "kernelsu" -> "KernelSU"
+            "supersu" -> "SuperSU"
+            "unknown" -> "Unknown"
+            else -> "None"
+        }
     }
     
     /**
