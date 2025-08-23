@@ -461,6 +461,7 @@ private fun RootConfigurationStep(
     var rootCheckState by remember { mutableStateOf("idle") } // idle, checking, found, not_found, error
     var rootInfo by remember { mutableStateOf<com.rk.terminal.utils.RootInfo?>(null) }
     var showBusyBoxDialog by remember { mutableStateOf(false) }
+    var showRootWarningDialog by remember { mutableStateOf(false) }
     var userWantsRoot by remember { mutableStateOf(false) }
     
     Column(
@@ -485,7 +486,7 @@ private fun RootConfigurationStep(
         Spacer(modifier = Modifier.height(16.dp))
 
         Text(
-            text = "ReTerminal can optionally use root access for enhanced functionality. Root is NOT required.",
+            text = "¿Deseas usar acceso root para funciones avanzadas? (Opcional)",
             style = MaterialTheme.typography.bodyLarge,
             textAlign = TextAlign.Center,
             color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.8f)
@@ -503,7 +504,7 @@ private fun RootConfigurationStep(
                 modifier = Modifier.padding(20.dp)
             ) {
                 Text(
-                    text = if (userWantsRoot) "Root Configuration" else "Do you want to use root access?",
+                    text = if (userWantsRoot) "Configuración de Root" else "¿Deseas usar acceso root?",
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.SemiBold
                 )
@@ -512,10 +513,10 @@ private fun RootConfigurationStep(
                 
                 if (!userWantsRoot) {
                     val rootFeatures = listOf(
-                        "Enhanced filesystem access",
-                        "Better network and device permissions", 
-                        "Support for advanced Linux features",
-                        "BusyBox utilities integration"
+                        "Acceso mejorado al sistema de archivos",
+                        "Mejores permisos de red y dispositivos", 
+                        "Soporte para funciones avanzadas de Linux",
+                        "Integración con utilidades BusyBox"
                     )
                     
                     rootFeatures.forEach { feature ->
@@ -542,7 +543,7 @@ private fun RootConfigurationStep(
                     when (rootCheckState) {
                         "idle" -> {
                             Text(
-                                text = "Click 'Verify Root' to check root access",
+                                text = "Haz clic en 'Verificar Root' para comprobar el acceso",
                                 style = MaterialTheme.typography.bodyMedium
                             )
                         }
@@ -556,7 +557,7 @@ private fun RootConfigurationStep(
                                 )
                                 Spacer(modifier = Modifier.width(8.dp))
                                 Text(
-                                    text = "Checking root access...",
+                                    text = "Verificando acceso root...",
                                     style = MaterialTheme.typography.bodyMedium
                                 )
                             }
@@ -575,7 +576,7 @@ private fun RootConfigurationStep(
                                         )
                                         Spacer(modifier = Modifier.width(8.dp))
                                         Text(
-                                            text = "Root access verified!",
+                                            text = "¡Acceso root verificado!",
                                             style = MaterialTheme.typography.bodyMedium,
                                             fontWeight = FontWeight.SemiBold
                                         )
@@ -584,13 +585,13 @@ private fun RootConfigurationStep(
                                     Spacer(modifier = Modifier.height(8.dp))
                                     
                                     Text(
-                                        text = "Root Provider: ${info.rootProvider.name}",
+                                        text = "Proveedor Root: ${RootUtils.formatRootProviderName(info.rootProvider)}",
                                         style = MaterialTheme.typography.bodySmall,
                                         color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
                                     )
                                     
                                     Text(
-                                        text = "BusyBox: ${if (info.isBusyBoxInstalled) "Installed" else "Not installed"}",
+                                        text = "BusyBox: ${if (info.isBusyBoxInstalled) "Instalado" else "No instalado"}",
                                         style = MaterialTheme.typography.bodySmall,
                                         color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
                                     )
@@ -598,7 +599,7 @@ private fun RootConfigurationStep(
                                     if (!info.isBusyBoxInstalled) {
                                         Spacer(modifier = Modifier.height(8.dp))
                                         Text(
-                                            text = "Note: BusyBox is recommended for full functionality",
+                                            text = "Nota: BusyBox es recomendado para funcionalidad completa",
                                             style = MaterialTheme.typography.bodySmall,
                                             color = MaterialTheme.colorScheme.error
                                         )
@@ -618,7 +619,7 @@ private fun RootConfigurationStep(
                                 )
                                 Spacer(modifier = Modifier.width(8.dp))
                                 Text(
-                                    text = "Root access not available",
+                                    text = "Acceso root no disponible",
                                     style = MaterialTheme.typography.bodyMedium,
                                     color = MaterialTheme.colorScheme.error
                                 )
@@ -636,7 +637,7 @@ private fun RootConfigurationStep(
                                 )
                                 Spacer(modifier = Modifier.width(8.dp))
                                 Text(
-                                    text = "Error checking root access",
+                                    text = "Error verificando acceso root",
                                     style = MaterialTheme.typography.bodyMedium,
                                     color = MaterialTheme.colorScheme.error
                                 )
@@ -662,7 +663,7 @@ private fun RootConfigurationStep(
                     },
                     modifier = Modifier.weight(1f)
                 ) {
-                    Text("Yes, use root")
+                    Text("✅ Sí")
                 }
                 
                 Spacer(modifier = Modifier.width(16.dp))
@@ -675,7 +676,7 @@ private fun RootConfigurationStep(
                     },
                     modifier = Modifier.weight(1f)
                 ) {
-                    Text("No, continue without root")
+                    Text("❌ No")
                 }
             }
         } else {
@@ -691,9 +692,8 @@ private fun RootConfigurationStep(
                                 try {
                                     val info = RootUtils.checkRootAccess()
                                     rootInfo = info
-                                    rootCheckState = if (info.isRootAvailable) "found" else "not_found"
-                                    
                                     if (info.isRootAvailable) {
+                                        rootCheckState = "found"
                                         // Save root configuration
                                         Settings.root_enabled = true
                                         Settings.root_verified = true
@@ -706,6 +706,9 @@ private fun RootConfigurationStep(
                                         if (busyboxPath != null) {
                                             Settings.busybox_path = busyboxPath
                                         }
+                                    } else {
+                                        rootCheckState = "not_found"
+                                        showRootWarningDialog = true
                                     }
                                 } catch (e: Exception) {
                                     rootCheckState = "error"
@@ -715,7 +718,7 @@ private fun RootConfigurationStep(
                         modifier = Modifier.fillMaxWidth(),
                         enabled = rootCheckState != "checking"
                     ) {
-                        Text("Verify Root Access")
+                        Text("Verificar Acceso Root")
                     }
                 }
                 
@@ -726,7 +729,7 @@ private fun RootConfigurationStep(
                         onClick = { showBusyBoxDialog = true },
                         modifier = Modifier.fillMaxWidth()
                     ) {
-                        Text("Install BusyBox")
+                        Text("Instalar BusyBox")
                     }
                     
                     Spacer(modifier = Modifier.height(12.dp))
@@ -749,9 +752,9 @@ private fun RootConfigurationStep(
                 ) {
                     Text(
                         when (rootCheckState) {
-                            "found" -> "Continue with Root"
-                            "not_found" -> "Continue without Root"
-                            else -> "Continue"
+                            "found" -> "Continuar con Root"
+                            "not_found" -> "Continuar sin Root"
+                            else -> "Continuar"
                         }
                     )
                 }
@@ -765,7 +768,7 @@ private fun RootConfigurationStep(
                     },
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    Text("Back")
+                    Text("Atrás")
                 }
             }
         }
@@ -775,17 +778,58 @@ private fun RootConfigurationStep(
     if (showBusyBoxDialog) {
         AlertDialog(
             onDismissRequest = { showBusyBoxDialog = false },
-            title = { Text("BusyBox Installation") },
+            title = { Text("Instalación de BusyBox Requerida") },
             text = { 
                 Text(
-                    "BusyBox provides additional Unix utilities for enhanced functionality. " +
-                    "Please install BusyBox through your root manager (Magisk or KernelSU) and restart your device.\n\n" +
-                    "Recommended BusyBox module: BusyBox for Android NDK"
+                    "BusyBox proporciona utilidades Unix esenciales para funcionalidad root mejorada. " +
+                    "Para instalar BusyBox:\n\n" +
+                    "1. Descarga el ZIP BusyBox Installer desde:\n" +
+                    "https://xdaforums.com/attachments/update-busybox-installer-v1-36-1-all-signed-zip.6000117\n\n" +
+                    "2. Flashea el ZIP a través de tu administrador root (Magisk o KernelSU)\n\n" +
+                    "3. Reinicia tu dispositivo después de la instalación\n\n" +
+                    "Después del reinicio, BusyBox estará disponible para funcionalidad mejorada."
                 )
             },
             confirmButton = {
                 TextButton(onClick = { showBusyBoxDialog = false }) {
-                    Text("OK")
+                    Text("Vale, lo instalaré")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showBusyBoxDialog = false }) {
+                    Text("Continuar sin BusyBox")
+                }
+            }
+        )
+    }
+    
+    // Root warning dialog
+    if (showRootWarningDialog) {
+        AlertDialog(
+            onDismissRequest = { showRootWarningDialog = false },
+            title = { Text("Acceso Root No Encontrado") },
+            text = { 
+                Text(
+                    "No se encontraron permisos root para esta app. ¿Deseas continuar sin root?\n\n" +
+                    "Sin root, ReTerminal funcionará en modo básico pero seguirá siendo completamente funcional."
+                )
+            },
+            confirmButton = {
+                TextButton(onClick = { 
+                    showRootWarningDialog = false
+                    Settings.root_enabled = false
+                    onNext()
+                }) {
+                    Text("Sí, continuar sin root")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { 
+                    showRootWarningDialog = false
+                    userWantsRoot = false
+                    rootCheckState = "idle"
+                }) {
+                    Text("Volver atrás")
                 }
             }
         )

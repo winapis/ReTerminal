@@ -207,6 +207,19 @@ object RootUtils {
     /**
      * Format root provider name for display
      */
+    fun formatRootProviderName(provider: RootProvider): String {
+        return when (provider) {
+            RootProvider.MAGISK -> "Magisk"
+            RootProvider.KERNELSU -> "KernelSU"
+            RootProvider.SUPERSU -> "SuperSU"
+            RootProvider.UNKNOWN -> "Unknown"
+            RootProvider.NONE -> "None"
+        }
+    }
+    
+    /**
+     * Format root provider name for display from string
+     */
     fun formatRootProviderName(provider: String): String {
         return when (provider.lowercase()) {
             "magisk" -> "Magisk"
