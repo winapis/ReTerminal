@@ -1,4 +1,4 @@
-import java.io.ByteArrayOutputStream
+import org.gradle.api.provider.Provider
 
 plugins {
     alias(libs.plugins.androidLibrary)
@@ -6,31 +6,22 @@ plugins {
     alias(libs.plugins.compose.compiler)
 }
 
-fun getGitCommitHash(): String {
-    val stdout = ByteArrayOutputStream()
-    exec {
+fun getGitCommitHash(): Provider<String> {
+    return providers.exec {
         commandLine("git", "rev-parse", "--short=8", "HEAD")
-        standardOutput = stdout
-    }
-    return stdout.toString().trim()
+    }.standardOutput.asText.map { it.trim() }
 }
 
-fun getGitCommitDate(): String {
-    val stdout = ByteArrayOutputStream()
-    exec {
+fun getGitCommitDate(): Provider<String> {
+    return providers.exec {
         commandLine("git", "show", "-s", "--format=%cI", "HEAD")
-        standardOutput = stdout
-    }
-    return stdout.toString().trim()
+    }.standardOutput.asText.map { it.trim() }
 }
 
-fun getFullGitCommitHash(): String {
-    val stdout = ByteArrayOutputStream()
-    exec {
+fun getFullGitCommitHash(): Provider<String> {
+    return providers.exec {
         commandLine("git", "rev-parse", "HEAD")
-        standardOutput = stdout
-    }
-    return stdout.toString().trim()
+    }.standardOutput.asText.map { it.trim() }
 }
 
 
@@ -47,9 +38,9 @@ android {
 
     buildTypes {
         release {
-            buildConfigField("String", "GIT_COMMIT_HASH", "\"${getFullGitCommitHash()}\"")
-            buildConfigField("String", "GIT_SHORT_COMMIT_HASH", "\"${getGitCommitHash()}\"")
-            buildConfigField("String", "GIT_COMMIT_DATE", "\"${getGitCommitDate()}\"")
+            buildConfigField("String", "GIT_COMMIT_HASH", "\"${getFullGitCommitHash().get()}\"")
+            buildConfigField("String", "GIT_SHORT_COMMIT_HASH", "\"${getGitCommitHash().get()}\"")
+            buildConfigField("String", "GIT_COMMIT_DATE", "\"${getGitCommitDate().get()}\"")
             isMinifyEnabled = false
             isShrinkResources = false
             proguardFiles(
@@ -57,9 +48,9 @@ android {
             )
         }
         debug{
-            buildConfigField("String", "GIT_COMMIT_HASH", "\"${getFullGitCommitHash()}\"")
-            buildConfigField("String", "GIT_SHORT_COMMIT_HASH", "\"${getGitCommitHash()}\"")
-            buildConfigField("String", "GIT_COMMIT_DATE", "\"${getGitCommitDate()}\"")
+            buildConfigField("String", "GIT_COMMIT_HASH", "\"${getFullGitCommitHash().get()}\"")
+            buildConfigField("String", "GIT_SHORT_COMMIT_HASH", "\"${getGitCommitHash().get()}\"")
+            buildConfigField("String", "GIT_COMMIT_DATE", "\"${getGitCommitDate().get()}\"")
         }
     }
 
