@@ -10,7 +10,7 @@ import com.rk.libcommons.localBinDir
 import com.rk.libcommons.localDir
 import com.rk.libcommons.localLibDir
 import com.rk.libcommons.pendingCommand
-import com.rk.settings.Settings
+import com.rk.settings.SettingsManager
 import com.rk.terminal.App
 import com.rk.terminal.App.Companion.getTempDir
 import com.rk.terminal.BuildConfig
@@ -101,7 +101,7 @@ object MkSession {
             val distributionDir = localDir().child("distribution")
             val graphicsEnabledFile = distributionDir.child(".reterminal_graphics_enabled")
             
-            if (Settings.graphics_acceleration) {
+            if (SettingsManager.System.graphicsAcceleration) {
                 // Create flag file to enable graphics acceleration
                 if (distributionDir.exists()) {
                     graphicsEnabledFile.createFileIfNot()
@@ -134,12 +134,12 @@ object MkSession {
                 "TMPDIR=${getTempDir().absolutePath}",
                 "SELECTED_DISTRIBUTION=$selectedDistribution",
                 // Root-related environment variables
-                "ROOT_ENABLED=${Settings.root_enabled}",
-                "ROOT_VERIFIED=${Settings.root_verified}",
-                "ROOT_PROVIDER=${Settings.root_provider}",
-                "BUSYBOX_INSTALLED=${Settings.busybox_installed}",
-                "BUSYBOX_PATH=${Settings.busybox_path}",
-                "USE_ROOT_MOUNTS=${Settings.use_root_mounts}"
+                "ROOT_ENABLED=${SettingsManager.Root.enabled}",
+                "ROOT_VERIFIED=${SettingsManager.Root.verified}",
+                "ROOT_PROVIDER=${SettingsManager.Root.provider}",
+                "BUSYBOX_INSTALLED=${SettingsManager.Root.busyboxInstalled}",
+                "BUSYBOX_PATH=${SettingsManager.Root.busyboxPath}",
+                "USE_ROOT_MOUNTS=${SettingsManager.Root.useMounts}"
             )
 
             if (File(applicationInfo.nativeLibraryDir).child("libproot-loader32.so").exists()){
@@ -176,7 +176,7 @@ object MkSession {
             val shell = if (pendingCommand == null) {
                 args = if (workingMode != WorkingMode.ANDROID){
                     // Choose the appropriate init script based on root configuration
-                    val initScriptFile = if (Settings.root_enabled && Settings.root_verified) {
+                    val initScriptFile = if (SettingsManager.Root.enabled && SettingsManager.Root.verified) {
                         localBinDir().child("init-host-root")
                     } else {
                         initFile

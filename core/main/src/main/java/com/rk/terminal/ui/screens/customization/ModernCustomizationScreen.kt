@@ -35,7 +35,6 @@ import com.rk.components.compose.preferences.switch.PreferenceSwitch
 import com.rk.libcommons.child
 import com.rk.libcommons.createFileIfNot
 import com.rk.libcommons.localDir
-import com.rk.settings.Settings
 import com.rk.settings.SettingsManager
 import com.rk.terminal.ui.components.SettingsToggle
 import com.rk.terminal.ui.navHosts.horizontal_statusBar

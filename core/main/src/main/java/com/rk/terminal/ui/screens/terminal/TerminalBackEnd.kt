@@ -12,7 +12,7 @@ import com.blankj.utilcode.util.KeyboardUtils
 import com.rk.libcommons.child
 import com.rk.libcommons.createFileIfNot
 import com.rk.libcommons.dpToPx
-import com.rk.settings.Settings
+import com.rk.settings.SettingsManager
 import com.rk.terminal.ui.activities.terminal.MainActivity
 import com.rk.terminal.ui.screens.terminal.virtualkeys.SpecialButton
 import com.rk.terminal.ui.screens.terminal.virtualkeys.VirtualKeysView
@@ -58,7 +58,7 @@ class TerminalBackEnd(val terminal: TerminalView,val activity: MainActivity) : T
 
 
     override fun onBell(session: TerminalSession) {
-        if (Settings.bell){
+        if (SettingsManager.Feedback.bell){
             activity.lifecycleScope.launch{
                 val bellFile = activity.cacheDir.child("bell.oga")
                 if (bellFile.exists().not()){
@@ -135,7 +135,7 @@ class TerminalBackEnd(val terminal: TerminalView,val activity: MainActivity) : T
 
 
     override fun onSingleTapUp(e: MotionEvent) {
-        if (!(isHardwareKeyboardConnected && Settings.hide_soft_keyboard_if_hwd)){
+        if (!(isHardwareKeyboardConnected && SettingsManager.Interface.hideSoftKeyboardIfHardware)){
             showSoftInput()
         }
     }
