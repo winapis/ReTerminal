@@ -41,20 +41,22 @@ fun TopBar(
     actions: @Composable RowScope.() -> Unit = {},
 ) {
     val backDispatcher = LocalOnBackPressedDispatcherOwner.current?.onBackPressedDispatcher
+    
+    val navigationIcon: @Composable () -> Unit = {
+        if (backArrowVisible) {
+            ClickableIcon(
+                imageVector = Icons.AutoMirrored.Rounded.ArrowBack,
+                onClick = { backDispatcher?.onBackPressed() },
+            )
+        }
+    }
 
     if (isExpandedScreen) {
         TopAppBar(
             modifier = modifier,
             title = { Text(text = label, maxLines = 1, overflow = TextOverflow.Ellipsis) },
             actions = actions,
-            navigationIcon = {
-                if (backArrowVisible) {
-                    ClickableIcon(
-                        imageVector = Icons.AutoMirrored.Rounded.ArrowBack,
-                        onClick = { backDispatcher?.onBackPressed() },
-                    )
-                }
-            },
+            navigationIcon = navigationIcon,
             scrollBehavior = scrollBehavior,
         )
     } else {
@@ -62,14 +64,7 @@ fun TopBar(
             modifier = modifier,
             title = { Text(text = label) },
             actions = actions,
-            navigationIcon = {
-                if (backArrowVisible) {
-                    ClickableIcon(
-                        imageVector = Icons.AutoMirrored.Rounded.ArrowBack,
-                        onClick = { backDispatcher?.onBackPressed() },
-                    )
-                }
-            },
+            navigationIcon = navigationIcon,
             scrollBehavior = scrollBehavior,
         )
     }
