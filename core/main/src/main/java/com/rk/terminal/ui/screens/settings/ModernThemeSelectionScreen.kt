@@ -34,6 +34,9 @@ fun ModernThemeSelectionScreen(navController: NavController) {
     val availableThemes = ModernThemeManager.getAllThemes()
     var currentTheme by remember { mutableIntStateOf(SettingsManager.Appearance.colorScheme) }
     var showingCategory by remember { mutableStateOf("all") }
+    
+    // Create a reactive key that changes when monet setting changes
+    val monetKey = remember { derivedStateOf { SettingsManager.Appearance.monet } }.value
 
     Scaffold(
         topBar = {
@@ -120,29 +123,68 @@ fun ModernThemeSelectionScreen(navController: NavController) {
 
             // Theme preview grid
             item {
-                val filteredThemes = when (showingCategory) {
-                    "dark" -> availableThemes.filter { it.isDark && it.id != 0 }
-                    "light" -> availableThemes.filter { !it.isDark && it.id != 0 }
-                    "system" -> availableThemes.filter { it.id == 0 }
-                    else -> availableThemes
+                val filteredThemes = if (monetKey) {
+                    // When Material Design is enabled, only show system theme or empty list
+                    emptyList()
+                } else {
+                    when (showingCategory) {
+                        "dark" -> availableThemes.filter { it.isDark && it.id != 0 }
+                        "light" -> availableThemes.filter { !it.isDark && it.id != 0 }
+                        "system" -> availableThemes.filter { it.id == 0 }
+                        else -> availableThemes
+                    }
                 }
 
-                LazyVerticalStaggeredGrid(
-                    columns = StaggeredGridCells.Adaptive(280.dp),
-                    verticalItemSpacing = 12.dp,
-                    horizontalArrangement = Arrangement.spacedBy(12.dp),
-                    modifier = Modifier.height(600.dp) // Fixed height for nested scrolling
-                ) {
-                    items(filteredThemes) { theme ->
-                        ThemePreviewCard(
-                            theme = theme,
-                            isSelected = currentTheme == theme.id,
-                            onSelect = {
-                                VibrationUtil.vibrateButton(context)
-                                currentTheme = theme.id
-                                ModernThemeManager.applyTheme(context, theme.id)
-                            }
-                        )
+                if (monetKey) {
+                    // Show message when Material Design is active
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(12.dp)
+                    ) {
+                        Column(
+                            modifier = Modifier.padding(24.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Star,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.primary,
+                                modifier = Modifier.size(48.dp)
+                            )
+                            Spacer(modifier = Modifier.height(16.dp))
+                            Text(
+                                text = "Material Design Active",
+                                style = MaterialTheme.typography.titleLarge,
+                                fontWeight = FontWeight.Bold,
+                                textAlign = TextAlign.Center
+                            )
+                            Spacer(modifier = Modifier.height(8.dp))
+                            Text(
+                                text = "Manual theme selection is disabled when Material Design is enabled. Disable Dynamic Colors to choose custom themes.",
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                textAlign = TextAlign.Center
+                            )
+                        }
+                    }
+                } else {
+                    LazyVerticalStaggeredGrid(
+                        columns = StaggeredGridCells.Adaptive(280.dp),
+                        verticalItemSpacing = 12.dp,
+                        horizontalArrangement = Arrangement.spacedBy(12.dp),
+                        modifier = Modifier.height(600.dp) // Fixed height for nested scrolling
+                    ) {
+                        items(filteredThemes) { theme ->
+                            ThemePreviewCard(
+                                theme = theme,
+                                isSelected = currentTheme == theme.id,
+                                onSelect = {
+                                    VibrationUtil.vibrateButton(context)
+                                    currentTheme = theme.id
+                                    ModernThemeManager.applyTheme(context, theme.id)
+                                }
+                            )
+                        }
                     }
                 }
             }
@@ -209,6 +251,9 @@ private fun CategoryChip(
 
 @Composable
 private fun DynamicThemingSection() {
+    var materialDesignEnabled by remember { mutableStateOf(SettingsManager.Appearance.monet) }
+    var amoledEnabled by remember { mutableStateOf(SettingsManager.Appearance.amoled) }
+    
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(12.dp)
@@ -248,12 +293,15 @@ private fun DynamicThemingSection() {
             ) {
                 Text("Enable Dynamic Colors")
                 Switch(
-                    checked = SettingsManager.Appearance.monet,
-                    onCheckedChange = { SettingsManager.Appearance.monet = it }
+                    checked = materialDesignEnabled,
+                    onCheckedChange = { 
+                        materialDesignEnabled = it
+                        SettingsManager.Appearance.monet = it
+                    }
                 )
             }
             
-            if (SettingsManager.Appearance.monet) {
+            if (materialDesignEnabled) {
                 Spacer(modifier = Modifier.height(8.dp))
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -262,8 +310,11 @@ private fun DynamicThemingSection() {
                 ) {
                     Text("AMOLED Black")
                     Switch(
-                        checked = SettingsManager.Appearance.amoled,
-                        onCheckedChange = { SettingsManager.Appearance.amoled = it }
+                        checked = amoledEnabled,
+                        onCheckedChange = { 
+                            amoledEnabled = it
+                            SettingsManager.Appearance.amoled = it
+                        }
                     )
                 }
             }

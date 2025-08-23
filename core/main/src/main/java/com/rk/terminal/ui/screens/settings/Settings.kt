@@ -80,26 +80,41 @@ fun Settings(modifier: Modifier = Modifier,navController: NavController,mainActi
     val scope = rememberCoroutineScope()
     var selectedOption by remember { mutableIntStateOf(SettingsManager.System.workingMode) }
     var showRootWarningDialog by remember { mutableStateOf(false) }
+    
+    // Reactive state management for root settings
+    var rootEnabled by remember { mutableStateOf(SettingsManager.Root.enabled) }
+    var rootUseMounts by remember { mutableStateOf(SettingsManager.Root.useMounts) }
+    var rootVerified by remember { mutableStateOf(SettingsManager.Root.verified) }
+    var rootProvider by remember { mutableStateOf(SettingsManager.Root.provider) }
+    var rootBusyboxInstalled by remember { mutableStateOf(SettingsManager.Root.busyboxInstalled) }
+    var rootBusyboxPath by remember { mutableStateOf(SettingsManager.Root.busyboxPath) }
 
     // Real-time root status checking every 10 seconds
     LaunchedEffect(Unit) {
         while (true) {
             kotlinx.coroutines.delay(10000) // Check every 10 seconds
             try {
-                if (SettingsManager.Root.enabled) {
+                if (rootEnabled) {
                     RootUtils.clearCache()
                     val rootInfo = RootUtils.checkRootAccess()
-                    SettingsManager.Root.verified = rootInfo.isRootAvailable
-                    SettingsManager.Root.provider = rootInfo.rootProvider.name.lowercase()
-                    SettingsManager.Root.busyboxInstalled = rootInfo.isBusyBoxInstalled
+                    rootVerified = rootInfo.isRootAvailable
+                    rootProvider = rootInfo.rootProvider.name.lowercase()
+                    rootBusyboxInstalled = rootInfo.isBusyBoxInstalled
+                    
+                    SettingsManager.Root.verified = rootVerified
+                    SettingsManager.Root.provider = rootProvider
+                    SettingsManager.Root.busyboxInstalled = rootBusyboxInstalled
                     
                     val busyboxPath = RootUtils.getBusyBoxPath()
                     if (busyboxPath != null) {
+                        rootBusyboxPath = busyboxPath
                         SettingsManager.Root.busyboxPath = busyboxPath
                     }
                     
                     // If root was lost while enabled, disable it
                     if (!rootInfo.isRootAvailable) {
+                        rootEnabled = false
+                        rootUseMounts = false
                         SettingsManager.Root.enabled = false
                         SettingsManager.Root.useMounts = false
                     }
@@ -111,11 +126,18 @@ fun Settings(modifier: Modifier = Modifier,navController: NavController,mainActi
     }
 
     PreferenceLayout(label = stringResource(strings.settings)) {
-        PreferenceGroup(heading = "Default Working mode") {
+        // Distribution Selection Group
+        PreferenceGroup(heading = "Distribution") {
+            Text(
+                text = "Select your preferred Linux distribution",
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+            )
 
             SettingsCard(
-                title = { Text("Alpine") },
-                description = {Text("Alpine Linux")},
+                title = { Text("Alpine Linux") },
+                description = { Text("Lightweight, security-oriented distribution") },
                 startWidget = {
                     RadioButton(
                         modifier = Modifier.padding(start = 8.dp),
@@ -133,8 +155,8 @@ fun Settings(modifier: Modifier = Modifier,navController: NavController,mainActi
                 })
 
             SettingsCard(
-                title = { Text("Ubuntu") },
-                description = {Text("Ubuntu Linux ARM64")},
+                title = { Text("Ubuntu Linux") },
+                description = { Text("Popular, user-friendly distribution with extensive package support") },
                 startWidget = {
                     RadioButton(
                         modifier = Modifier.padding(start = 8.dp),
@@ -150,8 +172,8 @@ fun Settings(modifier: Modifier = Modifier,navController: NavController,mainActi
                 })
 
             SettingsCard(
-                title = { Text("Debian") },
-                description = {Text("Debian Linux ARM64")},
+                title = { Text("Debian Linux") },
+                description = { Text("Stable and reliable distribution, basis for Ubuntu") },
                 startWidget = {
                     RadioButton(
                         modifier = Modifier.padding(start = 8.dp),
@@ -168,7 +190,7 @@ fun Settings(modifier: Modifier = Modifier,navController: NavController,mainActi
 
             SettingsCard(
                 title = { Text("Arch Linux") },
-                description = {Text("Arch Linux ARM64")},
+                description = { Text("Rolling release distribution for advanced users") },
                 startWidget = {
                     RadioButton(
                         modifier = Modifier.padding(start = 8.dp),
@@ -185,7 +207,7 @@ fun Settings(modifier: Modifier = Modifier,navController: NavController,mainActi
 
             SettingsCard(
                 title = { Text("Kali Linux") },
-                description = {Text("Kali Linux ARM64")},
+                description = { Text("Penetration testing and security auditing distribution") },
                 startWidget = {
                     RadioButton(
                         modifier = Modifier.padding(start = 8.dp),
@@ -201,13 +223,12 @@ fun Settings(modifier: Modifier = Modifier,navController: NavController,mainActi
                 })
 
             SettingsCard(
-                title = { Text("Android") },
-                description = {Text("ReTerminal Android shell")},
+                title = { Text("Android Shell") },
+                description = { Text("Native Android terminal environment") },
                 startWidget = {
                     RadioButton(
                         modifier = Modifier
-                            .padding(start = 8.dp)
-                            ,
+                            .padding(start = 8.dp),
                         selected = selectedOption == WorkingMode.ANDROID,
                         onClick = {
                             selectedOption = WorkingMode.ANDROID
@@ -221,22 +242,32 @@ fun Settings(modifier: Modifier = Modifier,navController: NavController,mainActi
         }
 
 
+        // Root Configuration Group
         PreferenceGroup(heading = "Root Configuration") {
+            Text(
+                text = "Configure root access and enhanced features",
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+            )
+            
             PreferenceSwitch(
                 label = "Enable Root Access",
-                description = if (SettingsManager.Root.enabled) {
-                    "Root access is enabled (${RootUtils.formatRootProviderName(SettingsManager.Root.provider)})"
+                description = if (rootEnabled) {
+                    "Root access is enabled (${RootUtils.formatRootProviderName(rootProvider)})"
                 } else {
                     "Root access is disabled - using rootless mode"
                 },
-                enabled = SettingsManager.Root.verified || !SettingsManager.Root.enabled,
-                checked = SettingsManager.Root.enabled,
+                enabled = rootVerified || !rootEnabled,
+                checked = rootEnabled,
                 onCheckedChange = { enabled ->
                     if (!enabled) {
                         // Disabling root - show warning
                         showRootWarningDialog = true
-                    } else if (SettingsManager.Root.verified) {
+                    } else if (rootVerified) {
                         // Re-enabling root if previously verified
+                        rootEnabled = true
+                        rootUseMounts = true
                         SettingsManager.Root.enabled = true
                         SettingsManager.Root.useMounts = true
                     } else {
@@ -245,21 +276,30 @@ fun Settings(modifier: Modifier = Modifier,navController: NavController,mainActi
                             try {
                                 val rootInfo = RootUtils.checkRootAccess()
                                 if (rootInfo.isRootAvailable) {
+                                    rootEnabled = true
+                                    rootVerified = true
+                                    rootProvider = rootInfo.rootProvider.name.lowercase()
+                                    rootBusyboxInstalled = rootInfo.isBusyBoxInstalled
+                                    rootUseMounts = true
+                                    
                                     SettingsManager.Root.enabled = true
                                     SettingsManager.Root.verified = true
-                                    SettingsManager.Root.provider = rootInfo.rootProvider.name.lowercase()
-                                    SettingsManager.Root.busyboxInstalled = rootInfo.isBusyBoxInstalled
+                                    SettingsManager.Root.provider = rootProvider
+                                    SettingsManager.Root.busyboxInstalled = rootBusyboxInstalled
                                     SettingsManager.Root.useMounts = true
                                     
                                     val busyboxPath = RootUtils.getBusyBoxPath()
                                     if (busyboxPath != null) {
+                                        rootBusyboxPath = busyboxPath
                                         SettingsManager.Root.busyboxPath = busyboxPath
                                     }
                                 } else {
                                     // Root not available
+                                    rootEnabled = false
                                     SettingsManager.Root.enabled = false
                                 }
                             } catch (e: Exception) {
+                                rootEnabled = false
                                 SettingsManager.Root.enabled = false
                             }
                         }
@@ -267,10 +307,10 @@ fun Settings(modifier: Modifier = Modifier,navController: NavController,mainActi
                 }
             )
             
-            if (SettingsManager.Root.enabled) {
+            if (rootEnabled) {
                 SettingsCard(
                     title = { Text("Root Provider") },
-                    description = { Text(RootUtils.formatRootProviderName(SettingsManager.Root.provider)) },
+                    description = { Text(RootUtils.formatRootProviderName(rootProvider)) },
                     onClick = { VibrationUtil.vibrateButton(context) }
                 )
                 
@@ -278,8 +318,8 @@ fun Settings(modifier: Modifier = Modifier,navController: NavController,mainActi
                     title = { Text("BusyBox Status") },
                     description = { 
                         Text(
-                            if (SettingsManager.Root.busyboxInstalled) {
-                                "Installed at ${SettingsManager.Root.busyboxPath.takeIf { it.isNotEmpty() } ?: "system path"}"
+                            if (rootBusyboxInstalled) {
+                                "Installed at ${rootBusyboxPath.takeIf { it.isNotEmpty() } ?: "system path"}"
                             } else {
                                 "Not installed - some features may be limited"
                             }
@@ -291,10 +331,11 @@ fun Settings(modifier: Modifier = Modifier,navController: NavController,mainActi
                 PreferenceSwitch(
                     label = "Use Root Mounts",
                     description = "Enable enhanced filesystem mounts and bindings. Changes apply to new terminal sessions.",
-                    checked = SettingsManager.Root.useMounts,
-                    enabled = SettingsManager.Root.enabled,
+                    checked = rootUseMounts,
+                    enabled = rootEnabled,
                     onCheckedChange = { enabled ->
                         VibrationUtil.vibrateAction(context)
+                        rootUseMounts = enabled
                         SettingsManager.Root.useMounts = enabled
                         if (enabled) {
                             VibrationUtil.vibrateSuccess(context)
@@ -305,7 +346,15 @@ fun Settings(modifier: Modifier = Modifier,navController: NavController,mainActi
         }
 
 
-        PreferenceGroup(heading = "Appearance") {
+        // Appearance & Customization Group
+        PreferenceGroup(heading = "Appearance & Customization") {
+            Text(
+                text = "Customize the look and feel of your terminal",
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+            )
+            
             SettingsToggle(
                 label = "Theme Selection",
                 showSwitch = false,
@@ -346,6 +395,8 @@ fun Settings(modifier: Modifier = Modifier,navController: NavController,mainActi
                 TextButton(
                     onClick = { 
                         VibrationUtil.vibrateError(context)
+                        rootEnabled = false
+                        rootUseMounts = false
                         SettingsManager.Root.enabled = false
                         SettingsManager.Root.useMounts = false
                         showRootWarningDialog = false
