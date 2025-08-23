@@ -379,10 +379,8 @@ public final class VirtualKeysView extends GridLayout {
                 case MotionEvent.ACTION_DOWN:
                   // Use pressed state from drawable instead of direct color
                   view.setPressed(true);
-                  // Add subtle elevation animation for modern feel
-                  if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                    view.animate().translationZ(2f).setDuration(100);
-                  }
+                  // Add subtle elevation animation for modern feel (minSdk 24 > LOLLIPOP 21)
+                  view.animate().translationZ(2f).setDuration(100);
                   // Start long press scheduled executors which will be stopped in
                   // next MotionEvent
                   startScheduledExecutors(view, buttonInfo, button);
@@ -394,16 +392,12 @@ public final class VirtualKeysView extends GridLayout {
                     if (mPopupWindow == null && event.getY() < 0) {
                       stopScheduledExecutors();
                       view.setPressed(false);
-                      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                        view.animate().translationZ(0f).setDuration(100);
-                      }
+                      view.animate().translationZ(0f).setDuration(100);
                       showPopup(view, buttonInfo.getPopup());
                     }
                     if (mPopupWindow != null && event.getY() > 0) {
                       view.setPressed(true);
-                      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                        view.animate().translationZ(2f).setDuration(100);
-                      }
+                      view.animate().translationZ(2f).setDuration(100);
                       dismissPopup();
                     }
                   }
@@ -411,17 +405,13 @@ public final class VirtualKeysView extends GridLayout {
 
                 case MotionEvent.ACTION_CANCEL:
                   view.setPressed(false);
-                  if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                    view.animate().translationZ(0f).setDuration(150);
-                  }
+                  view.animate().translationZ(0f).setDuration(150);
                   stopScheduledExecutors();
                   return true;
 
                 case MotionEvent.ACTION_UP:
                   view.setPressed(false);
-                  if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                    view.animate().translationZ(0f).setDuration(150);
-                  }
+                  view.animate().translationZ(0f).setDuration(150);
                   stopScheduledExecutors();
                   // If ACTION_UP up was not from a repetitive key or was with a
                   // key with a popup
@@ -624,56 +614,51 @@ public final class VirtualKeysView extends GridLayout {
    * Create Material Design 3 compliant background with rounded corners and proper states
    */
   private void createMaterialDesign3Background(Button button, boolean isSpecialButton) {
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-      // Create StateListDrawable for different button states
-      android.graphics.drawable.StateListDrawable stateListDrawable = 
-          new android.graphics.drawable.StateListDrawable();
-      
-      // Get theme colors
-      TypedValue typedValue = new TypedValue();
-      getContext().getTheme().resolveAttribute(android.R.attr.colorBackground, typedValue, true);
-      int surfaceColor = typedValue.data;
-      
-      getContext().getTheme().resolveAttribute(android.R.attr.colorAccent, typedValue, true);
-      int primaryColor = typedValue.data;
-      
-      getContext().getTheme().resolveAttribute(android.R.attr.textColorPrimary, typedValue, true);
-      int onSurfaceColor = typedValue.data;
-      
-      // Normal state drawable
-      android.graphics.drawable.GradientDrawable normalDrawable = 
-          new android.graphics.drawable.GradientDrawable();
-      normalDrawable.setShape(android.graphics.drawable.GradientDrawable.RECTANGLE);
-      normalDrawable.setCornerRadius(12f); // Material Design 3 corner radius
-      normalDrawable.setColor(isSpecialButton ? 
-          adjustColorAlpha(primaryColor, 0.12f) : 
-          adjustColorAlpha(surfaceColor, 0.08f));
-      normalDrawable.setStroke(1, adjustColorAlpha(onSurfaceColor, 0.12f));
-      
-      // Pressed state drawable
-      android.graphics.drawable.GradientDrawable pressedDrawable = 
-          new android.graphics.drawable.GradientDrawable();
-      pressedDrawable.setShape(android.graphics.drawable.GradientDrawable.RECTANGLE);
-      pressedDrawable.setCornerRadius(12f);
-      pressedDrawable.setColor(isSpecialButton ? 
-          adjustColorAlpha(primaryColor, 0.24f) : 
-          adjustColorAlpha(onSurfaceColor, 0.12f));
-      pressedDrawable.setStroke(1, adjustColorAlpha(primaryColor, 0.4f));
-      
-      // Add states to StateListDrawable
-      stateListDrawable.addState(new int[]{android.R.attr.state_pressed}, pressedDrawable);
-      stateListDrawable.addState(new int[]{android.R.attr.state_focused}, pressedDrawable);
-      stateListDrawable.addState(new int[]{}, normalDrawable);
-      
-      button.setBackground(stateListDrawable);
-      
-      // Add elevation for depth
-      button.setElevation(isSpecialButton ? 3f : 2f);
-      button.setStateListAnimator(null); // Remove default animator for custom control
-    } else {
-      // Fallback for older Android versions
-      createLegacyBackground(button, isSpecialButton);
-    }
+    // Create StateListDrawable for different button states (minSdk 24 > LOLLIPOP 21)
+    android.graphics.drawable.StateListDrawable stateListDrawable = 
+        new android.graphics.drawable.StateListDrawable();
+    
+    // Get theme colors
+    TypedValue typedValue = new TypedValue();
+    getContext().getTheme().resolveAttribute(android.R.attr.colorBackground, typedValue, true);
+    int surfaceColor = typedValue.data;
+    
+    getContext().getTheme().resolveAttribute(android.R.attr.colorAccent, typedValue, true);
+    int primaryColor = typedValue.data;
+    
+    getContext().getTheme().resolveAttribute(android.R.attr.textColorPrimary, typedValue, true);
+    int onSurfaceColor = typedValue.data;
+    
+    // Normal state drawable
+    android.graphics.drawable.GradientDrawable normalDrawable = 
+        new android.graphics.drawable.GradientDrawable();
+    normalDrawable.setShape(android.graphics.drawable.GradientDrawable.RECTANGLE);
+    normalDrawable.setCornerRadius(12f); // Material Design 3 corner radius
+    normalDrawable.setColor(isSpecialButton ? 
+        adjustColorAlpha(primaryColor, 0.12f) : 
+        adjustColorAlpha(surfaceColor, 0.08f));
+    normalDrawable.setStroke(1, adjustColorAlpha(onSurfaceColor, 0.12f));
+    
+    // Pressed state drawable
+    android.graphics.drawable.GradientDrawable pressedDrawable = 
+        new android.graphics.drawable.GradientDrawable();
+    pressedDrawable.setShape(android.graphics.drawable.GradientDrawable.RECTANGLE);
+    pressedDrawable.setCornerRadius(12f);
+    pressedDrawable.setColor(isSpecialButton ? 
+        adjustColorAlpha(primaryColor, 0.24f) : 
+        adjustColorAlpha(onSurfaceColor, 0.12f));
+    pressedDrawable.setStroke(1, adjustColorAlpha(primaryColor, 0.4f));
+    
+    // Add states to StateListDrawable
+    stateListDrawable.addState(new int[]{android.R.attr.state_pressed}, pressedDrawable);
+    stateListDrawable.addState(new int[]{android.R.attr.state_focused}, pressedDrawable);
+    stateListDrawable.addState(new int[]{}, normalDrawable);
+    
+    button.setBackground(stateListDrawable);
+    
+    // Add elevation for depth
+    button.setElevation(isSpecialButton ? 3f : 2f);
+    button.setStateListAnimator(null); // Remove default animator for custom control
   }
   
   /**

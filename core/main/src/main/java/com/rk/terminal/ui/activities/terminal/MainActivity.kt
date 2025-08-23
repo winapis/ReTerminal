@@ -151,8 +151,8 @@ class MainActivity : ComponentActivity() {
                     }
                 }
             }
-            // Android 6-10 (API 23-29) - Request runtime permissions
-            Build.VERSION.SDK_INT >= Build.VERSION_CODES.M -> {
+            // Android 6-10 (API 24-29) - Request runtime permissions (minSdk is 24)
+            else -> {
                 val permissions = arrayOf(
                     android.Manifest.permission.READ_EXTERNAL_STORAGE,
                     android.Manifest.permission.WRITE_EXTERNAL_STORAGE
@@ -163,10 +163,6 @@ class MainActivity : ComponentActivity() {
                 if (permissionsToRequest.isNotEmpty()) {
                     requestStoragePermissions.launch(permissionsToRequest.toTypedArray())
                 }
-            }
-            // Android 5.1 and below (API 22-) - Permissions granted at install time
-            else -> {
-                // No runtime permission request needed for older versions
             }
         }
     }

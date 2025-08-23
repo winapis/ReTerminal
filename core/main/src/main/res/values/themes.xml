@@ -4,13 +4,11 @@
         <item name="android:statusBarColor">@android:color/transparent</item>
         <item name="android:navigationBarColor">@android:color/transparent</item>
         <item name="android:windowLightStatusBar">true</item>
-        <item name="android:windowLightNavigationBar">true</item>
         <item name="windowNoTitle">true</item>
         <item name="windowActionBar">false</item>
 
         <item name="fontFamily">@font/outfit_regular</item>
         <item name="android:fontFamily">@font/outfit_regular</item>
-        <item name="android:forceDarkAllowed">false</item>
     </style>
 
     <style name="tab_text" parent="@android:style/TextAppearance.Widget.TabWidget">
@@ -76,13 +74,11 @@
         <item name="android:statusBarColor">@android:color/transparent</item>
         <item name="android:navigationBarColor">@android:color/transparent</item>
         <item name="android:windowLightStatusBar">true</item>
-        <item name="android:windowLightNavigationBar">true</item>
         <item name="windowNoTitle">true</item>
         <item name="windowActionBar">false</item>
 
         <item name="fontFamily">@font/outfit_regular</item>
         <item name="android:fontFamily">@font/outfit_regular</item>
-        <item name="android:forceDarkAllowed">false</item>
     </style>
     
     <style name="Theme.Karbon.Old.Monet" parent="Base.Theme.Karbon.Monet">

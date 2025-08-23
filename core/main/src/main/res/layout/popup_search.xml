@@ -3,41 +3,35 @@
     android:id="@+id/parent_popup"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:tag="keyRep">
 
-    <LinearLayout
+    <com.google.android.material.textfield.TextInputLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:tag="keyRep">
+        android:layout_marginLeft="22dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginRight="22dp"
+        android:hint="@string/search_term"
+        android:tag="keyword">
 
-        <com.google.android.material.textfield.TextInputLayout
+        <EditText
+            android:id="@+id/searchbox"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="22dp"
-            android:layout_marginTop="10dp"
-            android:layout_marginRight="22dp"
-            android:tag="keyword">
+            android:layout_height="match_parent"
+            android:paddingStart="8dp"
+            android:paddingEnd="5dp"
+            android:singleLine="true"
+            android:inputType="text" />
+    </com.google.android.material.textfield.TextInputLayout>
 
-            <EditText
-                android:id="@+id/searchbox"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:paddingStart="8dp"
-                android:paddingEnd="5dp"
-                android:singleLine="true" />
-        </com.google.android.material.textfield.TextInputLayout>
-
-        <CheckBox
-            android:id="@+id/case_senstive"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="22dp"
-            android:layout_marginTop="10dp"
-            android:layout_marginRight="22dp"
-            android:checked="false" />
-
-    </LinearLayout>
-
+    <CheckBox
+        android:id="@+id/case_senstive"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="22dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginRight="22dp"
+        android:checked="false" />
 
 </LinearLayout>

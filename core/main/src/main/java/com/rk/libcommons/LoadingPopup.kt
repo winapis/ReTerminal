@@ -3,6 +3,7 @@ package com.rk.libcommons
 import android.app.Activity
 import android.view.LayoutInflater
 import android.view.View
+import android.widget.FrameLayout
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -23,7 +24,9 @@ class LoadingPopup(private val ctx: Activity, hideAfterMillis: Long?,scope: Coro
     init {
         ctx.runOnUiThread {
             val inflater1: LayoutInflater = ctx.layoutInflater
-            dialogView = inflater1.inflate(R.layout.progress_dialog, null)
+            // Create a temporary parent for proper layout parameter resolution
+            val tempParent = FrameLayout(ctx)
+            dialogView = inflater1.inflate(R.layout.progress_dialog, tempParent, false)
             dialogView.findViewById<TextView>(R.id.progress_message).text = "Please wait..."
             dialog =
                 MaterialAlertDialogBuilder(ctx).setView(dialogView).setCancelable(false).create()

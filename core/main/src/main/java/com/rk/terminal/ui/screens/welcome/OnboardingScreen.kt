@@ -78,11 +78,9 @@ fun OnboardingScreen(
                         permissions.add(Manifest.permission.POST_NOTIFICATIONS)
                     }
                     
-                    // Add storage permissions for all versions
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                        permissions.add(Manifest.permission.READ_EXTERNAL_STORAGE)
-                        permissions.add(Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                    }
+                    // Add storage permissions (minSdk is 24, so this check is always true)
+                    permissions.add(Manifest.permission.READ_EXTERNAL_STORAGE)
+                    permissions.add(Manifest.permission.WRITE_EXTERNAL_STORAGE)
                     
                     if (permissions.isNotEmpty()) {
                         permissionLauncher.launch(permissions.toTypedArray())

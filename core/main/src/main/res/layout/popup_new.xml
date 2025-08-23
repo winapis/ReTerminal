@@ -3,13 +3,35 @@
     android:id="@+id/parent_popup"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:tag="keyRep">
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="22dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginRight="22dp"
+        android:hint="@string/file_name"
+        android:tag="keyword">
+
+        <EditText
+            android:id="@+id/name"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:paddingStart="8dp"
+            android:paddingEnd="5dp"
+            android:singleLine="true"
+            android:inputType="text" />
+    </com.google.android.material.textfield.TextInputLayout>
 
     <LinearLayout
+        android:id="@+id/mimeTypeEditor"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:tag="keyRep">
+        android:tag="keyRep"
+        android:visibility="gone">
 
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
@@ -17,46 +39,20 @@
             android:layout_marginLeft="22dp"
             android:layout_marginTop="10dp"
             android:layout_marginRight="22dp"
+            android:hint="@string/mime_type"
             android:tag="keyword">
 
             <EditText
-                android:id="@+id/name"
+                android:id="@+id/mime"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:paddingStart="8dp"
                 android:paddingEnd="5dp"
-                android:singleLine="true" />
+                android:singleLine="true"
+                android:inputType="text"
+                android:text="@string/default_mime_type" />
         </com.google.android.material.textfield.TextInputLayout>
 
-        <LinearLayout
-            android:id="@+id/mimeTypeEditor"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:tag="keyRep"
-            android:visibility="gone">
-
-            <com.google.android.material.textfield.TextInputLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="22dp"
-                android:layout_marginTop="10dp"
-                android:layout_marginRight="22dp"
-                android:tag="keyword">
-
-                <EditText
-                    android:id="@+id/mime"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:paddingStart="8dp"
-                    android:paddingEnd="5dp"
-                    android:singleLine="true"
-                    android:text="text/plain" />
-            </com.google.android.material.textfield.TextInputLayout>
-
-
-        </LinearLayout>
-
-
     </LinearLayout>
+
 </LinearLayout>

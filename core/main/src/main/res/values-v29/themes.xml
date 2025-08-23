@@ -1,0 +1,10 @@
+<resources>
+    <!-- API 29+ theme attributes for light theme -->
+    <style name="Base.Theme.Karbon" parent="Theme.Material3.Light.NoActionBar">
+        <item name="android:forceDarkAllowed">false</item>
+    </style>
+
+    <style name="Base.Theme.Karbon.Monet" parent="Theme.Material3.DynamicColors.Light">
+        <item name="android:forceDarkAllowed">false</item>
+    </style>
+</resources>
