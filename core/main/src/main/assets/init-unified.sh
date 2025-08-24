@@ -8,8 +8,16 @@ DISTRIBUTION_DIR=$PREFIX/local/distribution
 ROOT_ENABLED=${ROOT_ENABLED:-false}
 
 # Export standard environment variables
-export PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/share/bin:/usr/share/sbin:/usr/local/bin:/usr/local/sbin:/system/bin:/system/xbin
+#export PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/share/bin:/usr/share/sbin:/usr/local/bin:/usr/local/sbin:/system/bin:/system/xbin
+export bin=/system/bin
+export PATH=/usr/bin:/usr/sbin:/bin:/usr/local/bin:/usr/local/sbin:$bin:$PATH
+export TERM=xterm
 export HOME=/root
+export USER=root
+export LOGNAME=root
+export ANDROID_DATA=/data
+unset LD_PRELOAD
+unset PREFIX
 
 # Create necessary directories
 mkdir -p $DISTRIBUTION_DIR
@@ -80,38 +88,14 @@ log_message() {
 # Function to extract distribution using simple tar command
 extract_distribution() {
     log_message "Extracting $DISTRIBUTION_NAME rootfs from $ROOTFS_FILE..."
-    
-    # Simple tar extraction as requested by user - no complex exclusions
-    if ! tar xpvf "$PREFIX/files/$ROOTFS_FILE" --numeric-owner -C "$DISTRIBUTION_DIR" 2>/dev/null; then
-        echo "Error: Failed to extract rootfs from $PREFIX/files/$ROOTFS_FILE"
-        echo "File details:"
-        ls -la "$PREFIX/files/$ROOTFS_FILE" 2>/dev/null || echo "  - File not found"
-        echo "Available files in $PREFIX/files/:"
-        ls -la "$PREFIX/files/" 2>/dev/null
-        echo "Target directory status:"
-        ls -la "$DISTRIBUTION_DIR/" 2>/dev/null || echo "  - Directory not accessible"
-        exit 1
+
+    if [ "$ROOT_ENABLED" = "true" ]; then
+         su -c "tar -C $DISTRIBUTION_DIR -Jxvp --xattrs --strip-components=1 -f $PREFIX/files/$ROOTFS_FILE"
+    else
+         tar -C "$DISTRIBUTION_DIR" -Jxvp --xattrs --strip-components=1 -f "$PREFIX/files/$ROOTFS_FILE"
     fi
     
     # Verify distribution extraction created expected directory structure
-    log_message "Verifying distribution structure in $DISTRIBUTION_DIR..."
-    expected_dirs="bin etc usr var root home dev sys proc tmp"
-    missing_dirs=""
-    
-    for dir in $expected_dirs; do
-        if [ ! -d "$DISTRIBUTION_DIR/$dir" ]; then
-            missing_dirs="$missing_dirs $dir"
-        fi
-    done
-    
-    if [ -n "$missing_dirs" ]; then
-        log_message "Warning: Some expected directories are missing:$missing_dirs"
-        log_message "Creating missing critical directories..."
-        for dir in $missing_dirs; do
-            mkdir -p "$DISTRIBUTION_DIR/$dir" 2>/dev/null || true
-        done
-    fi
-    
     log_message "Successfully extracted $DISTRIBUTION_NAME rootfs to $DISTRIBUTION_DIR"
 }
 
@@ -173,28 +157,11 @@ if [ "$ROOT_ENABLED" = "true" ]; then
     log_message "Configuring root environment..."
     
     # Ensure critical directories exist before mounting
-    su -c "mkdir -p $DISTRIBUTION_DIR/dev/shm"
-    su -c "mkdir -p $DISTRIBUTION_DIR/dev/pts"
-    su -c "mkdir -p $DISTRIBUTION_DIR/tmp"
-    
-    su -c "busybox mount -o remount,dev,suid /data"
+    su -c "busybox mount -o remount,suid /data"
     su -c "busybox mount --bind /dev $DISTRIBUTION_DIR/dev"
     su -c "busybox mount --bind /sys $DISTRIBUTION_DIR/sys"
     su -c "busybox mount --bind /proc $DISTRIBUTION_DIR/proc"
-    su -c "busybox mount --bind /dev/pts $DISTRIBUTION_DIR/dev/pts"
-
-    # /dev/shm for Electron apps - ensure directory exists and has correct permissions
-    if [ -d "$DISTRIBUTION_DIR/dev/shm" ]; then
-        su -c "chmod 1777 $DISTRIBUTION_DIR/dev/shm"
-        su -c "busybox mount -t tmpfs -o size=256M tmpfs $DISTRIBUTION_DIR/dev/shm" || log_message "Warning: Could not mount tmpfs on /dev/shm"
-    else
-        log_message "Warning: Could not create /dev/shm directory"
-    fi
-
-    # Create necessary groups
-    su -c "chroot $DISTRIBUTION_DIR groupadd -g 3003 aid_inet" 2>/dev/null || true
-    su -c "chroot $DISTRIBUTION_DIR groupadd -g 3004 aid_net_raw" 2>/dev/null || true
-    su -c "chroot $DISTRIBUTION_DIR groupadd -g 1003 aid_graphics" 2>/dev/null || true
+    su -c "busybox mount -t devpts devpts $DISTRIBUTION_DIR/dev/pts"
 fi
 
 ## --- Boot logic ---
@@ -209,8 +176,8 @@ if [ "$ROOT_ENABLED" = "true" ]; then
     fi
     
     # Copy the distribution script into the chroot environment
-    cp "$PREFIX/local/bin/$INIT_SCRIPT" "$DISTRIBUTION_DIR/tmp/$INIT_SCRIPT"
-    chmod +x "$DISTRIBUTION_DIR/tmp/$INIT_SCRIPT"
+    su -c "cp $PREFIX/local/bin/$INIT_SCRIPT $DISTRIBUTION_DIR/root/$INIT_SCRIPT"
+    su -c "chmod +x $DISTRIBUTION_DIR/root/$INIT_SCRIPT"
     
     # Mount SDCard for root users
     if [ -d "/sdcard" ]; then
@@ -222,10 +189,10 @@ if [ "$ROOT_ENABLED" = "true" ]; then
     log_message "Starting $DISTRIBUTION_NAME environment with chroot (root mode)..."
     if [ "$#" -eq 0 ]; then
         # No arguments passed, run the distribution script for configuration then start shell
-        su -c "busybox chroot $DISTRIBUTION_DIR /tmp/$INIT_SCRIPT && /bin/su - root"
+        su -c "busybox chroot $DISTRIBUTION_DIR /bin/su - root"
     else
         # Arguments passed, run the distribution script then execute the command
-        su -c "busybox chroot $DISTRIBUTION_DIR /tmp/$INIT_SCRIPT '$@'"
+        su -c "busybox chroot $DISTRIBUTION_DIR /bin/sh /root/$INIT_SCRIPT"
     fi
 else
     # Setup proot arguments for non-root mode
